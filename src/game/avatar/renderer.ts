@@ -112,12 +112,6 @@ function ellipse(ctx: Ctx, x: number, y: number, rx: number, ry: number, rot = 0
   ctx.closePath();
 }
 
-function outline(ctx: Ctx, color: string, width = 1) {
-  ctx.strokeStyle = color;
-  ctx.lineWidth = width;
-  ctx.stroke();
-}
-
 /* --------------------------------- clothes -------------------------------- */
 
 function sleeveLength(top: string): number {
@@ -940,5 +934,3 @@ export function drawAvatarPortrait(
     scale,
   );
 }
-
-void outline;
