@@ -1,5 +1,7 @@
 import type { Theme } from "../content";
 import { TILE, type Decoration, type LevelMap } from "./levelgen";
+import { assets } from "../assets";
+import { drawSheetTile } from "./spriteRender";
 
 type Ctx = CanvasRenderingContext2D;
 
@@ -15,6 +17,44 @@ export function drawGround(ctx: Ctx, map: LevelMap, theme: Theme, view: View) {
   const y0 = Math.max(0, Math.floor(view.y / TILE) - 1);
   const x1 = Math.min(map.cols - 1, Math.ceil((view.x + view.w) / TILE) + 1);
   const y1 = Math.min(map.rows - 1, Math.ceil((view.y + view.h) / TILE) + 1);
+
+  const set = theme.tileset;
+  const useSprites = assets.get(set.floorSheet) !== null && assets.get(set.wallSheet) !== null;
+
+  if (useSprites) {
+    ctx.imageSmoothingEnabled = false;
+    for (let ty = y0; ty <= y1; ty++) {
+      for (let tx = x0; tx <= x1; tx++) {
+        const solid = map.tiles[ty * map.cols + tx] === 1;
+        const px = tx * TILE;
+        const py = ty * TILE;
+        const h = hash(tx, ty);
+        if (solid) {
+          const idx = set.wall[Math.floor(h * set.wall.length) % set.wall.length]!;
+          // floor underneath so wall sprites with transparency never show voids
+          drawSheetTile(ctx, set.floorSheet, set.floor[0]!, px, py, TILE + 1, TILE + 1);
+          drawSheetTile(ctx, set.wallSheet, idx, px, py, TILE + 1, TILE + 1);
+          const openBelow = ty + 1 < map.rows && map.tiles[(ty + 1) * map.cols + tx] === 0;
+          if (openBelow) {
+            ctx.fillStyle = "rgba(0,0,0,0.35)";
+            ctx.fillRect(px, py + TILE, TILE + 1, 10);
+          }
+        } else {
+          const idx = set.floor[Math.floor(h * set.floor.length) % set.floor.length]!;
+          drawSheetTile(ctx, set.floorSheet, idx, px, py, TILE + 1, TILE + 1);
+        }
+      }
+    }
+    if (set.tint && set.tintAlpha) {
+      ctx.save();
+      ctx.globalCompositeOperation = "overlay";
+      ctx.globalAlpha = set.tintAlpha;
+      ctx.fillStyle = set.tint;
+      ctx.fillRect(x0 * TILE, y0 * TILE, (x1 - x0 + 2) * TILE, (y1 - y0 + 2) * TILE);
+      ctx.restore();
+    }
+    return;
+  }
 
   for (let ty = y0; ty <= y1; ty++) {
     for (let tx = x0; tx <= x1; tx++) {
