@@ -3,6 +3,7 @@ import type { ResolvedAvatar } from "./avatar/options";
 import { ENEMIES, WEAPONS, type EnemyKind, type LevelDef, type WeaponId } from "./content";
 import { audio } from "./audio";
 import { drawEnemy } from "./systems/enemyRender";
+import { drawSheetSprite, setPixelated } from "./systems/spriteRender";
 import { generateLevel, hasLineOfSight, moveCircle, TILE, type LevelMap } from "./systems/levelgen";
 import { ParticleSystem } from "./systems/particles";
 import { InputManager } from "./systems/input";
@@ -223,6 +224,7 @@ export class GameEngine {
     this.viewW = rect.width / this.zoom;
     this.viewH = rect.height / this.zoom;
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    setPixelated(this.ctx);
   };
 
   /* -------------------------------- world -------------------------------- */
@@ -1125,6 +1127,11 @@ export class GameEngine {
     ctx.beginPath();
     ctx.ellipse(0, 0, 18, 6, 0, 0, Math.PI * 2);
     ctx.fill();
+    // Kenney crate sprite when the sheet is loaded
+    if (drawSheetSprite(ctx, "tiles", 105, 0, 0, 40, 1)) {
+      ctx.restore();
+      return;
+    }
     ctx.fillStyle = "#7d5a34";
     ctx.fillRect(-16, -30, 32, 30);
     ctx.fillStyle = "#96703f";
@@ -1151,6 +1158,10 @@ export class GameEngine {
     ctx.ellipse(0, 4 - bob, 10, 3.5, 0, 0, Math.PI * 2);
     ctx.fill();
     if (item.kind === "ammo") {
+      if (drawSheetSprite(ctx, "castle", 128, 0, 6 - bob, 30, 1)) {
+        ctx.restore();
+        return;
+      }
       ctx.fillStyle = "#c9a24a";
       ctx.fillRect(-9, -12, 18, 12);
       ctx.fillStyle = "#7a6127";
@@ -1159,6 +1170,10 @@ export class GameEngine {
       ctx.fillRect(-4, -9, 3, 7);
       ctx.fillRect(1, -9, 3, 7);
     } else if (item.kind === "medkit") {
+      if (drawSheetSprite(ctx, "castle", 114, 0, 6 - bob, 30, 1)) {
+        ctx.restore();
+        return;
+      }
       ctx.fillStyle = "#e8e3da";
       ctx.fillRect(-9, -12, 18, 12);
       ctx.fillStyle = "#c8434a";
