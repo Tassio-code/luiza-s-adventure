@@ -1,8 +1,28 @@
 /**
- * AudioManager — every sound is synthesized with the Web Audio API,
- * so there are no external assets to load or fail.
+ * AudioManager — plays the Kenney .ogg sample pack when available and
+ * falls back to fully synthesized Web Audio tones otherwise.
+ * Music is always generative.
  */
 type Ctor = typeof AudioContext;
+
+const SAMPLES = {
+  "shoot-a": "/sfx/shoot-a.ogg",
+  "shoot-c": "/sfx/shoot-c.ogg",
+  "shoot-e": "/sfx/shoot-e.ogg",
+  "shoot-g": "/sfx/shoot-g.ogg",
+  "hurt-a": "/sfx/hurt-a.ogg",
+  "hurt-c": "/sfx/hurt-c.ogg",
+  "explosion-a": "/sfx/explosion-a.ogg",
+  "explosion-c": "/sfx/explosion-c.ogg",
+  "coin-a": "/sfx/coin-a.ogg",
+  "select-a": "/sfx/select-a.ogg",
+  "lose-a": "/sfx/lose-a.ogg",
+  "error-a": "/sfx/error-a.ogg",
+  "jump-a": "/sfx/jump-a.ogg",
+  "move-a": "/sfx/move-a.ogg",
+} as const;
+
+type SampleName = keyof typeof SAMPLES;
 
 export class AudioManager {
   private ctx: AudioContext | null = null;
@@ -13,6 +33,8 @@ export class AudioManager {
   private volume = 0.7;
   private muted = false;
   private currentTrack: string | null = null;
+  private buffers = new Map<SampleName, AudioBuffer>();
+  private loading: Promise<void> | null = null;
 
   init() {
     if (this.ctx || typeof window === "undefined") return;
@@ -35,6 +57,44 @@ export class AudioManager {
   resume() {
     this.init();
     if (this.ctx && this.ctx.state === "suspended") void this.ctx.resume().catch(() => {});
+    void this.loadSamples();
+  }
+
+  /** Decodes the sample pack once; failures silently keep the synth fallback. */
+  loadSamples(): Promise<void> {
+    this.init();
+    if (this.loading) return this.loading;
+    const ctx = this.ctx;
+    if (!ctx) return Promise.resolve();
+    const names = Object.keys(SAMPLES) as SampleName[];
+    this.loading = Promise.all(
+      names.map(async (name) => {
+        try {
+          const res = await fetch(SAMPLES[name]);
+          if (!res.ok) return;
+          const buf = await ctx.decodeAudioData(await res.arrayBuffer());
+          this.buffers.set(name, buf);
+        } catch {
+          /* keep synth fallback */
+        }
+      }),
+    ).then(() => undefined);
+    return this.loading;
+  }
+
+  private sample(name: SampleName, gain = 0.8, rate = 1): boolean {
+    if (!this.ctx || !this.master) return false;
+    const buffer = this.buffers.get(name);
+    if (!buffer) return false;
+    const src = this.ctx.createBufferSource();
+    src.buffer = buffer;
+    src.playbackRate.value = rate;
+    const g = this.ctx.createGain();
+    g.gain.value = gain;
+    src.connect(g);
+    g.connect(this.master);
+    src.start();
+    return true;
   }
 
   setVolume(v: number) {
@@ -96,76 +156,95 @@ export class AudioManager {
   shoot(weapon: string) {
     switch (weapon) {
       case "shotgun":
+        if (this.sample("shoot-e", 0.75, 0.6)) {
+          this.sample("explosion-a", 0.28, 1.5);
+          return;
+        }
         this.noise(0.24, 0.5, 900, 180);
         this.tone(120, 0.16, "square", 0.16, 50);
         break;
       case "rifle":
+        if (this.sample("shoot-e", 0.5)) return;
         this.noise(0.1, 0.32, 1700, 500);
         this.tone(320, 0.07, "square", 0.1, 120);
         break;
       case "smg":
+        if (this.sample("shoot-g", 0.4, 1.15)) return;
         this.noise(0.06, 0.22, 2100, 700);
         break;
       case "dual":
+        if (this.sample("shoot-c", 0.5, 1.05)) return;
         this.noise(0.08, 0.26, 1500, 500);
         break;
       default:
+        if (this.sample("shoot-a", 0.55)) return;
         this.noise(0.1, 0.3, 1300, 400);
         this.tone(420, 0.06, "square", 0.09, 160);
     }
   }
 
   empty() {
+    if (this.sample("error-a", 0.5)) return;
     this.tone(1200, 0.05, "square", 0.05, 700);
   }
 
   hit() {
+    if (this.sample("hurt-c", 0.28, 1.25)) return;
     this.noise(0.08, 0.24, 2400, 900);
   }
 
   enemyDeath() {
+    if (this.sample("explosion-a", 0.45, 1.2)) return;
     this.tone(190, 0.28, "sawtooth", 0.16, 60);
     this.noise(0.2, 0.16, 700, 200);
   }
 
   playerHurt() {
+    if (this.sample("hurt-a", 0.7)) return;
     this.tone(150, 0.3, "triangle", 0.24, 70);
     this.noise(0.16, 0.18, 500, 160);
   }
 
   pickup() {
+    if (this.sample("coin-a", 0.6)) return;
     this.tone(660, 0.09, "triangle", 0.16);
     this.tone(990, 0.16, "triangle", 0.13);
   }
 
   heal() {
+    if (this.sample("jump-a", 0.55)) return;
     this.tone(520, 0.14, "sine", 0.18);
     this.tone(780, 0.22, "sine", 0.14);
   }
 
   fragment() {
+    this.sample("select-a", 0.7);
     [523, 659, 784, 1046].forEach((f, i) => {
       window.setTimeout(() => this.tone(f, 0.7, "sine", 0.18), i * 150);
     });
   }
 
   bossRoar() {
+    if (this.sample("explosion-c", 0.8, 0.5)) return;
     this.tone(70, 1.2, "sawtooth", 0.3, 40);
     this.noise(1.0, 0.22, 320, 90);
   }
 
   death() {
+    if (this.sample("lose-a", 0.7)) return;
     [330, 262, 196, 147].forEach((f, i) => {
       window.setTimeout(() => this.tone(f, 0.5, "triangle", 0.18), i * 180);
     });
   }
 
   firework() {
+    if (this.sample("explosion-c", 0.55, 0.9)) return;
     this.noise(0.6, 0.3, 1200, 200);
     this.tone(90, 0.4, "sine", 0.2, 40);
   }
 
   ui() {
+    if (this.sample("select-a", 0.35, 1.2)) return;
     this.tone(740, 0.05, "sine", 0.09);
   }
 
