@@ -207,7 +207,7 @@ export const LEVELS: LevelDef[] = [
       light: "rgba(190,230,150,0.16)",
       ambient: "#0d1a12",
       particle: "leaf",
-      tileset: { floorSheet: "tiles", floor: [114], wallBaseSheet: "tiles", wallBase: 140, wallSheet: "tiles", wall: [62, 80, 44, 45, 62, 80], tint: "#2f5a34", tintAlpha: 0.22 },
+      tileset: { floorSheet: "tiles", floor: [114], wallBaseSheet: "tiles", wallBase: 114, wallSheet: "tiles", wall: [62, 80, 44, 45, 62, 80], tint: "#2f5a34", tintAlpha: 0.22 },
     },
   },
   {
@@ -263,7 +263,7 @@ export const LEVELS: LevelDef[] = [
       light: "rgba(230,245,255,0.2)",
       ambient: "#a9c6dd",
       particle: "snow",
-      tileset: { floorSheet: "tiles", floor: [29, 119, 34, 29], wallBaseSheet: "tiles", wallBase: 140, wallSheet: "tiles", wall: [15, 16, 17], tint: "#dceeff", tintAlpha: 0.5, tintMode: "screen" },
+      tileset: { floorSheet: "tiles", floor: [29, 119, 34, 29], wallBaseSheet: "tiles", wallBase: 29, wallSheet: "tiles", wall: [15, 16, 17], tint: "#dceeff", tintAlpha: 0.5, tintMode: "screen" },
     },
   },
   {
