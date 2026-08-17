@@ -160,6 +160,7 @@ export type TileSet = {
   wall: number[];
   /** optional color wash applied over the tiles to unify the region palette */
   tint?: string;
+  tintMode?: GlobalCompositeOperation;
   tintAlpha?: number;
 };
 
@@ -262,7 +263,7 @@ export const LEVELS: LevelDef[] = [
       light: "rgba(230,245,255,0.2)",
       ambient: "#22303d",
       particle: "snow",
-      tileset: { floorSheet: "tiles", floor: [29, 119, 29, 34], wallBaseSheet: "tiles", wallBase: 140, wallSheet: "tiles", wall: [15, 16, 17], tint: "#e8f6ff", tintAlpha: 0.42 },
+      tileset: { floorSheet: "tiles", floor: [29, 119, 29, 34], wallBaseSheet: "tiles", wallBase: 140, wallSheet: "tiles", wall: [15, 16, 17], tint: "#dceeff", tintAlpha: 0.5, tintMode: "screen" },
     },
   },
   {

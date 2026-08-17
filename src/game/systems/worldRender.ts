@@ -50,7 +50,7 @@ export function drawGround(ctx: Ctx, map: LevelMap, theme: Theme, view: View) {
     }
     if (set.tint && set.tintAlpha) {
       ctx.save();
-      ctx.globalCompositeOperation = "overlay";
+      ctx.globalCompositeOperation = set.tintMode ?? "overlay";
       ctx.globalAlpha = set.tintAlpha;
       ctx.fillStyle = set.tint;
       ctx.fillRect(x0 * TILE, y0 * TILE, (x1 - x0 + 2) * TILE, (y1 - y0 + 2) * TILE);
