@@ -184,7 +184,7 @@ export class AudioManager {
       boss: [146.8, 155.6, 146.8, 138.6, 116.5, 138.6, 146.8, 155.6],
       ending: [261.6, 329.6, 392, 523.3, 659.3, 523.3, 392, 329.6],
     };
-    const scale = scales[track];
+    const scale = scales[track] ?? scales['menu'] ?? [220];
     const interval = track === "boss" ? 260 : track === "ending" ? 520 : 400;
     this.musicStep = 0;
     const tick = () => {

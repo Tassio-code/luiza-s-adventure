@@ -160,9 +160,8 @@ export const DEFAULT_AVATAR: AvatarConfig = {
 };
 
 function pick<T extends { id: string }>(list: T[], id: string, fallbackId: string): T {
-  return (
-    list.find((item) => item.id === id) ?? list.find((item) => item.id === fallbackId) ?? list[0]
-  );
+  const found = list.find((item) => item.id === id) ?? list.find((item) => item.id === fallbackId);
+  return (found ?? list[0]) as T;
 }
 
 /** Resolves a (possibly stale/partial) config into safe, renderable values. */
