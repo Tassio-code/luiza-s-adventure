@@ -3,6 +3,7 @@ import { GameEngine, type HudState } from "@/game/engine";
 import { resolveAvatar, type AvatarConfig } from "@/game/avatar/options";
 import { audio } from "@/game/audio";
 import { LEVELS, WEAPONS } from "@/game/content";
+import { assets } from "@/game/assets";
 import { Button } from "@/components/ui/button";
 
 function Stick({
@@ -86,9 +87,20 @@ export function LevelScene({
   const [dead, setDead] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const [touch, setTouch] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     setTouch(typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    void assets.load().then(() => {
+      if (!cancelled) setLoaded(true);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const showToast = useCallback((text: string) => {
@@ -102,7 +114,7 @@ export function LevelScene({
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas || !level) return;
+    if (!canvas || !level || !loaded) return;
     audio.resume();
     audio.playMusic("level");
     let engine: GameEngine | null = null;
@@ -130,7 +142,7 @@ export function LevelScene({
       engineRef.current = null;
       audio.stopMusic();
     };
-  }, [attempt, avatar, level, onComplete, showToast]);
+  }, [attempt, avatar, level, loaded, onComplete, showToast]);
 
   useEffect(() => {
     engineRef.current?.setPaused(paused || dead);
@@ -142,6 +154,12 @@ export function LevelScene({
   return (
     <div className="relative h-screen w-full overflow-hidden bg-background">
       <canvas ref={canvasRef} className="h-full w-full touch-none" />
+
+      {!loaded && (
+        <div className="absolute inset-0 flex items-center justify-center bg-ink/90">
+          <p className="text-sm uppercase tracking-widest text-primary">Carregando {level.region}…</p>
+        </div>
+      )}
 
       {/* HUD */}
       <div className="pointer-events-none absolute inset-x-0 top-0 flex flex-col gap-2 p-4">

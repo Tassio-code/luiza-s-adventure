@@ -1,4 +1,5 @@
 import type { WeaponVisual } from "./avatar/renderer";
+import type { SheetKey } from "./assets";
 
 export type WeaponId = "pistol" | "dual" | "rifle" | "shotgun" | "smg";
 
@@ -144,6 +145,23 @@ export type Theme = {
   light: string;
   ambient: string;
   particle: "leaf" | "dust" | "snow" | "sand" | "ash";
+  /** Kenney packed-tilemap indices used to paint the floor/walls of this region. */
+  tileset: TileSet;
+};
+
+export type TileSet = {
+  floorSheet: SheetKey;
+  floor: number[];
+  /** solid tile painted under every wall cell */
+  wallBaseSheet: SheetKey;
+  wallBase: number;
+  /** sprites layered on top of the wall base for silhouette variety */
+  wallSheet: SheetKey;
+  wall: number[];
+  /** optional color wash applied over the tiles to unify the region palette */
+  tint?: string;
+  tintMode?: GlobalCompositeOperation;
+  tintAlpha?: number;
 };
 
 export type LevelDef = {
@@ -189,6 +207,7 @@ export const LEVELS: LevelDef[] = [
       light: "rgba(190,230,150,0.16)",
       ambient: "#0d1a12",
       particle: "leaf",
+      tileset: { floorSheet: "tiles", floor: [114], wallBaseSheet: "tiles", wallBase: 140, wallSheet: "tiles", wall: [62, 80, 44, 45, 62, 80], tint: "#2f5a34", tintAlpha: 0.22 },
     },
   },
   {
@@ -216,6 +235,7 @@ export const LEVELS: LevelDef[] = [
       light: "rgba(255,205,130,0.14)",
       ambient: "#12131b",
       particle: "dust",
+      tileset: { floorSheet: "city", floor: [121, 289, 121, 131], wallBaseSheet: "tiles", wallBase: 70, wallSheet: "tiles", wall: [15, 16, 17], tint: "#2a2c3a", tintAlpha: 0.2 },
     },
   },
   {
@@ -241,8 +261,9 @@ export const LEVELS: LevelDef[] = [
       detail: "#6fa8c9",
       fog: "rgba(200,220,240,0.55)",
       light: "rgba(230,245,255,0.2)",
-      ambient: "#22303d",
+      ambient: "#a9c6dd",
       particle: "snow",
+      tileset: { floorSheet: "tiles", floor: [29, 119, 34, 29], wallBaseSheet: "tiles", wallBase: 140, wallSheet: "tiles", wall: [15, 16, 17], tint: "#dceeff", tintAlpha: 0.5, tintMode: "screen" },
     },
   },
   {
@@ -270,6 +291,7 @@ export const LEVELS: LevelDef[] = [
       light: "rgba(255,225,160,0.18)",
       ambient: "#3a2a17",
       particle: "sand",
+      tileset: { floorSheet: "tiles", floor: [173], wallBaseSheet: "tiles", wallBase: 70, wallSheet: "tiles", wall: [15, 16, 63, 81], tint: "#c79a4f", tintAlpha: 0.3 },
     },
   },
   {
@@ -297,6 +319,7 @@ export const LEVELS: LevelDef[] = [
       light: "rgba(255,120,120,0.16)",
       ambient: "#150c13",
       particle: "ash",
+      tileset: { floorSheet: "castle", floor: [48, 50, 52, 53], wallBaseSheet: "castle", wallBase: 0, wallSheet: "castle", wall: [57, 58, 59], tint: "#3d1524", tintAlpha: 0.28 },
     },
   },
 ];

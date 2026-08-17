@@ -1,11 +1,82 @@
 import type { EnemyKind } from "../content";
+import type { SheetKey } from "../assets";
+import { drawSheetSprite } from "./spriteRender";
 
 type Ctx = CanvasRenderingContext2D;
+
+/** Which packed sprite row (4 frames each) represents every enemy kind. */
+const SPRITE: Record<EnemyKind, { sheet: SheetKey; row: number; size: number }> = {
+  frost: { sheet: "enemies", row: 0, size: 46 },
+  zombie: { sheet: "enemies", row: 1, size: 46 },
+  skeleton: { sheet: "enemies", row: 2, size: 46 },
+  orc: { sheet: "enemies", row: 3, size: 50 },
+  vampire: { sheet: "players", row: 2, size: 48 },
+  boss: { sheet: "enemies", row: 3, size: 132 },
+};
 
 function ellipse(ctx: Ctx, x: number, y: number, rx: number, ry: number, rot = 0) {
   ctx.beginPath();
   ctx.ellipse(x, y, Math.abs(rx), Math.abs(ry), rot, 0, Math.PI * 2);
   ctx.closePath();
+}
+
+/** Pixel-art sprite pass. Returns false when the sheet is not loaded yet. */
+function drawEnemySprite(
+  ctx: Ctx,
+  kind: EnemyKind,
+  time: number,
+  facing: 1 | -1,
+  hurt: number,
+  scale: number,
+  x: number,
+  y: number,
+  charging: boolean,
+): boolean {
+  const def = SPRITE[kind];
+  const isBoss = kind === "boss";
+  const size = def.size * scale;
+  const frame = Math.floor(time * 7) % 2;
+  const bob = Math.abs(Math.sin(time * 7)) * (isBoss ? 4 : 2);
+
+  ctx.save();
+  ctx.imageSmoothingEnabled = false;
+
+  // ground shadow
+  ctx.fillStyle = "rgba(0,0,0,0.34)";
+  ellipse(ctx, x, y, size * 0.3, size * 0.11);
+  ctx.fill();
+
+  if (isBoss) {
+    ctx.save();
+    ctx.globalCompositeOperation = "screen";
+    const g = ctx.createRadialGradient(x, y - size * 0.5, 4, x, y - size * 0.5, size * 0.85);
+    g.addColorStop(0, charging ? "rgba(255,210,110,0.55)" : "rgba(220,40,70,0.45)");
+    g.addColorStop(1, "rgba(120,0,30,0)");
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(x, y - size * 0.5, size * 0.85, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  const ok = drawSheetSprite(ctx, def.sheet, def.row * 4 + frame, x, y - bob, size, facing);
+  if (!ok) {
+    ctx.restore();
+    return false;
+  }
+
+  if (hurt > 0) {
+    ctx.save();
+    ctx.globalCompositeOperation = "screen";
+    ctx.globalAlpha = Math.min(0.55, hurt);
+    ctx.fillStyle = "#ff6b5e";
+    ellipse(ctx, x, y - size * 0.45, size * 0.34, size * 0.45);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  ctx.restore();
+  return true;
 }
 
 /**
@@ -23,6 +94,8 @@ export function drawEnemy(
   y: number,
   charging = false,
 ) {
+  if (drawEnemySprite(ctx, kind, time, facing, hurt, scale, x, y, charging)) return;
+
   const walk = Math.sin(time * 7);
   ctx.save();
   ctx.translate(x, y);
