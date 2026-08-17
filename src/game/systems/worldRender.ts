@@ -19,7 +19,10 @@ export function drawGround(ctx: Ctx, map: LevelMap, theme: Theme, view: View) {
   const y1 = Math.min(map.rows - 1, Math.ceil((view.y + view.h) / TILE) + 1);
 
   const set = theme.tileset;
-  const useSprites = assets.get(set.floorSheet) !== null && assets.get(set.wallSheet) !== null;
+  const useSprites =
+    assets.get(set.floorSheet) !== null &&
+    assets.get(set.wallSheet) !== null &&
+    assets.get(set.wallBaseSheet) !== null;
 
   if (useSprites) {
     ctx.imageSmoothingEnabled = false;
@@ -31,9 +34,9 @@ export function drawGround(ctx: Ctx, map: LevelMap, theme: Theme, view: View) {
         const h = hash(tx, ty);
         if (solid) {
           const idx = set.wall[Math.floor(h * set.wall.length) % set.wall.length]!;
-          // floor underneath so wall sprites with transparency never show voids
-          drawSheetTile(ctx, set.floorSheet, set.floor[0]!, px, py, TILE + 1, TILE + 1);
-          drawSheetTile(ctx, set.wallSheet, idx, px, py, TILE + 1, TILE + 1);
+          // opaque base first, then the wall sprite (which has transparent corners)
+          drawSheetTile(ctx, set.wallBaseSheet, set.wallBase, px, py, TILE + 1, TILE + 1);
+          drawSheetTile(ctx, set.wallSheet, idx, px - 2, py - 6, TILE + 5, TILE + 5);
           const openBelow = ty + 1 < map.rows && map.tiles[(ty + 1) * map.cols + tx] === 0;
           if (openBelow) {
             ctx.fillStyle = "rgba(0,0,0,0.35)";
