@@ -140,7 +140,7 @@ export class GameEngine {
 
   private spawned = 0;
   private killed = 0;
-  private spawnTimer = 2;
+  private spawnTimer = 0.8;
   private phase: HudState["phase"] = "clear";
   private lastHudKey = "";
   private completeTimer = -1;
@@ -248,13 +248,13 @@ export class GameEngine {
           loot: this.rng() < 0.65 ? "ammo" : "medkit",
         });
       }
-      if (this.rng() < 0.5) {
+      if (this.rng() < 0.85) {
         this.pickups.push({
           active: true,
           kind: "ammo",
           x: cx + rand(this.rng, -70, 70),
           y: cy + rand(this.rng, -60, 60),
-          amount: randInt(this.rng, 6, 14),
+          amount: randInt(this.rng, 14, 26),
           bob: this.rng() * 6,
         });
       }
@@ -627,7 +627,7 @@ export class GameEngine {
     this.killed++;
     const roll = this.rng();
     if (roll < 0.3) {
-      this.pickups.push({ active: true, kind: "ammo", x: e.x, y: e.y, amount: randInt(this.rng, 4, 9), bob: 0 });
+      this.pickups.push({ active: true, kind: "ammo", x: e.x, y: e.y, amount: randInt(this.rng, 8, 16), bob: 0 });
     } else if (roll < 0.38) {
       this.pickups.push({ active: true, kind: "medkit", x: e.x, y: e.y, amount: 1, bob: 0 });
     }
@@ -810,7 +810,7 @@ export class GameEngine {
           }
           if (next === "summon") {
             const before = this.enemies.length;
-            for (let i = 0; i < 3; i++) this.spawnEnemy(this.level.enemy);
+            for (let i = 0; i < 6; i++) this.spawnEnemy(this.level.enemy);
             if (this.enemies.length > before) this.callbacks.onToast("Ele chamou reforços!");
           }
         }
@@ -900,12 +900,15 @@ export class GameEngine {
 
   private updateWaves(dt: number) {
     if (this.phase !== "clear") return;
-    const aliveCap = this.level.waveSize + Math.floor(this.level.index / 2);
+    const aliveCap = this.level.waveSize + this.level.index;
     this.spawnTimer -= dt;
     if (this.spawned < this.level.enemyCount && this.enemies.length < aliveCap && this.spawnTimer <= 0) {
-      this.spawnTimer = 1.1;
-      this.spawnEnemy(this.level.enemy);
-      this.spawned++;
+      this.spawnTimer = 0.45;
+      const burst = 1 + Math.min(2, Math.floor(this.level.index / 2));
+      for (let i = 0; i < burst && this.spawned < this.level.enemyCount && this.enemies.length < aliveCap; i++) {
+        this.spawnEnemy(this.level.enemy);
+        this.spawned++;
+      }
     }
     if (this.killed >= this.level.enemyCount && this.enemies.length === 0) {
       if (this.level.hasBoss) this.spawnBoss();
