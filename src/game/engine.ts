@@ -626,9 +626,17 @@ export class GameEngine {
     }
     this.killed++;
     const roll = this.rng();
-    if (roll < 0.3) {
-      this.pickups.push({ active: true, kind: "ammo", x: e.x, y: e.y, amount: randInt(this.rng, 8, 16), bob: 0 });
-    } else if (roll < 0.38) {
+    const lastLevel = this.level.index === 4;
+    if (roll < (lastLevel ? 0.6 : 0.3)) {
+      this.pickups.push({
+        active: true,
+        kind: "ammo",
+        x: e.x,
+        y: e.y,
+        amount: lastLevel ? randInt(this.rng, 24, 40) : randInt(this.rng, 8, 16),
+        bob: 0,
+      });
+    } else if (roll < (lastLevel ? 0.7 : 0.38)) {
       this.pickups.push({ active: true, kind: "medkit", x: e.x, y: e.y, amount: 1, bob: 0 });
     }
   }
