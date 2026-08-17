@@ -13,10 +13,14 @@ function hash(x: number, y: number) {
 }
 
 export function drawGround(ctx: Ctx, map: LevelMap, theme: Theme, view: View) {
-  const x0 = Math.max(0, Math.floor(view.x / TILE) - 1);
-  const y0 = Math.max(0, Math.floor(view.y / TILE) - 1);
-  const x1 = Math.min(map.cols - 1, Math.ceil((view.x + view.w) / TILE) + 1);
-  const y1 = Math.min(map.rows - 1, Math.ceil((view.y + view.h) / TILE) + 1);
+  const x0 = Math.floor(view.x / TILE) - 1;
+  const y0 = Math.floor(view.y / TILE) - 1;
+  const x1 = Math.ceil((view.x + view.w) / TILE) + 1;
+  const y1 = Math.ceil((view.y + view.h) / TILE) + 1;
+  const isSolid = (tx: number, ty: number) => {
+    if (tx < 0 || ty < 0 || tx >= map.cols || ty >= map.rows) return true;
+    return map.tiles[ty * map.cols + tx] === 1;
+  };
 
   const set = theme.tileset;
   const useSprites =
@@ -28,7 +32,7 @@ export function drawGround(ctx: Ctx, map: LevelMap, theme: Theme, view: View) {
     ctx.imageSmoothingEnabled = false;
     for (let ty = y0; ty <= y1; ty++) {
       for (let tx = x0; tx <= x1; tx++) {
-        const solid = map.tiles[ty * map.cols + tx] === 1;
+        const solid = isSolid(tx, ty);
         const px = tx * TILE;
         const py = ty * TILE;
         const h = hash(tx, ty);
@@ -37,7 +41,7 @@ export function drawGround(ctx: Ctx, map: LevelMap, theme: Theme, view: View) {
           // opaque base first, then the wall sprite (which has transparent corners)
           drawSheetTile(ctx, set.wallBaseSheet, set.wallBase, px, py, TILE + 1, TILE + 1);
           drawSheetTile(ctx, set.wallSheet, idx, px - 2, py - 6, TILE + 5, TILE + 5);
-          const openBelow = ty + 1 < map.rows && map.tiles[(ty + 1) * map.cols + tx] === 0;
+          const openBelow = !isSolid(tx, ty + 1);
           if (openBelow) {
             ctx.fillStyle = "rgba(0,0,0,0.35)";
             ctx.fillRect(px, py + TILE, TILE + 1, 10);
@@ -61,12 +65,12 @@ export function drawGround(ctx: Ctx, map: LevelMap, theme: Theme, view: View) {
 
   for (let ty = y0; ty <= y1; ty++) {
     for (let tx = x0; tx <= x1; tx++) {
-      const solid = map.tiles[ty * map.cols + tx] === 1;
+      const solid = isSolid(tx, ty);
       const px = tx * TILE;
       const py = ty * TILE;
       const h = hash(tx, ty);
       if (solid) {
-        const openBelow = ty + 1 < map.rows && map.tiles[(ty + 1) * map.cols + tx] === 0;
+        const openBelow = !isSolid(tx, ty + 1);
         ctx.fillStyle = theme.wall;
         ctx.fillRect(px, py, TILE + 1, TILE + 1);
         ctx.fillStyle = h > 0.7 ? theme.wallTop : theme.wall;
