@@ -2,7 +2,7 @@
  * Asset manager for the Kenney pixel-art packs (CC0).
  * Every sheet is a packed tilemap: sprites are addressed by linear index.
  */
-export type SheetKey = "tiles" | "enemies" | "players" | "castle" | "city" | "weapons";
+export type SheetKey = "tiles" | "enemies" | "players" | "castle" | "city" | "weapons" | "ui";
 
 export type SheetDef = { src: string; tile: number; cols: number };
 
@@ -13,6 +13,7 @@ export const SHEETS: Record<SheetKey, SheetDef> = {
   castle: { src: "/sprites/castle.png", tile: 16, cols: 12 },
   city: { src: "/sprites/city.png", tile: 8, cols: 24 },
   weapons: { src: "/sprites/weapons.png", tile: 24, cols: 10 },
+  ui: { src: "/sprites/ui.png", tile: 16, cols: 18 },
 };
 
 class AssetManager {

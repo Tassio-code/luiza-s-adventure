@@ -152,6 +152,10 @@ export type Theme = {
 export type TileSet = {
   floorSheet: SheetKey;
   floor: number[];
+  /** solid tile painted under every wall cell */
+  wallBaseSheet: SheetKey;
+  wallBase: number;
+  /** sprites layered on top of the wall base for silhouette variety */
   wallSheet: SheetKey;
   wall: number[];
   /** optional color wash applied over the tiles to unify the region palette */
@@ -202,7 +206,7 @@ export const LEVELS: LevelDef[] = [
       light: "rgba(190,230,150,0.16)",
       ambient: "#0d1a12",
       particle: "leaf",
-      tileset: { floorSheet: "tiles", floor: [23, 24, 25, 23, 41], wallSheet: "tiles", wall: [105, 106, 107, 141, 142, 143], tint: "#2f5a34", tintAlpha: 0.3 },
+      tileset: { floorSheet: "tiles", floor: [114], wallBaseSheet: "tiles", wallBase: 140, wallSheet: "tiles", wall: [62, 80, 44, 45, 62, 80], tint: "#2f5a34", tintAlpha: 0.22 },
     },
   },
   {
@@ -230,7 +234,7 @@ export const LEVELS: LevelDef[] = [
       light: "rgba(255,205,130,0.14)",
       ambient: "#12131b",
       particle: "dust",
-      tileset: { floorSheet: "city", floor: [264, 265, 266, 288, 289, 290], wallSheet: "tiles", wall: [15, 16, 17, 33, 34, 35], tint: "#2a2c3a", tintAlpha: 0.22 },
+      tileset: { floorSheet: "city", floor: [121, 289, 121, 131], wallBaseSheet: "tiles", wallBase: 70, wallSheet: "tiles", wall: [15, 16, 17], tint: "#2a2c3a", tintAlpha: 0.2 },
     },
   },
   {
@@ -258,7 +262,7 @@ export const LEVELS: LevelDef[] = [
       light: "rgba(230,245,255,0.2)",
       ambient: "#22303d",
       particle: "snow",
-      tileset: { floorSheet: "tiles", floor: [90, 91, 92, 108, 109, 110, 126, 127, 128], wallSheet: "tiles", wall: [69, 70, 71, 87, 88, 89], tint: "#dcecff", tintAlpha: 0.4 },
+      tileset: { floorSheet: "tiles", floor: [64], wallBaseSheet: "tiles", wallBase: 29, wallSheet: "tiles", wall: [15, 16, 17], tint: "#cfe6ff", tintAlpha: 0.45 },
     },
   },
   {
@@ -286,7 +290,7 @@ export const LEVELS: LevelDef[] = [
       light: "rgba(255,225,160,0.18)",
       ambient: "#3a2a17",
       particle: "sand",
-      tileset: { floorSheet: "tiles", floor: [54, 55, 56, 72, 73, 74, 172, 173, 174], wallSheet: "tiles", wall: [69, 70, 71, 87, 88, 89], tint: "#c79a4f", tintAlpha: 0.3 },
+      tileset: { floorSheet: "tiles", floor: [173], wallBaseSheet: "tiles", wallBase: 70, wallSheet: "tiles", wall: [15, 16, 63, 81], tint: "#c79a4f", tintAlpha: 0.3 },
     },
   },
   {
@@ -314,7 +318,7 @@ export const LEVELS: LevelDef[] = [
       light: "rgba(255,120,120,0.16)",
       ambient: "#150c13",
       particle: "ash",
-      tileset: { floorSheet: "castle", floor: [48, 49, 50, 51, 52, 53], wallSheet: "castle", wall: [57, 58, 59, 14, 15, 26], tint: "#3d1524", tintAlpha: 0.3 },
+      tileset: { floorSheet: "castle", floor: [48, 50, 52, 53], wallBaseSheet: "castle", wallBase: 0, wallSheet: "castle", wall: [57, 58, 59], tint: "#3d1524", tintAlpha: 0.28 },
     },
   },
 ];
