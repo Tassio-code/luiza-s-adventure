@@ -1127,8 +1127,8 @@ export class GameEngine {
     ctx.beginPath();
     ctx.ellipse(0, 0, 18, 6, 0, 0, Math.PI * 2);
     ctx.fill();
-    // Kenney crate sprite when the sheet is loaded
-    if (drawSheetSprite(ctx, "tiles", 105, 0, 0, 40, 1)) {
+    // Kenney chest sprite when the sheet is loaded
+    if (drawSheetSprite(ctx, "castle", 89, 0, 4, 42, 1)) {
       ctx.restore();
       return;
     }
@@ -1158,7 +1158,7 @@ export class GameEngine {
     ctx.ellipse(0, 4 - bob, 10, 3.5, 0, 0, Math.PI * 2);
     ctx.fill();
     if (item.kind === "ammo") {
-      if (drawSheetSprite(ctx, "castle", 128, 0, 6 - bob, 30, 1)) {
+      if (drawSheetSprite(ctx, "ui", 76, 0, 2 - bob, 24, 1)) {
         ctx.restore();
         return;
       }
@@ -1170,7 +1170,7 @@ export class GameEngine {
       ctx.fillRect(-4, -9, 3, 7);
       ctx.fillRect(1, -9, 3, 7);
     } else if (item.kind === "medkit") {
-      if (drawSheetSprite(ctx, "castle", 114, 0, 6 - bob, 30, 1)) {
+      if (drawSheetSprite(ctx, "ui", 56, 0, 2 - bob, 26, 1)) {
         ctx.restore();
         return;
       }
