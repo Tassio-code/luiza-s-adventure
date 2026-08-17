@@ -291,7 +291,7 @@ export const LEVELS: LevelDef[] = [
       light: "rgba(255,225,160,0.18)",
       ambient: "#3a2a17",
       particle: "sand",
-      tileset: { floorSheet: "tiles", floor: [173], wallBaseSheet: "tiles", wallBase: 70, wallSheet: "tiles", wall: [15, 16, 63, 81], tint: "#c79a4f", tintAlpha: 0.3 },
+      tileset: { floorSheet: "tiles", floor: [173], wallBaseSheet: "tiles", wallBase: 173, wallSheet: "tiles", wall: [15, 16, 63, 81], tint: "#c79a4f", tintAlpha: 0.3 },
     },
   },
   {
