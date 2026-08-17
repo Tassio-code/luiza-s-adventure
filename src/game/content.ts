@@ -1,4 +1,5 @@
 import type { WeaponVisual } from "./avatar/renderer";
+import type { SheetKey } from "./assets";
 
 export type WeaponId = "pistol" | "dual" | "rifle" | "shotgun" | "smg";
 
@@ -144,6 +145,18 @@ export type Theme = {
   light: string;
   ambient: string;
   particle: "leaf" | "dust" | "snow" | "sand" | "ash";
+  /** Kenney packed-tilemap indices used to paint the floor/walls of this region. */
+  tileset: TileSet;
+};
+
+export type TileSet = {
+  floorSheet: SheetKey;
+  floor: number[];
+  wallSheet: SheetKey;
+  wall: number[];
+  /** optional color wash applied over the tiles to unify the region palette */
+  tint?: string;
+  tintAlpha?: number;
 };
 
 export type LevelDef = {
