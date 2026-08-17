@@ -261,9 +261,9 @@ export const LEVELS: LevelDef[] = [
       detail: "#6fa8c9",
       fog: "rgba(200,220,240,0.55)",
       light: "rgba(230,245,255,0.2)",
-      ambient: "#22303d",
+      ambient: "#a9c6dd",
       particle: "snow",
-      tileset: { floorSheet: "tiles", floor: [29, 119, 29, 34], wallBaseSheet: "tiles", wallBase: 140, wallSheet: "tiles", wall: [15, 16, 17], tint: "#dceeff", tintAlpha: 0.5, tintMode: "screen" },
+      tileset: { floorSheet: "tiles", floor: [29, 119, 34, 29], wallBaseSheet: "tiles", wallBase: 140, wallSheet: "tiles", wall: [15, 16, 17], tint: "#dceeff", tintAlpha: 0.5, tintMode: "screen" },
     },
   },
   {
