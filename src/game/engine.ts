@@ -34,6 +34,8 @@ export type EngineCallbacks = {
   onToast: (text: string) => void;
 };
 
+type BossState = "approach" | "radial" | "volley" | "charge" | "summon" | "vulnerable";
+
 type Bullet = {
   active: boolean;
   x: number;
@@ -65,7 +67,7 @@ type Enemy = {
   attackCooldown: number;
   // boss only
   boss?: {
-    state: "approach" | "radial" | "volley" | "charge" | "summon" | "vulnerable";
+    state: BossState;
     timer: number;
     nextAttack: number;
     chargeVX: number;
@@ -777,33 +779,34 @@ export class GameEngine {
         if (dist > 200) move(ENEMIES.boss.speed);
         else if (dist < 130) move(-ENEMIES.boss.speed * 0.6);
         if (st.timer <= 0) {
-          const options: Array<typeof st.state> =
+          const options: BossState[] =
             st.phase === 1
               ? ["radial", "volley", "charge"]
               : st.phase === 2
                 ? ["radial", "charge", "summon", "volley"]
                 : ["radial", "radial", "charge", "volley", "summon"];
-          st.state = options[randInt(this.rng, 0, options.length - 1)];
-          st.timer = st.state === "charge" ? 0.85 : 0.6;
-          if (st.state === "charge") {
+          const next = options[randInt(this.rng, 0, options.length - 1)] ?? "radial";
+          st.state = next;
+          st.timer = next === "charge" ? 0.85 : 0.6;
+          if (next === "charge") {
             st.chargeVX = (dx / dist) * 460;
             st.chargeVY = (dy / dist) * 460;
             this.callbacks.onToast("Ele vai avançar!");
           }
-          if (st.state === "radial") {
+          if (next === "radial") {
             const count = st.phase === 3 ? 18 : 12;
             for (let i = 0; i < count; i++) {
               this.enemyShoot(boss, 210, ENEMIES.boss.damage * 0.55, (i / count) * Math.PI * 2);
             }
             audio.bossRoar();
           }
-          if (st.state === "volley") {
+          if (next === "volley") {
             for (let i = -2; i <= 2; i++) {
               const base = Math.atan2(p.y - 26 - (boss.y - 48), p.x - boss.x);
               this.enemyShoot(boss, 300, ENEMIES.boss.damage * 0.5, base + i * 0.16);
             }
           }
-          if (st.state === "summon") {
+          if (next === "summon") {
             const before = this.enemies.length;
             for (let i = 0; i < 3; i++) this.spawnEnemy(this.level.enemy);
             if (this.enemies.length > before) this.callbacks.onToast("Ele chamou reforços!");
