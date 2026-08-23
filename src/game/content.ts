@@ -158,6 +158,11 @@ export type TileSet = {
   /** sprites layered on top of the wall base for silhouette variety */
   wallSheet: SheetKey;
   wall: number[];
+  /** offset/size tweak for the wall overlay (defaults to a raised silhouette) */
+  wallDx?: number;
+  wallDy?: number;
+  wallGrow?: number;
+
   /** optional color wash applied over the tiles to unify the region palette */
   tint?: string;
   tintMode?: GlobalCompositeOperation;
@@ -235,7 +240,21 @@ export const LEVELS: LevelDef[] = [
       light: "rgba(255,205,130,0.14)",
       ambient: "#12131b",
       particle: "dust",
-      tileset: { floorSheet: "city", floor: [121, 289, 121, 131], wallBaseSheet: "tiles", wallBase: 70, wallSheet: "tiles", wall: [15, 16, 17], tint: "#2a2c3a", tintAlpha: 0.2 },
+      tileset: {
+        floorSheet: "city",
+        floor: [264, 265, 266, 288, 290, 168, 169, 144],
+        wallBaseSheet: "city",
+        wallBase: 144,
+        wallSheet: "city",
+        wall: [178, 179, 180, 181, 182, 144, 145, 202, 203],
+
+        wallDx: 0,
+        wallDy: 0,
+        wallGrow: 0,
+        tint: "#2a2c3a",
+        tintAlpha: 0.18,
+      },
+
     },
   },
   {

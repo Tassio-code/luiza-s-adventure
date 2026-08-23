@@ -40,7 +40,11 @@ export function drawGround(ctx: Ctx, map: LevelMap, theme: Theme, view: View) {
           const idx = set.wall[Math.floor(h * set.wall.length) % set.wall.length]!;
           // opaque base first, then the wall sprite (which has transparent corners)
           drawSheetTile(ctx, set.wallBaseSheet, set.wallBase, px, py, TILE + 1, TILE + 1);
-          drawSheetTile(ctx, set.wallSheet, idx, px - 2, py - 6, TILE + 5, TILE + 5);
+          const wdx = set.wallDx ?? -2;
+          const wdy = set.wallDy ?? -6;
+          const wgrow = set.wallGrow ?? 4;
+          drawSheetTile(ctx, set.wallSheet, idx, px + wdx, py + wdy, TILE + 1 + wgrow, TILE + 1 + wgrow);
+
           const openBelow = !isSolid(tx, ty + 1);
           if (openBelow) {
             ctx.fillStyle = "rgba(0,0,0,0.35)";
