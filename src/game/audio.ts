@@ -36,11 +36,38 @@ export class AudioManager {
   private buffers = new Map<SampleName, AudioBuffer>();
   private loading: Promise<void> | null = null;
 
+  private pendingGesture = false;
+
+  /** True once the browser reports a user gesture (required for WebAudio). */
+  private hasUserActivation() {
+    if (typeof navigator === "undefined") return false;
+    const ua = (navigator as Navigator & { userActivation?: { hasBeenActive: boolean } }).userActivation;
+    return ua ? ua.hasBeenActive : true;
+  }
+
+  private waitForGesture() {
+    if (this.pendingGesture || typeof window === "undefined") return;
+    this.pendingGesture = true;
+    const onGesture = () => {
+      window.removeEventListener("pointerdown", onGesture);
+      window.removeEventListener("keydown", onGesture);
+      this.pendingGesture = false;
+      this.resume();
+    };
+    window.addEventListener("pointerdown", onGesture, { once: true });
+    window.addEventListener("keydown", onGesture, { once: true });
+  }
+
   init() {
     if (this.ctx || typeof window === "undefined") return;
+    if (!this.hasUserActivation()) {
+      this.waitForGesture();
+      return;
+    }
     const Ctx: Ctor | undefined =
       window.AudioContext ?? (window as unknown as { webkitAudioContext?: Ctor }).webkitAudioContext;
     if (!Ctx) return;
+
     try {
       this.ctx = new Ctx();
       this.master = this.ctx.createGain();
