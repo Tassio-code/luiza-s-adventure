@@ -98,7 +98,8 @@ function Game() {
       return (
         <WorldMap
           avatar={avatar}
-          unlocked={save.unlocked}
+          // modo teste: todas as fases liberadas
+          unlocked={LEVELS.length - 1}
           fragments={fragments}
           onPlay={(i) => {
             audio.resume();
