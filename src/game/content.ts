@@ -240,7 +240,20 @@ export const LEVELS: LevelDef[] = [
       light: "rgba(255,205,130,0.14)",
       ambient: "#12131b",
       particle: "dust",
-      tileset: { floorSheet: "city", floor: [121, 289, 121, 131], wallBaseSheet: "tiles", wallBase: 70, wallSheet: "tiles", wall: [15, 16, 17], tint: "#2a2c3a", tintAlpha: 0.2 },
+      tileset: {
+        floorSheet: "city",
+        floor: [264, 265, 266, 267, 268, 288, 290, 291],
+        wallBaseSheet: "city",
+        wallBase: 144,
+        wallSheet: "city",
+        wall: [178, 179, 180, 181, 202, 203, 204, 226, 227, 145, 146, 148],
+        wallDx: 0,
+        wallDy: 0,
+        wallGrow: 0,
+        tint: "#2a2c3a",
+        tintAlpha: 0.18,
+      },
+
     },
   },
   {
