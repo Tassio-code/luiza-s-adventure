@@ -242,11 +242,12 @@ export const LEVELS: LevelDef[] = [
       particle: "dust",
       tileset: {
         floorSheet: "city",
-        floor: [264, 265, 266, 267, 268, 288, 290, 291],
+        floor: [264, 265, 266, 288, 290, 168, 169, 144],
         wallBaseSheet: "city",
         wallBase: 144,
         wallSheet: "city",
-        wall: [178, 179, 180, 181, 202, 203, 204, 226, 227, 145, 146, 148],
+        wall: [178, 179, 180, 181, 182, 144, 145, 202, 203],
+
         wallDx: 0,
         wallDy: 0,
         wallGrow: 0,
