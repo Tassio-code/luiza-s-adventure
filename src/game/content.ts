@@ -158,6 +158,11 @@ export type TileSet = {
   /** sprites layered on top of the wall base for silhouette variety */
   wallSheet: SheetKey;
   wall: number[];
+  /** offset/size tweak for the wall overlay (defaults to a raised silhouette) */
+  wallDx?: number;
+  wallDy?: number;
+  wallGrow?: number;
+
   /** optional color wash applied over the tiles to unify the region palette */
   tint?: string;
   tintMode?: GlobalCompositeOperation;
