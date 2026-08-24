@@ -12,7 +12,7 @@ function hash(x: number, y: number) {
   return n - Math.floor(n);
 }
 
-function drawCityTile(ctx: Ctx, map: LevelMap, tx: number, ty: number, solid: boolean) {
+function drawCityTile(ctx: Ctx, map: LevelMap, theme: Theme, tx: number, ty: number, solid: boolean) {
   const px = tx * TILE;
   const py = ty * TILE;
   const isSolid = (x: number, y: number) => {
@@ -20,30 +20,26 @@ function drawCityTile(ctx: Ctx, map: LevelMap, tx: number, ty: number, solid: bo
     return map.tiles[y * map.cols + x] === 1;
   };
 
-  // The urban atlas is only 8 px per cell. Build each 56 px world cell from
-  // repeated, integer-scaled pieces so pixels stay sharp and details stay small.
-  const micro = 28;
-  const base = solid ? 123 : 121;
-  for (let sy = 0; sy < 2; sy++) {
-    for (let sx = 0; sx < 2; sx++) {
-      drawSheetTile(ctx, "city", base, px + sx * micro, py + sy * micro, micro + 1, micro + 1);
-    }
-  }
+  // This sheet is a collage of complete illustrations, not a repeatable tile
+  // atlas. Use crisp procedural surfaces instead of enlarging arbitrary slices.
+  ctx.fillStyle = solid ? theme.wall : hash(tx, ty) > 0.84 ? theme.groundAlt : theme.ground;
+  ctx.fillRect(px, py, TILE + 1, TILE + 1);
 
   if (solid) {
-    // Flat rooftops with a clean parapet only along exposed edges. This avoids
-    // the previous random collage of windows, doors and road markings.
-    ctx.fillStyle = "rgba(21,22,28,0.32)";
-    ctx.fillRect(px + 5, py + 5, TILE - 10, TILE - 10);
-    ctx.fillStyle = "rgba(189,185,194,0.55)";
+    ctx.fillStyle = theme.wallTop;
+    ctx.globalAlpha = 0.42;
+    ctx.fillRect(px + 6, py + 6, TILE - 12, TILE - 12);
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = theme.detail;
     if (!isSolid(tx, ty - 1)) ctx.fillRect(px, py, TILE, 5);
     if (!isSolid(tx - 1, ty)) ctx.fillRect(px, py, 5, TILE);
     if (!isSolid(tx + 1, ty)) ctx.fillRect(px + TILE - 5, py, 5, TILE);
     if (!isSolid(tx, ty + 1)) {
-      ctx.fillStyle = "rgba(38,39,47,0.92)";
+      ctx.fillStyle = theme.wallTop;
       ctx.fillRect(px, py + TILE - 15, TILE, 15);
-      drawSheetTile(ctx, "city", 180 + (Math.abs(tx) % 3), px + 4, py + TILE - 28, 24, 24);
-      drawSheetTile(ctx, "city", 180 + (Math.abs(tx + 1) % 3), px + 28, py + TILE - 28, 24, 24);
+      ctx.fillStyle = theme.light;
+      ctx.fillRect(px + 8, py + TILE - 12, 13, 7);
+      ctx.fillRect(px + 35, py + TILE - 12, 13, 7);
       ctx.fillStyle = "rgba(0,0,0,0.3)";
       ctx.fillRect(px, py + TILE, TILE, 8);
     }
@@ -90,7 +86,7 @@ export function drawGround(ctx: Ctx, map: LevelMap, theme: Theme, view: View) {
         const py = ty * TILE;
         const h = hash(tx, ty);
         if (isCity) {
-          drawCityTile(ctx, map, tx, ty, solid);
+          drawCityTile(ctx, map, theme, tx, ty, solid);
           continue;
         }
         if (solid) {
