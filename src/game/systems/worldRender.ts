@@ -12,6 +12,54 @@ function hash(x: number, y: number) {
   return n - Math.floor(n);
 }
 
+function drawCityTile(ctx: Ctx, map: LevelMap, theme: Theme, tx: number, ty: number, solid: boolean) {
+  const px = tx * TILE;
+  const py = ty * TILE;
+  const isSolid = (x: number, y: number) => {
+    if (x < 0 || y < 0 || x >= map.cols || y >= map.rows) return true;
+    return map.tiles[y * map.cols + x] === 1;
+  };
+
+  // This sheet is a collage of complete illustrations, not a repeatable tile
+  // atlas. Use crisp procedural surfaces instead of enlarging arbitrary slices.
+  ctx.fillStyle = solid ? theme.wall : hash(tx, ty) > 0.84 ? theme.groundAlt : theme.ground;
+  ctx.fillRect(px, py, TILE + 1, TILE + 1);
+
+  if (solid) {
+    ctx.fillStyle = theme.wallTop;
+    ctx.globalAlpha = 0.42;
+    ctx.fillRect(px + 6, py + 6, TILE - 12, TILE - 12);
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = theme.detail;
+    if (!isSolid(tx, ty - 1)) ctx.fillRect(px, py, TILE, 5);
+    if (!isSolid(tx - 1, ty)) ctx.fillRect(px, py, 5, TILE);
+    if (!isSolid(tx + 1, ty)) ctx.fillRect(px + TILE - 5, py, 5, TILE);
+    if (!isSolid(tx, ty + 1)) {
+      ctx.fillStyle = theme.wallTop;
+      ctx.fillRect(px, py + TILE - 15, TILE, 15);
+      ctx.fillStyle = theme.light;
+      ctx.fillRect(px + 8, py + TILE - 12, 13, 7);
+      ctx.fillRect(px + 35, py + TILE - 12, 13, 7);
+      ctx.fillStyle = "rgba(0,0,0,0.3)";
+      ctx.fillRect(px, py + TILE, TILE, 8);
+    }
+    return;
+  }
+
+  // Sidewalks hug buildings; the center stays readable as roadway/play space.
+  ctx.fillStyle = "rgba(172,169,177,0.55)";
+  if (isSolid(tx, ty - 1)) ctx.fillRect(px, py, TILE, 8);
+  if (isSolid(tx, ty + 1)) ctx.fillRect(px, py + TILE - 8, TILE, 8);
+  if (isSolid(tx - 1, ty)) ctx.fillRect(px, py, 8, TILE);
+  if (isSolid(tx + 1, ty)) ctx.fillRect(px + TILE - 8, py, 8, TILE);
+
+  // Sparse lane paint creates long streets without noisy per-cell randomness.
+  if (!isSolid(tx - 1, ty) && !isSolid(tx + 1, ty) && tx % 3 === 0) {
+    ctx.fillStyle = "rgba(224,187,91,0.62)";
+    ctx.fillRect(px + TILE / 2 - 2, py + 15, 4, 22);
+  }
+}
+
 export function drawGround(ctx: Ctx, map: LevelMap, theme: Theme, view: View) {
   const x0 = Math.floor(view.x / TILE) - 1;
   const y0 = Math.floor(view.y / TILE) - 1;
@@ -30,12 +78,17 @@ export function drawGround(ctx: Ctx, map: LevelMap, theme: Theme, view: View) {
 
   if (useSprites) {
     ctx.imageSmoothingEnabled = false;
+    const isCity = set.floorSheet === "city";
     for (let ty = y0; ty <= y1; ty++) {
       for (let tx = x0; tx <= x1; tx++) {
         const solid = isSolid(tx, ty);
         const px = tx * TILE;
         const py = ty * TILE;
         const h = hash(tx, ty);
+        if (isCity) {
+          drawCityTile(ctx, map, theme, tx, ty, solid);
+          continue;
+        }
         if (solid) {
           const idx = set.wall[Math.floor(h * set.wall.length) % set.wall.length]!;
           // opaque base first, then the wall sprite (which has transparent corners)
