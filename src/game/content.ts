@@ -242,12 +242,13 @@ export const LEVELS: LevelDef[] = [
       particle: "dust",
       tileset: {
         floorSheet: "city",
-        floor: [264, 265, 266, 288, 290, 168, 169, 144],
+        // Neutral asphalt only. Roads and sidewalks are composed by the city
+        // renderer instead of scattering unrelated atlas cells at random.
+        floor: [121, 123],
         wallBaseSheet: "city",
-        wallBase: 144,
+        wallBase: 121,
         wallSheet: "city",
-        wall: [178, 179, 180, 181, 182, 144, 145, 202, 203],
-
+        wall: [122, 123],
         wallDx: 0,
         wallDy: 0,
         wallGrow: 0,

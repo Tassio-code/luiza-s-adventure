@@ -12,6 +12,58 @@ function hash(x: number, y: number) {
   return n - Math.floor(n);
 }
 
+function drawCityTile(ctx: Ctx, map: LevelMap, tx: number, ty: number, solid: boolean) {
+  const px = tx * TILE;
+  const py = ty * TILE;
+  const isSolid = (x: number, y: number) => {
+    if (x < 0 || y < 0 || x >= map.cols || y >= map.rows) return true;
+    return map.tiles[y * map.cols + x] === 1;
+  };
+
+  // The urban atlas is only 8 px per cell. Build each 56 px world cell from
+  // repeated, integer-scaled pieces so pixels stay sharp and details stay small.
+  const micro = 28;
+  const base = solid ? 123 : 121;
+  for (let sy = 0; sy < 2; sy++) {
+    for (let sx = 0; sx < 2; sx++) {
+      drawSheetTile(ctx, "city", base, px + sx * micro, py + sy * micro, micro + 1, micro + 1);
+    }
+  }
+
+  if (solid) {
+    // Flat rooftops with a clean parapet only along exposed edges. This avoids
+    // the previous random collage of windows, doors and road markings.
+    ctx.fillStyle = "rgba(21,22,28,0.32)";
+    ctx.fillRect(px + 5, py + 5, TILE - 10, TILE - 10);
+    ctx.fillStyle = "rgba(189,185,194,0.55)";
+    if (!isSolid(tx, ty - 1)) ctx.fillRect(px, py, TILE, 5);
+    if (!isSolid(tx - 1, ty)) ctx.fillRect(px, py, 5, TILE);
+    if (!isSolid(tx + 1, ty)) ctx.fillRect(px + TILE - 5, py, 5, TILE);
+    if (!isSolid(tx, ty + 1)) {
+      ctx.fillStyle = "rgba(38,39,47,0.92)";
+      ctx.fillRect(px, py + TILE - 15, TILE, 15);
+      drawSheetTile(ctx, "city", 180 + (Math.abs(tx) % 3), px + 4, py + TILE - 28, 24, 24);
+      drawSheetTile(ctx, "city", 180 + (Math.abs(tx + 1) % 3), px + 28, py + TILE - 28, 24, 24);
+      ctx.fillStyle = "rgba(0,0,0,0.3)";
+      ctx.fillRect(px, py + TILE, TILE, 8);
+    }
+    return;
+  }
+
+  // Sidewalks hug buildings; the center stays readable as roadway/play space.
+  ctx.fillStyle = "rgba(172,169,177,0.55)";
+  if (isSolid(tx, ty - 1)) ctx.fillRect(px, py, TILE, 8);
+  if (isSolid(tx, ty + 1)) ctx.fillRect(px, py + TILE - 8, TILE, 8);
+  if (isSolid(tx - 1, ty)) ctx.fillRect(px, py, 8, TILE);
+  if (isSolid(tx + 1, ty)) ctx.fillRect(px + TILE - 8, py, 8, TILE);
+
+  // Sparse lane paint creates long streets without noisy per-cell randomness.
+  if (!isSolid(tx - 1, ty) && !isSolid(tx + 1, ty) && tx % 3 === 0) {
+    ctx.fillStyle = "rgba(224,187,91,0.62)";
+    ctx.fillRect(px + TILE / 2 - 2, py + 15, 4, 22);
+  }
+}
+
 export function drawGround(ctx: Ctx, map: LevelMap, theme: Theme, view: View) {
   const x0 = Math.floor(view.x / TILE) - 1;
   const y0 = Math.floor(view.y / TILE) - 1;
@@ -30,12 +82,17 @@ export function drawGround(ctx: Ctx, map: LevelMap, theme: Theme, view: View) {
 
   if (useSprites) {
     ctx.imageSmoothingEnabled = false;
+    const isCity = set.floorSheet === "city";
     for (let ty = y0; ty <= y1; ty++) {
       for (let tx = x0; tx <= x1; tx++) {
         const solid = isSolid(tx, ty);
         const px = tx * TILE;
         const py = ty * TILE;
         const h = hash(tx, ty);
+        if (isCity) {
+          drawCityTile(ctx, map, tx, ty, solid);
+          continue;
+        }
         if (solid) {
           const idx = set.wall[Math.floor(h * set.wall.length) % set.wall.length]!;
           // opaque base first, then the wall sprite (which has transparent corners)
