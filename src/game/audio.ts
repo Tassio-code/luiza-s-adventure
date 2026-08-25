@@ -33,6 +33,9 @@ export class AudioManager {
   private volume = 0.7;
   private muted = false;
   private currentTrack: string | null = null;
+  private musicEl: HTMLAudioElement | null = null;
+  private musicStartedAt: number | null = null;
+  private musicDuration: number | null = null;
   private buffers = new Map<SampleName, AudioBuffer>();
   private loading: Promise<void> | null = null;
 
@@ -275,14 +278,46 @@ export class AudioManager {
     this.tone(740, 0.05, "sine", 0.09);
   }
 
-  /** Simple generative loop per scene. */
-  playMusic(track: "menu" | "map" | "level" | "boss" | "ending" | null) {
+  /**
+   * Plays exactly one main track at a time. When `opts.src` points to a real
+   * file it is streamed and drives the timeline; otherwise a generative loop
+   * plays and the timeline is simulated from `opts.duration`.
+   */
+  playMusic(
+    track: "menu" | "map" | "level" | "boss" | "ending" | null,
+    opts: { src?: string | null; duration?: number; id?: string; loop?: boolean } = {},
+  ) {
     this.init();
-    if (this.currentTrack === track) return;
+    const key = `${track ?? "none"}:${opts.id ?? ""}`;
+    if (this.currentTrack === key) return;
     this.stopMusic();
-    this.currentTrack = track;
-    if (!track || !this.ctx || !this.musicGain) return;
+    this.currentTrack = key;
+    if (!track) return;
 
+    this.musicStartedAt = typeof performance !== "undefined" ? performance.now() : Date.now();
+    this.musicDuration = opts.duration ?? null;
+
+    if (opts.src && typeof Audio !== "undefined") {
+      try {
+        const el = new Audio(opts.src);
+        el.loop = opts.loop ?? false;
+        el.volume = this.muted ? 0 : Math.min(1, this.volume * 0.6);
+        this.musicEl = el;
+        void el.play().catch(() => {
+          // file missing or blocked — fall back to the generative loop
+          this.musicEl = null;
+          this.startGenerative(track);
+        });
+        return;
+      } catch {
+        this.musicEl = null;
+      }
+    }
+    this.startGenerative(track);
+  }
+
+  private startGenerative(track: "menu" | "map" | "level" | "boss" | "ending") {
+    if (!this.ctx || !this.musicGain) return;
     const scales: Record<string, number[]> = {
       menu: [220, 261.6, 329.6, 392, 440, 392, 329.6, 261.6],
       map: [196, 246.9, 293.7, 349.2, 392, 349.2, 293.7, 246.9],
@@ -290,7 +325,7 @@ export class AudioManager {
       boss: [146.8, 155.6, 146.8, 138.6, 116.5, 138.6, 146.8, 155.6],
       ending: [261.6, 329.6, 392, 523.3, 659.3, 523.3, 392, 329.6],
     };
-    const scale = scales[track] ?? scales['menu'] ?? [220];
+    const scale = scales[track] ?? scales["menu"] ?? [220];
     const interval = track === "boss" ? 260 : track === "ending" ? 520 : 400;
     this.musicStep = 0;
     const tick = () => {
@@ -307,13 +342,38 @@ export class AudioManager {
     this.musicTimer = window.setInterval(tick, interval);
   }
 
+  /** 0..1 position inside the current main track, or null when unknown. */
+  musicProgress(): number | null {
+    const el = this.musicEl;
+    if (el && Number.isFinite(el.duration) && el.duration > 0) {
+      return Math.max(0, Math.min(1, el.currentTime / el.duration));
+    }
+    if (this.musicStartedAt !== null && this.musicDuration) {
+      const now = typeof performance !== "undefined" ? performance.now() : Date.now();
+      return Math.max(0, Math.min(1, (now - this.musicStartedAt) / 1000 / this.musicDuration));
+    }
+    return null;
+  }
+
   stopMusic() {
     if (this.musicTimer !== null) {
       window.clearInterval(this.musicTimer);
       this.musicTimer = null;
     }
+    if (this.musicEl) {
+      try {
+        this.musicEl.pause();
+        this.musicEl.src = "";
+      } catch {
+        /* ignore */
+      }
+      this.musicEl = null;
+    }
+    this.musicStartedAt = null;
+    this.musicDuration = null;
     this.currentTrack = null;
   }
+
 
   dispose() {
     this.stopMusic();
