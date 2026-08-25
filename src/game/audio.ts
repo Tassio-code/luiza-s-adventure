@@ -33,6 +33,9 @@ export class AudioManager {
   private volume = 0.7;
   private muted = false;
   private currentTrack: string | null = null;
+  private musicEl: HTMLAudioElement | null = null;
+  private musicStartedAt: number | null = null;
+  private musicDuration: number | null = null;
   private buffers = new Map<SampleName, AudioBuffer>();
   private loading: Promise<void> | null = null;
 
