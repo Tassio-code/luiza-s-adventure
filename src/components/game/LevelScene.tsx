@@ -4,6 +4,7 @@ import { resolveAvatar, type AvatarConfig } from "@/game/avatar/options";
 import { audio } from "@/game/audio";
 import { LEVELS, WEAPONS } from "@/game/content";
 import { assets } from "@/game/assets";
+import { stageTrack } from "@/game/music";
 import { Button } from "@/components/ui/button";
 
 function Stick({
@@ -30,7 +31,7 @@ function Stick({
       dx /= m;
       dy /= m;
     }
-    setKnob({ x: dx * 26, y: dy * 26 });
+    setKnob({ x: dx * 34, y: dy * 34 });
     onMove(dx, dy, true);
   };
   const release = () => {
@@ -49,13 +50,13 @@ function Stick({
       }}
       onPointerUp={release}
       onPointerCancel={release}
-      className={`relative h-28 w-28 touch-none rounded-full border ${
+      className={`relative h-36 w-36 touch-none rounded-full border sm:h-32 sm:w-32 ${
         fire ? "border-accent/60 bg-accent/15" : "border-primary/40 bg-card/60"
       } backdrop-blur-sm`}
       aria-label={label}
     >
       <span
-        className={`absolute left-1/2 top-1/2 h-12 w-12 -translate-x-1/2 -translate-y-1/2 rounded-full ${
+        className={`absolute left-1/2 top-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full ${
           fire ? "bg-accent/80" : "bg-primary/70"
         }`}
         style={{ transform: `translate(calc(-50% + ${knob.x}px), calc(-50% + ${knob.y}px))` }}
@@ -116,7 +117,8 @@ export function LevelScene({
     const canvas = canvasRef.current;
     if (!canvas || !level || !loaded) return;
     audio.resume();
-    audio.playMusic("level");
+    const track = stageTrack(levelIndex);
+    audio.playMusic("level", { id: track.id, src: track.src, duration: track.duration });
     let engine: GameEngine | null = null;
     try {
       engine = new GameEngine(canvas, level, resolveAvatar(avatar), {
@@ -142,7 +144,7 @@ export function LevelScene({
       engineRef.current = null;
       audio.stopMusic();
     };
-  }, [attempt, avatar, level, loaded, onComplete, showToast]);
+  }, [attempt, avatar, level, levelIndex, loaded, onComplete, showToast]);
 
   useEffect(() => {
     engineRef.current?.setPaused(paused || dead);
@@ -180,6 +182,17 @@ export function LevelScene({
             <p className="text-sm text-primary">
               {weapon.name} · {hud?.ammo ?? weapon.startAmmo} munição
             </p>
+            <div className="mt-1 flex items-center gap-2">
+              <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                Nv {hud?.level ?? 1}
+              </span>
+              <span className="h-1.5 w-24 overflow-hidden rounded-full bg-secondary">
+                <span
+                  className="block h-full rounded-full bg-primary transition-[width] duration-200"
+                  style={{ width: `${hud ? Math.min(100, (hud.xp / hud.xpNext) * 100) : 0}%` }}
+                />
+              </span>
+            </div>
           </div>
           <div className="panel-parchment max-w-[45%] rounded-xl px-4 py-3 text-right">
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Objetivo</p>
@@ -208,13 +221,13 @@ export function LevelScene({
       <button
         type="button"
         onClick={() => setPaused(true)}
-        className="absolute right-4 top-40 rounded-md border border-border bg-card/80 px-3 py-1.5 text-xs text-foreground md:top-44"
+        className="absolute right-4 top-44 h-11 rounded-md border border-border bg-card/80 px-4 text-xs text-foreground active:scale-95"
       >
         Pausar
       </button>
 
       {touch && (
-        <div className="absolute inset-x-0 bottom-0 flex items-end justify-between p-6">
+        <div className="absolute inset-x-0 bottom-0 flex items-end justify-between px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-2">
           <Stick
             label="Mover"
             onMove={(x, y) => engineRef.current?.getInput().setJoystick(x, y)}
@@ -223,7 +236,7 @@ export function LevelScene({
             <button
               type="button"
               onClick={() => engineRef.current?.useMedkit()}
-              className="rounded-full border border-primary/50 bg-card/70 px-4 py-2 text-xs text-primary"
+              className="h-14 w-14 rounded-full border border-primary/50 bg-card/70 text-xs text-primary active:scale-95"
             >
               Curar
             </button>
@@ -235,7 +248,7 @@ export function LevelScene({
                 if (!engine) return;
                 engine.getInput().state.interact = true;
               }}
-              className="rounded-full border border-primary/50 bg-card/70 px-4 py-2 text-xs text-primary"
+              className="h-14 w-14 rounded-full border border-primary/50 bg-card/70 text-xs text-primary active:scale-95"
             >
               Interagir
             </button>
