@@ -78,7 +78,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Os Cinco Fragmentos" },
-      { name: "description", content: "Um top-down shooter 2D feito como presente de aniversário." },
+      {
+        name: "description",
+        content: "Um top-down shooter 2D feito como presente de aniversário.",
+      },
       { name: "author", content: "Lovable" },
       { property: "og:title", content: "Os Cinco Fragmentos" },
       { property: "og:description", content: "Crie sua heroína e reúna os cinco fragmentos." },

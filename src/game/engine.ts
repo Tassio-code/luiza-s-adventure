@@ -9,6 +9,9 @@ import { ParticleSystem } from "./systems/particles";
 import { InputManager } from "./systems/input";
 import { drawAtmosphere, drawDecoration, drawGround } from "./systems/worldRender";
 import { createRng, rand, randInt, type Rng } from "./systems/rng";
+import { MusicDirector, type DirectorPhase } from "./systems/director";
+import { addXp, createProgress, statsFor, type CombatStats, type Progress } from "./progression";
+import { bossTrack, stageTrack } from "./music";
 
 export type HudState = {
   hp: number;
@@ -25,6 +28,11 @@ export type HudState = {
   bossMaxHp: number;
   bossName: string;
   medkits: number;
+  level: number;
+  xp: number;
+  xpNext: number;
+  intensity: number;
+  musicPhase: DirectorPhase;
 };
 
 export type EngineCallbacks = {
@@ -138,6 +146,11 @@ export class GameEngine {
   private crates: Crate[] = [];
   private boss: Enemy | null = null;
 
+  private director: MusicDirector;
+  private progress: Progress = createProgress();
+  private stats: CombatStats = statsFor(1);
+  /** >0 while the arena is silent, preparing the boss entrance */
+  private bossIntro = -1;
   private spawned = 0;
   private killed = 0;
   private spawnTimer = 0.8;
@@ -156,6 +169,9 @@ export class GameEngine {
     if (!context) throw new Error("Canvas 2D não disponível neste dispositivo.");
     this.ctx = context;
     this.map = generateLevel(level.index);
+    const coarse =
+      typeof window !== "undefined" && window.matchMedia?.("(pointer: coarse)").matches;
+    this.director = new MusicDirector(stageTrack(level.index).plan, coarse ? 0.75 : 1);
     this.rng = createRng(4242 + level.index * 31);
     this.weapon = level.weapon;
     this.ammo = WEAPONS[this.weapon].startAmmo;
@@ -211,7 +227,10 @@ export class GameEngine {
     this.player.medkits--;
     this.player.hp = Math.min(this.player.maxHp, this.player.hp + 45);
     audio.heal();
-    this.particles.burst(this.player.x, this.player.y - 24, 18, "#7ee08a", { speed: 90, life: 0.7 });
+    this.particles.burst(this.player.x, this.player.y - 24, 18, "#7ee08a", {
+      speed: 90,
+      life: 0.7,
+    });
     this.emitHud(true);
   }
 
@@ -230,7 +249,18 @@ export class GameEngine {
   /* -------------------------------- world -------------------------------- */
 
   private makeBullet(): Bullet {
-    return { active: false, x: 0, y: 0, vx: 0, vy: 0, life: 0, damage: 0, size: 3, knockback: 0, color: "#ffd98a" };
+    return {
+      active: false,
+      x: 0,
+      y: 0,
+      vx: 0,
+      vy: 0,
+      life: 0,
+      damage: 0,
+      size: 3,
+      knockback: 0,
+      color: "#ffd98a",
+    };
   }
 
   private populateWorld() {
@@ -308,7 +338,11 @@ export class GameEngine {
       attackCooldown: 0,
     };
     this.enemies.push(enemy);
-    this.particles.burst(spot.x, spot.y - 20, 10, "#8b8b8b", { speed: 70, life: 0.5, shape: "smoke" });
+    this.particles.burst(spot.x, spot.y - 20, 10, "#8b8b8b", {
+      speed: 70,
+      life: 0.5,
+      shape: "smoke",
+    });
   }
 
   private spawnBoss() {
@@ -335,7 +369,8 @@ export class GameEngine {
     };
     this.phase = "boss";
     audio.bossRoar();
-    audio.playMusic("boss");
+    const bt = bossTrack(this.level.index);
+    audio.playMusic("boss", { id: bt.id, src: bt.src, duration: bt.duration, loop: true });
     this.cam.shake = 16;
     this.callbacks.onBoss();
     this.callbacks.onToast(`${this.level.bossName} despertou!`);
@@ -476,13 +511,25 @@ export class GameEngine {
 
   private openCrate(crate: Crate) {
     crate.opened = true;
-    this.particles.burst(crate.x, crate.y - 10, 20, "#c79a5b", { speed: 130, life: 0.6, shape: "shard", gravity: 260 });
+    this.particles.burst(crate.x, crate.y - 10, 20, "#c79a5b", {
+      speed: 130,
+      life: 0.6,
+      shape: "shard",
+      gravity: 260,
+    });
     audio.pickup();
     if (crate.loot === "ammo") {
       const amount = randInt(this.rng, 10, 20);
       this.pickups.push({ active: true, kind: "ammo", x: crate.x, y: crate.y, amount, bob: 0 });
     } else {
-      this.pickups.push({ active: true, kind: "medkit", x: crate.x, y: crate.y, amount: 1, bob: 0 });
+      this.pickups.push({
+        active: true,
+        kind: "medkit",
+        x: crate.x,
+        y: crate.y,
+        amount: 1,
+        bob: 0,
+      });
     }
   }
 
@@ -495,7 +542,7 @@ export class GameEngine {
       return;
     }
     this.ammo -= w.ammoPerShot;
-    this.player.shootTimer = w.cooldown;
+    this.player.shootTimer = w.cooldown / this.stats.fireRateMul;
     this.player.recoil = 1;
     this.muzzleFlash = 1;
     this.cam.shake = Math.min(14, this.cam.shake + (this.weapon === "shotgun" ? 9 : 3.2));
@@ -515,7 +562,7 @@ export class GameEngine {
       b.vx = Math.cos(angle) * w.speed;
       b.vy = Math.sin(angle) * w.speed;
       b.life = w.range / w.speed;
-      b.damage = w.damage;
+      b.damage = w.damage * this.stats.damageMul;
       b.size = w.bulletSize;
       b.knockback = w.knockback;
       b.color = "#ffe6a3";
@@ -553,7 +600,8 @@ export class GameEngine {
       }
       if (!b.active) continue;
 
-      const targets: Enemy[] = this.boss && this.boss.alive ? [...this.enemies, this.boss] : this.enemies;
+      const targets: Enemy[] =
+        this.boss && this.boss.alive ? [...this.enemies, this.boss] : this.enemies;
       for (const e of targets) {
         if (!e.alive) continue;
         const stats = ENEMIES[e.kind];
@@ -625,6 +673,7 @@ export class GameEngine {
       return;
     }
     this.killed++;
+    this.grantXp(ENEMIES[e.kind].score);
     const roll = this.rng();
     const lastLevel = this.level.index === 4;
     if (roll < (lastLevel ? 0.6 : 0.3)) {
@@ -641,10 +690,32 @@ export class GameEngine {
     }
   }
 
+  private grantXp(amount: number) {
+    const result = addXp(this.progress, amount);
+    this.progress = result.progress;
+    if (result.levelsGained > 0) {
+      this.stats = statsFor(this.progress.level);
+      const prevMax = this.player.maxHp;
+      this.player.maxHp = this.stats.maxHp;
+      this.player.hp = Math.min(
+        this.player.maxHp,
+        this.player.hp + (this.player.maxHp - prevMax) + 12,
+      );
+      this.player.speed = 190 * this.stats.speedMul;
+      audio.heal();
+      this.particles.burst(this.player.x, this.player.y - 26, 34, "#ffd98a", {
+        speed: 170,
+        life: 0.8,
+      });
+      this.callbacks.onToast(`Nível ${this.progress.level} — mais forte!`);
+      this.emitHud(true);
+    }
+  }
+
   private onBossDefeated() {
     this.phase = "fragment";
     this.callbacks.onToast(`${this.level.bossName} derrotado!`);
-    audio.playMusic("level");
+    audio.playMusic("ending", { id: "victory", duration: 40, loop: true });
     const room = this.map.rooms[this.map.rooms.length - 1];
     this.pickups.push({
       active: true,
@@ -730,7 +801,11 @@ export class GameEngine {
 
       if (ranged) {
         e.fireTimer -= dt;
-        if (e.fireTimer <= 0 && dist < 460 && hasLineOfSight(this.map, e.x, e.y - 20, p.x, p.y - 26)) {
+        if (
+          e.fireTimer <= 0 &&
+          dist < 460 &&
+          hasLineOfSight(this.map, e.x, e.y - 20, p.x, p.y - 26)
+        ) {
           e.fireTimer = stats.fireRate * rand(this.rng, 0.8, 1.3);
           this.enemyShoot(e, stats.projectileSpeed, stats.damage * 0.8);
         }
@@ -747,10 +822,13 @@ export class GameEngine {
   private enemyShoot(e: Enemy, speed: number, damage: number, angleOverride?: number) {
     const b = this.enemyBullets.find((bullet) => !bullet.active);
     if (!b) return;
-    const angle =
-      angleOverride ?? Math.atan2(this.player.y - 26 - (e.y - 24), this.player.x - e.x);
+    const angle = angleOverride ?? Math.atan2(this.player.y - 26 - (e.y - 24), this.player.x - e.x);
     const color =
-      e.kind === "frost" ? "#a9e6ff" : e.kind === "vampire" || e.kind === "boss" ? "#ff6b8a" : "#cfd6a0";
+      e.kind === "frost"
+        ? "#a9e6ff"
+        : e.kind === "vampire" || e.kind === "boss"
+          ? "#ff6b8a"
+          : "#cfd6a0";
     b.active = true;
     b.x = e.x + Math.cos(angle) * 18;
     b.y = e.y - 24 + Math.sin(angle) * 18;
@@ -779,7 +857,14 @@ export class GameEngine {
     st.phase = hpRatio > 0.66 ? 1 : hpRatio > 0.33 ? 2 : 3;
 
     const move = (speed: number) => {
-      const moved = moveCircle(this.map, boss.x, boss.y, (dx / dist) * speed * dt, (dy / dist) * speed * dt, 26);
+      const moved = moveCircle(
+        this.map,
+        boss.x,
+        boss.y,
+        (dx / dist) * speed * dt,
+        (dy / dist) * speed * dt,
+        26,
+      );
       boss.x = moved.x;
       boss.y = moved.y;
     };
@@ -898,7 +983,11 @@ export class GameEngine {
         this.player.victory = true;
         this.phase = "done";
         this.completeTimer = 1.4;
-        this.particles.burst(item.x, item.y - 20, 60, "#ffd88a", { speed: 210, life: 1.2, size: 3.4 });
+        this.particles.burst(item.x, item.y - 20, 60, "#ffd88a", {
+          speed: 210,
+          life: 1.2,
+          size: 3.4,
+        });
       }
       item.active = false;
       this.pickups.splice(i, 1);
@@ -908,19 +997,34 @@ export class GameEngine {
 
   private updateWaves(dt: number) {
     if (this.phase !== "clear") return;
-    const aliveCap = this.level.waveSize + this.level.index;
-    this.spawnTimer -= dt;
-    if (this.spawned < this.level.enemyCount && this.enemies.length < aliveCap && this.spawnTimer <= 0) {
-      this.spawnTimer = 0.45;
-      const burst = 1 + Math.min(2, Math.floor(this.level.index / 2));
-      for (let i = 0; i < burst && this.spawned < this.level.enemyCount && this.enemies.length < aliveCap; i++) {
+
+    // the song drives the pacing; when there is no real track the director
+    // simulates the timeline from the configured duration
+    this.director.update(dt, audio.musicProgress() ?? undefined);
+    if (this.spawned >= this.level.enemyCount) this.director.stopSpawning();
+
+    if (this.bossIntro < 0) {
+      const count = this.director.tryBurst(this.enemies.length);
+      for (let i = 0; i < count && this.spawned < this.level.enemyCount; i++) {
         this.spawnEnemy(this.level.enemy);
         this.spawned++;
       }
     }
-    if (this.killed >= this.level.enemyCount && this.enemies.length === 0) {
-      if (this.level.hasBoss) this.spawnBoss();
-      else this.onBossDefeated();
+
+    // arena is clean and no new horde can arrive -> silence, then the boss
+    if (!this.director.spawnsOpen && this.enemies.length === 0) {
+      if (this.bossIntro < 0) {
+        this.bossIntro = 2.1;
+        audio.stopMusic();
+        this.callbacks.onToast("A horda acabou…");
+      } else {
+        this.bossIntro -= dt;
+        if (this.bossIntro <= 0) {
+          this.bossIntro = -1;
+          if (this.level.hasBoss) this.spawnBoss();
+          else this.onBossDefeated();
+        }
+      }
     }
   }
 
@@ -931,11 +1035,41 @@ export class GameEngine {
       const x = this.cam.x + rand(this.rng, -this.viewW / 2, this.viewW / 2);
       const y = this.cam.y - this.viewH / 2 - 20;
       const cfg = {
-        leaf: { color: "#9ccf7a", vx: rand(this.rng, -30, 10), vy: rand(this.rng, 20, 50), size: 2.6, life: 6 },
-        dust: { color: "rgba(220,210,190,0.7)", vx: rand(this.rng, -20, 20), vy: rand(this.rng, 10, 30), size: 1.8, life: 5 },
-        snow: { color: "#ffffff", vx: rand(this.rng, -60, -10), vy: rand(this.rng, 60, 120), size: 2.4, life: 5 },
-        sand: { color: "#e6cd9a", vx: rand(this.rng, -140, -60), vy: rand(this.rng, 10, 40), size: 2, life: 4 },
-        ash: { color: "#d68b8b", vx: rand(this.rng, -25, 25), vy: rand(this.rng, 20, 45), size: 2.2, life: 6 },
+        leaf: {
+          color: "#9ccf7a",
+          vx: rand(this.rng, -30, 10),
+          vy: rand(this.rng, 20, 50),
+          size: 2.6,
+          life: 6,
+        },
+        dust: {
+          color: "rgba(220,210,190,0.7)",
+          vx: rand(this.rng, -20, 20),
+          vy: rand(this.rng, 10, 30),
+          size: 1.8,
+          life: 5,
+        },
+        snow: {
+          color: "#ffffff",
+          vx: rand(this.rng, -60, -10),
+          vy: rand(this.rng, 60, 120),
+          size: 2.4,
+          life: 5,
+        },
+        sand: {
+          color: "#e6cd9a",
+          vx: rand(this.rng, -140, -60),
+          vy: rand(this.rng, 10, 40),
+          size: 2,
+          life: 4,
+        },
+        ash: {
+          color: "#d68b8b",
+          vx: rand(this.rng, -25, 25),
+          vy: rand(this.rng, 20, 45),
+          size: 2.2,
+          life: 6,
+        },
       }[theme.particle];
       this.ambient.spawn({ ...cfg, x, y, drag: 1, shape: "dot" });
     }
@@ -956,9 +1090,16 @@ export class GameEngine {
       total: this.level.enemyCount,
       phase: this.phase,
       medkits: this.player.medkits,
+      level: this.progress.level,
+      xp: this.progress.xp,
+      xpNext: this.progress.next,
+      intensity: this.director.intensity,
+      musicPhase: this.director.phase,
       objective:
         this.phase === "clear"
-          ? `Elimine os inimigos (${this.killed}/${this.level.enemyCount})`
+          ? this.bossIntro > 0
+            ? "Algo muito maior se aproxima…"
+            : `Elimine os inimigos (${this.killed}/${this.level.enemyCount})`
           : this.phase === "boss"
             ? `Derrote ${this.level.bossName}`
             : this.phase === "fragment"
@@ -970,7 +1111,7 @@ export class GameEngine {
       bossMaxHp: this.boss ? this.boss.maxHp : 0,
       bossName: this.level.bossName,
     };
-    const key = `${hud.hp}|${hud.ammo}|${hud.killed}|${hud.phase}|${hud.bossHp}|${hud.medkits}`;
+    const key = `${hud.hp}|${hud.ammo}|${hud.killed}|${hud.phase}|${hud.bossHp}|${hud.medkits}|${hud.level}|${hud.xp}|${Math.round(hud.intensity * 20)}`;
     if (!force && key === this.lastHudKey) return;
     this.lastHudKey = key;
     this.callbacks.onHud(hud);
@@ -1238,7 +1379,12 @@ export class GameEngine {
       for (let tx = 0; tx < this.map.cols; tx += 1) {
         if (this.map.tiles[ty * this.map.cols + tx] === 1) continue;
         ctx.fillStyle = "rgba(200,190,170,0.35)";
-        ctx.fillRect(ox + tx * TILE * scale, oy + ty * TILE * scale, TILE * scale + 0.5, TILE * scale + 0.5);
+        ctx.fillRect(
+          ox + tx * TILE * scale,
+          oy + ty * TILE * scale,
+          TILE * scale + 0.5,
+          TILE * scale + 0.5,
+        );
       }
     }
     for (const e of this.enemies) {

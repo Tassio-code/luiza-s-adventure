@@ -3,7 +3,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { ClientOnly } from "@tanstack/react-router";
 import { CharacterCreator } from "@/components/game/CharacterCreator";
 import { LevelScene } from "@/components/game/LevelScene";
-import { FinalMessage, Fireworks, FragmentReward, TitleScreen, WorldMap } from "@/components/game/Screens";
+import { FragmentReward, TitleScreen, WorldMap } from "@/components/game/Screens";
+import { IntroSequence } from "@/components/game/IntroSequence";
+import { FinalSequence } from "@/components/game/FinalSequence";
 import { audio } from "@/game/audio";
 import { defaultAvatar, loadSave, writeSave, type SaveData } from "@/game/save";
 import type { AvatarConfig } from "@/game/avatar/options";
@@ -30,7 +32,7 @@ export const Route = createFileRoute("/")({
   component: GamePage,
 });
 
-type Scene = "menu" | "creator" | "map" | "level" | "reward" | "message" | "fireworks";
+type Scene = "intro" | "menu" | "creator" | "map" | "level" | "reward" | "final";
 
 function GamePage() {
   return (
@@ -42,7 +44,7 @@ function GamePage() {
 
 function Game() {
   const [save, setSave] = useState<SaveData | null>(null);
-  const [scene, setScene] = useState<Scene>("menu");
+  const [scene, setScene] = useState<Scene>("intro");
   const [draft, setDraft] = useState<AvatarConfig>(defaultAvatar());
   const [levelIndex, setLevelIndex] = useState(0);
 
@@ -77,10 +79,12 @@ function Game() {
     };
     next.messageUnlocked = next.fragments.length >= LEVELS.length;
     persist(next);
-    setScene("reward");
+    setScene(next.messageUnlocked ? "final" : "reward");
   };
 
   switch (scene) {
+    case "intro":
+      return <IntroSequence onDone={() => setScene("menu")} />;
     case "creator":
       return (
         <CharacterCreator
@@ -98,15 +102,14 @@ function Game() {
       return (
         <WorldMap
           avatar={avatar}
-          // modo teste: todas as fases liberadas
-          unlocked={LEVELS.length - 1}
+          unlocked={save.unlocked}
           fragments={fragments}
           onPlay={(i) => {
             audio.resume();
             setLevelIndex(i);
             setScene("level");
           }}
-          onOpenMessage={() => setScene("message")}
+          onOpenMessage={() => setScene("final")}
           onEditAvatar={() => setScene("creator")}
         />
       );
@@ -127,10 +130,8 @@ function Game() {
           onContinue={() => setScene("map")}
         />
       );
-    case "message":
-      return <FinalMessage onFireworks={() => setScene("fireworks")} />;
-    case "fireworks":
-      return <Fireworks onBackToMap={() => setScene("map")} />;
+    case "final":
+      return <FinalSequence onFinished={() => setScene("map")} />;
     default:
       return (
         <TitleScreen

@@ -1,6 +1,15 @@
 type Particle = {
-  x: number; y: number; vx: number; vy: number; life: number; maxLife: number;
-  color: string; size: number; kind: "rocket" | "spark" | "smoke"; hue: number; trail: boolean;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  life: number;
+  maxLife: number;
+  color: string;
+  size: number;
+  kind: "rocket" | "spark" | "smoke";
+  hue: number;
+  trail: boolean;
 };
 
 /** Fully procedural fireworks: rockets, gravity, explosions, secondary sparks, smoke. */
@@ -41,8 +50,12 @@ export class FireworksShow {
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   };
 
-  private get w() { return this.canvas.getBoundingClientRect().width; }
-  private get h() { return this.canvas.getBoundingClientRect().height; }
+  private get w() {
+    return this.canvas.getBoundingClientRect().width;
+  }
+  private get h() {
+    return this.canvas.getBoundingClientRect().height;
+  }
 
   private launch() {
     const hue = Math.floor(Math.random() * 360);
@@ -69,20 +82,32 @@ export class FireworksShow {
       const a = style === 1 ? (i / count) * Math.PI * 2 : Math.random() * Math.PI * 2;
       const speed = style === 1 ? 190 : 90 + Math.random() * 230;
       this.parts.push({
-        x: p.x, y: p.y,
-        vx: Math.cos(a) * speed, vy: Math.sin(a) * speed,
-        life: 1.1 + Math.random() * 1.1, maxLife: 2.2,
+        x: p.x,
+        y: p.y,
+        vx: Math.cos(a) * speed,
+        vy: Math.sin(a) * speed,
+        life: 1.1 + Math.random() * 1.1,
+        maxLife: 2.2,
         color: `hsl(${(p.hue + (style === 2 ? Math.random() * 60 : 0)) % 360}, 95%, ${60 + Math.random() * 25}%)`,
         size: p.size * (0.7 + Math.random() * 0.7),
-        kind: "spark", hue: p.hue, trail: true,
+        kind: "spark",
+        hue: p.hue,
+        trail: true,
       });
     }
     for (let i = 0; i < 12; i++) {
       this.parts.push({
-        x: p.x, y: p.y,
-        vx: (Math.random() - 0.5) * 50, vy: (Math.random() - 0.5) * 50,
-        life: 1.6, maxLife: 1.6, color: "rgba(255,255,255,1)",
-        size: 8 + Math.random() * 12, kind: "smoke", hue: p.hue, trail: false,
+        x: p.x,
+        y: p.y,
+        vx: (Math.random() - 0.5) * 50,
+        vy: (Math.random() - 0.5) * 50,
+        life: 1.6,
+        maxLife: 1.6,
+        color: "rgba(255,255,255,1)",
+        size: 8 + Math.random() * 12,
+        kind: "smoke",
+        hue: p.hue,
+        trail: false,
       });
     }
     this.onBoom();
@@ -121,9 +146,17 @@ export class FireworksShow {
         ctx.fill();
         if (Math.random() < 0.8) {
           this.parts.push({
-            x: p.x, y: p.y, vx: (Math.random() - 0.5) * 20, vy: 20,
-            life: 0.4, maxLife: 0.4, color: "rgba(255,180,90,1)", size: 1.6,
-            kind: "spark", hue: p.hue, trail: false,
+            x: p.x,
+            y: p.y,
+            vx: (Math.random() - 0.5) * 20,
+            vy: 20,
+            life: 0.4,
+            maxLife: 0.4,
+            color: "rgba(255,180,90,1)",
+            size: 1.6,
+            kind: "spark",
+            hue: p.hue,
+            trail: false,
           });
         }
         if (p.life <= 0 || p.vy > -40) {
@@ -136,7 +169,13 @@ export class FireworksShow {
         ctx.globalAlpha = p.kind === "smoke" ? t * 0.06 : t;
         ctx.fillStyle = p.color;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size * (p.kind === "smoke" ? 1 + (1 - t) * 2.5 : t * 0.9 + 0.4), 0, Math.PI * 2);
+        ctx.arc(
+          p.x,
+          p.y,
+          p.size * (p.kind === "smoke" ? 1 + (1 - t) * 2.5 : t * 0.9 + 0.4),
+          0,
+          Math.PI * 2,
+        );
         ctx.fill();
         ctx.globalAlpha = 1;
         if (p.life <= 0 || p.y > this.h + 60) {

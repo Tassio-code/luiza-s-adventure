@@ -12,7 +12,14 @@ function hash(x: number, y: number) {
   return n - Math.floor(n);
 }
 
-function drawCityTile(ctx: Ctx, map: LevelMap, theme: Theme, tx: number, ty: number, solid: boolean) {
+function drawCityTile(
+  ctx: Ctx,
+  map: LevelMap,
+  theme: Theme,
+  tx: number,
+  ty: number,
+  solid: boolean,
+) {
   const px = tx * TILE;
   const py = ty * TILE;
   const isSolid = (x: number, y: number) => {
@@ -96,7 +103,15 @@ export function drawGround(ctx: Ctx, map: LevelMap, theme: Theme, view: View) {
           const wdx = set.wallDx ?? -2;
           const wdy = set.wallDy ?? -6;
           const wgrow = set.wallGrow ?? 4;
-          drawSheetTile(ctx, set.wallSheet, idx, px + wdx, py + wdy, TILE + 1 + wgrow, TILE + 1 + wgrow);
+          drawSheetTile(
+            ctx,
+            set.wallSheet,
+            idx,
+            px + wdx,
+            py + wdy,
+            TILE + 1 + wgrow,
+            TILE + 1 + wgrow,
+          );
 
           const openBelow = !isSolid(tx, ty + 1);
           if (openBelow) {

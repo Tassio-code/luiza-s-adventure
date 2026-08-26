@@ -22,7 +22,10 @@ export function createProgress(): Progress {
 }
 
 /** Adds XP, rolling over as many levels as needed. Never mutates the input. */
-export function addXp(progress: Progress, amount: number): { progress: Progress; levelsGained: number } {
+export function addXp(
+  progress: Progress,
+  amount: number,
+): { progress: Progress; levelsGained: number } {
   const gain = Math.max(0, Math.round(amount));
   let { level, xp } = progress;
   xp += gain;
