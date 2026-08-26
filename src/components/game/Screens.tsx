@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { LEVELS, WEAPONS } from "@/game/content";
+import { LEVELS } from "@/game/content";
 import { audio } from "@/game/audio";
 import { FireworksShow } from "@/game/fireworks";
 import { FINAL_MESSAGE, BIRTHDAY_NAME } from "@/game/message";
@@ -43,89 +43,82 @@ export function WorldMap({
   onOpenMessage: () => void;
   onEditAvatar: () => void;
 }) {
-  const [selected, setSelected] = useState<number | null>(null);
   const all = fragments.length >= LEVELS.length;
-  const level = selected !== null ? LEVELS[selected] : null;
 
   return (
-    <main className="vignette-screen min-h-screen px-4 py-8">
-      <div className="mx-auto max-w-5xl space-y-6">
-        <header className="panel-parchment flex flex-wrap items-center justify-between gap-4 rounded-2xl p-5">
-          <div className="flex items-center gap-4">
-            <AvatarCanvas config={avatar} className="h-24 w-20" />
-            <div>
-              <h1 className="text-2xl text-primary">{avatar.name}</h1>
-              <p className="text-sm text-muted-foreground">Fragmentos reunidos: {fragments.length}/5</p>
-              <div className="mt-2 flex gap-1.5">
-                {LEVELS.map((l, i) => (
-                  <span
-                    key={l.id}
-                    className={`h-5 w-5 rotate-45 rounded-sm ${
-                      fragments.includes(i) ? "bg-primary animate-fragment" : "border border-border bg-secondary"
-                    }`}
-                  />
-                ))}
-              </div>
+    <main className="vignette-screen min-h-screen px-4 pb-10 pt-6">
+      <div className="mx-auto w-full max-w-xl space-y-5">
+        <header className="panel-parchment grid grid-cols-[auto_minmax(0,1fr)] items-center gap-4 rounded-2xl p-4">
+          <AvatarCanvas config={avatar} className="h-20 w-16 shrink-0" />
+          <div className="min-w-0">
+            <h1 className="truncate text-xl text-primary">{avatar.name}</h1>
+            <p className="text-sm text-muted-foreground">
+              Fragmentos: {fragments.length}/{LEVELS.length}
+            </p>
+            <div className="mt-2 flex gap-1.5">
+              {LEVELS.map((l, i) => (
+                <span
+                  key={l.id}
+                  className={`h-5 w-5 rotate-45 rounded-sm ${
+                    fragments.includes(i) ? "bg-primary animate-fragment" : "border border-border bg-secondary"
+                  }`}
+                />
+              ))}
             </div>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="secondary" onClick={onEditAvatar}>Ajustar avatar</Button>
-            {all && <Button onClick={onOpenMessage}>Abrir mensagem</Button>}
           </div>
         </header>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {LEVELS.map((l, i) => {
-            const locked = i > unlocked;
-            const done = fragments.includes(i);
-            return (
-              <button
-                key={l.id}
-                type="button"
-                onClick={() => {
-                  audio.ui();
-                  setSelected(i);
-                }}
-                className={`panel-parchment rounded-2xl p-5 text-left transition-transform hover:-translate-y-1 ${
-                  locked ? "opacity-60" : ""
-                }`}
-              >
-                <p className="text-xs uppercase tracking-widest text-muted-foreground">Região {i + 1}</p>
-                <h2 className="mt-1 text-lg text-primary">{l.region}</h2>
-                <p className="mt-1 text-sm text-foreground">{l.name}</p>
-                <p className="mt-3 text-xs text-muted-foreground">
-                  {locked ? "Fase bloqueada" : done ? "Fragmento obtido" : "Disponível"}
-                </p>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {level && selected !== null && (
-        <div className="fixed inset-0 z-20 flex items-center justify-center bg-ink/85 p-4" onClick={() => setSelected(null)}>
-          <div className="panel-parchment w-full max-w-lg rounded-2xl p-6" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-2xl text-primary">{level.name}</h2>
-            <p className="mt-2 text-sm text-muted-foreground">{level.description}</p>
-            <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
-              <div><dt className="text-muted-foreground">Arma</dt><dd>{WEAPONS[level.weapon].name}</dd></div>
-              <div><dt className="text-muted-foreground">Inimigos</dt><dd>{level.enemy === "orc" ? "Orcs" : level.enemy === "zombie" ? "Zumbis" : level.enemy === "frost" ? "Zumbis de gelo" : level.enemy === "skeleton" ? "Esqueletos" : "Vampiros"}</dd></div>
-              <div><dt className="text-muted-foreground">Chefe</dt><dd>{level.bossName}</dd></div>
-              <div><dt className="text-muted-foreground">Fragmento</dt><dd>{level.fragmentName}</dd></div>
-            </dl>
-            <div className="mt-5 flex gap-3">
-              <Button variant="secondary" onClick={() => setSelected(null)}>Fechar</Button>
-              {selected > unlocked ? (
-                <p className="flex-1 self-center text-sm text-muted-foreground">
-                  Complete a fase anterior para desbloquear este local.
-                </p>
-              ) : (
-                <Button className="flex-1" onClick={() => onPlay(selected)}>Iniciar fase</Button>
-              )}
-            </div>
+        {/* 3D-ish journey map: a perspective path with five nodes, no names. */}
+        <div
+          className="panel-parchment relative overflow-hidden rounded-2xl px-4 py-8"
+          style={{ perspective: "700px" }}
+        >
+          <div className="flex flex-col-reverse items-center gap-6" style={{ transform: "rotateX(16deg)" }}>
+            {LEVELS.map((l, i) => {
+              const locked = i > unlocked;
+              const done = fragments.includes(i);
+              const current = !locked && !done;
+              const offset = (i % 2 === 0 ? -1 : 1) * 42;
+              return (
+                <button
+                  key={l.id}
+                  type="button"
+                  disabled={locked}
+                  aria-label={`Fase ${i + 1}${locked ? " bloqueada" : done ? " concluída" : ""}`}
+                  onClick={() => {
+                    audio.ui();
+                    if (!locked) onPlay(i);
+                  }}
+                  style={{ transform: `translateX(${offset}px)` }}
+                  className={`relative flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-2 text-lg transition-transform active:scale-95 ${
+                    locked
+                      ? "border-border/60 bg-secondary/60 text-muted-foreground"
+                      : done
+                        ? "border-primary bg-primary/25 text-primary shadow-[0_0_24px_hsl(var(--primary)/0.45)]"
+                        : "border-accent bg-accent/20 text-accent shadow-[0_0_28px_hsl(var(--accent)/0.45)]"
+                  }`}
+                >
+                  {locked ? "🔒" : done ? "◆" : "▶"}
+                  {current && (
+                    <span className="absolute -inset-1 animate-ping rounded-full border border-accent/50" />
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
-      )}
+
+        <div className="grid gap-3">
+          <Button variant="secondary" className="h-12" onClick={onEditAvatar}>
+            Ajustar avatar
+          </Button>
+          {all && (
+            <Button className="h-12" onClick={onOpenMessage}>
+              Abrir o pergaminho
+            </Button>
+          )}
+        </div>
+      </div>
     </main>
   );
 }
