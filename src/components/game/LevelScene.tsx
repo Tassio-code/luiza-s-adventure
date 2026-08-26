@@ -159,7 +159,9 @@ export function LevelScene({
 
       {!loaded && (
         <div className="absolute inset-0 flex items-center justify-center bg-ink/90">
-          <p className="text-sm uppercase tracking-widest text-primary">Carregando {level.region}…</p>
+          <p className="text-sm uppercase tracking-widest text-primary">
+            Carregando {level.region}…
+          </p>
         </div>
       )}
 
@@ -177,7 +179,8 @@ export function LevelScene({
               />
             </div>
             <p className="mt-1 text-sm text-foreground">
-              {hud?.hp ?? 100} <span className="text-muted-foreground">vida</span> · {hud?.medkits ?? 0} kit(s)
+              {hud?.hp ?? 100} <span className="text-muted-foreground">vida</span> ·{" "}
+              {hud?.medkits ?? 0} kit(s)
             </p>
             <p className="text-sm text-primary">
               {weapon.name} · {hud?.ammo ?? weapon.startAmmo} munição
@@ -201,7 +204,9 @@ export function LevelScene({
         </div>
         {hud && hud.phase === "boss" && hud.bossMaxHp > 0 && (
           <div className="panel-parchment mx-auto w-full max-w-md rounded-xl px-4 py-2">
-            <p className="text-center text-xs uppercase tracking-widest text-accent">{hud.bossName}</p>
+            <p className="text-center text-xs uppercase tracking-widest text-accent">
+              {hud.bossName}
+            </p>
             <div className="mt-1 h-3 overflow-hidden rounded-full bg-secondary">
               <div
                 className="h-full rounded-full bg-accent transition-[width] duration-200"
@@ -228,10 +233,7 @@ export function LevelScene({
 
       {touch && (
         <div className="absolute inset-x-0 bottom-0 flex items-end justify-between px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-2">
-          <Stick
-            label="Mover"
-            onMove={(x, y) => engineRef.current?.getInput().setJoystick(x, y)}
-          />
+          <Stick label="Mover" onMove={(x, y) => engineRef.current?.getInput().setJoystick(x, y)} />
           <div className="flex flex-col items-center gap-3">
             <button
               type="button"
@@ -263,7 +265,8 @@ export function LevelScene({
 
       {!touch && (
         <p className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-muted-foreground">
-          WASD para mover · mouse para mirar · clique/espaço para atirar · E interagir · Q curar · ESC pausar
+          WASD para mover · mouse para mirar · clique/espaço para atirar · E interagir · Q curar ·
+          ESC pausar
         </p>
       )}
 

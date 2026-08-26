@@ -372,7 +372,7 @@ function drawEyes(ctx: Ctx, av: ResolvedAvatar, blink: number) {
     soft: { rx: 2.4, ry: 2.0, tilt: -0.06 },
     wide: { rx: 2.9, ry: 2.6, tilt: 0 },
   };
-  const s = shapes[av.eyes] ?? shapes['almond'];
+  const s = shapes[av.eyes] ?? shapes["almond"];
   for (const dir of [-1, 1] as const) {
     const x = dir * 3.9;
     ctx.save();
@@ -793,15 +793,7 @@ export function drawAvatar(
   y: number,
   scale: number,
 ) {
-  const {
-    state,
-    time,
-    aim,
-    facing,
-    flash = 0,
-    recoil = 0,
-    weapon = "none",
-  } = pose;
+  const { state, time, aim, facing, flash = 0, recoil = 0, weapon = "none" } = pose;
   const running = state === "run";
   const cycle = time * 9;
   const swing = running ? Math.sin(cycle) * 0.55 : Math.sin(time * 2) * 0.04;

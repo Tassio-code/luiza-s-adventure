@@ -71,7 +71,13 @@ export class ParticleSystem {
     y: number,
     count: number,
     color: string,
-    opts: { speed?: number; life?: number; size?: number; shape?: Particle["shape"]; gravity?: number } = {},
+    opts: {
+      speed?: number;
+      life?: number;
+      size?: number;
+      shape?: Particle["shape"];
+      gravity?: number;
+    } = {},
   ) {
     const speed = opts.speed ?? 140;
     for (let i = 0; i < count; i++) {
@@ -124,7 +130,13 @@ export class ParticleSystem {
         ctx.restore();
       } else {
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size * (p.shape === "smoke" ? 1 + (1 - t) * 2 : t + 0.3), 0, Math.PI * 2);
+        ctx.arc(
+          p.x,
+          p.y,
+          p.size * (p.shape === "smoke" ? 1 + (1 - t) * 2 : t + 0.3),
+          0,
+          Math.PI * 2,
+        );
         ctx.fill();
       }
     }

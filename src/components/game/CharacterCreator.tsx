@@ -153,28 +153,83 @@ export function CharacterCreator({
 
         <div className="flex-1 space-y-5 overflow-y-auto pr-1">
           {tab === "corpo" && (
-            <Swatches items={SKIN_TONES} value={value.skin} onSelect={(id) => set("skin", id)} label="Tom de pele" />
+            <Swatches
+              items={SKIN_TONES}
+              value={value.skin}
+              onSelect={(id) => set("skin", id)}
+              label="Tom de pele"
+            />
           )}
           {tab === "cabelo" && (
             <>
-              <Chips items={HAIR_STYLES} value={value.hair} onSelect={(id) => set("hair", id)} label="Penteado" />
-              <Swatches items={HAIR_COLORS} value={value.hairColor} onSelect={(id) => set("hairColor", id)} label="Cor do cabelo" />
+              <Chips
+                items={HAIR_STYLES}
+                value={value.hair}
+                onSelect={(id) => set("hair", id)}
+                label="Penteado"
+              />
+              <Swatches
+                items={HAIR_COLORS}
+                value={value.hairColor}
+                onSelect={(id) => set("hairColor", id)}
+                label="Cor do cabelo"
+              />
             </>
           )}
           {tab === "rosto" && (
             <>
-              <Chips items={EYE_SHAPES} value={value.eyes} onSelect={(id) => set("eyes", id)} label="Formato dos olhos" />
-              <Swatches items={EYE_COLORS} value={value.eyeColor} onSelect={(id) => set("eyeColor", id)} label="Cor dos olhos" />
-              <Chips items={BROW_SHAPES} value={value.brow} onSelect={(id) => set("brow", id)} label="Sobrancelhas" />
-              <Chips items={MOUTH_SHAPES} value={value.mouth} onSelect={(id) => set("mouth", id)} label="Boca" />
+              <Chips
+                items={EYE_SHAPES}
+                value={value.eyes}
+                onSelect={(id) => set("eyes", id)}
+                label="Formato dos olhos"
+              />
+              <Swatches
+                items={EYE_COLORS}
+                value={value.eyeColor}
+                onSelect={(id) => set("eyeColor", id)}
+                label="Cor dos olhos"
+              />
+              <Chips
+                items={BROW_SHAPES}
+                value={value.brow}
+                onSelect={(id) => set("brow", id)}
+                label="Sobrancelhas"
+              />
+              <Chips
+                items={MOUTH_SHAPES}
+                value={value.mouth}
+                onSelect={(id) => set("mouth", id)}
+                label="Boca"
+              />
             </>
           )}
           {tab === "roupas" && (
             <>
-              <Chips items={TOPS} value={value.top} onSelect={(id) => set("top", id)} label="Parte de cima" />
-              <Swatches items={CLOTH_COLORS} value={value.topColor} onSelect={(id) => set("topColor", id)} label="Cor da blusa" />
-              <Chips items={BOTTOMS} value={value.bottom} onSelect={(id) => set("bottom", id)} label="Parte de baixo" />
-              <Swatches items={CLOTH_COLORS} value={value.bottomColor} onSelect={(id) => set("bottomColor", id)} label="Cor da calça/saia" />
+              <Chips
+                items={TOPS}
+                value={value.top}
+                onSelect={(id) => set("top", id)}
+                label="Parte de cima"
+              />
+              <Swatches
+                items={CLOTH_COLORS}
+                value={value.topColor}
+                onSelect={(id) => set("topColor", id)}
+                label="Cor da blusa"
+              />
+              <Chips
+                items={BOTTOMS}
+                value={value.bottom}
+                onSelect={(id) => set("bottom", id)}
+                label="Parte de baixo"
+              />
+              <Swatches
+                items={CLOTH_COLORS}
+                value={value.bottomColor}
+                onSelect={(id) => set("bottomColor", id)}
+                label="Cor da calça/saia"
+              />
             </>
           )}
           {tab === "extras" && (
@@ -188,7 +243,9 @@ export function CharacterCreator({
                       key={item.id}
                       type="button"
                       aria-pressed={active}
-                      onClick={() => set("accessories", toggleAccessory(value.accessories, item.id))}
+                      onClick={() =>
+                        set("accessories", toggleAccessory(value.accessories, item.id))
+                      }
                       className={`rounded-full border px-3 py-1.5 text-sm transition-colors ${
                         active
                           ? "border-primary bg-primary text-primary-foreground"

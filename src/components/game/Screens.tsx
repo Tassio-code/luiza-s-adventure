@@ -7,17 +7,31 @@ import { FINAL_MESSAGE, BIRTHDAY_NAME } from "@/game/message";
 import { AvatarCanvas } from "./AvatarCanvas";
 import type { AvatarConfig } from "@/game/avatar/options";
 
-export function TitleScreen({ onStart, hasSave, onContinue }: { onStart: () => void; hasSave: boolean; onContinue: () => void }) {
+export function TitleScreen({
+  onStart,
+  hasSave,
+  onContinue,
+}: {
+  onStart: () => void;
+  hasSave: boolean;
+  onContinue: () => void;
+}) {
   return (
     <main className="vignette-screen flex min-h-screen flex-col items-center justify-center gap-6 px-6 text-center">
-      <p className="text-xs uppercase tracking-[0.4em] text-primary">uma aventura para {BIRTHDAY_NAME}</p>
-      <h1 className="max-w-2xl text-4xl leading-tight text-primary text-glow sm:text-6xl">Os Cinco Fragmentos</h1>
+      <p className="text-xs uppercase tracking-[0.4em] text-primary">
+        uma aventura para {BIRTHDAY_NAME}
+      </p>
+      <h1 className="max-w-2xl text-4xl leading-tight text-primary text-glow sm:text-6xl">
+        Os Cinco Fragmentos
+      </h1>
       <p className="max-w-xl text-sm text-muted-foreground sm:text-base">
-        Cinco regiões, cinco fragmentos e uma mensagem escondida no final. Crie sua heroína e atravesse
-        a floresta, a cidade, a neve, o deserto e o castelo.
+        Cinco regiões, cinco fragmentos e uma mensagem escondida no final. Crie sua heroína e
+        atravesse a floresta, a cidade, a neve, o deserto e o castelo.
       </p>
       <div className="flex flex-col gap-3 sm:flex-row">
-        <Button size="lg" onClick={onStart}>{hasSave ? "Nova jornada" : "Começar"}</Button>
+        <Button size="lg" onClick={onStart}>
+          {hasSave ? "Nova jornada" : "Começar"}
+        </Button>
         {hasSave && (
           <Button size="lg" variant="secondary" onClick={onContinue}>
             Continuar
@@ -60,7 +74,9 @@ export function WorldMap({
                 <span
                   key={l.id}
                   className={`h-5 w-5 rotate-45 rounded-sm ${
-                    fragments.includes(i) ? "bg-primary animate-fragment" : "border border-border bg-secondary"
+                    fragments.includes(i)
+                      ? "bg-primary animate-fragment"
+                      : "border border-border bg-secondary"
                   }`}
                 />
               ))}
@@ -73,7 +89,10 @@ export function WorldMap({
           className="panel-parchment relative overflow-hidden rounded-2xl px-4 py-8"
           style={{ perspective: "700px" }}
         >
-          <div className="flex flex-col-reverse items-center gap-6" style={{ transform: "rotateX(16deg)" }}>
+          <div
+            className="flex flex-col-reverse items-center gap-6"
+            style={{ transform: "rotateX(16deg)" }}
+          >
             {LEVELS.map((l, i) => {
               const locked = i > unlocked;
               const done = fragments.includes(i);
@@ -144,7 +163,9 @@ export function FragmentReward({
         <p className="mt-2 text-lg text-foreground">{level?.fragmentName}</p>
         <p className="mt-1 text-sm text-muted-foreground">{total}/5 reunidos</p>
       </div>
-      <Button size="lg" onClick={onContinue}>Voltar ao mapa</Button>
+      <Button size="lg" onClick={onContinue}>
+        Voltar ao mapa
+      </Button>
     </main>
   );
 }
@@ -164,7 +185,10 @@ export function FinalMessage({ onFireworks }: { onFireworks: () => void }) {
             <span key={l.id} className="h-4 w-4 rotate-45 rounded-sm bg-primary animate-fragment" />
           ))}
         </div>
-        <p className="min-h-[10rem] whitespace-pre-line text-base leading-relaxed text-foreground animate-title-in" key={index}>
+        <p
+          className="min-h-[10rem] whitespace-pre-line text-base leading-relaxed text-foreground animate-title-in"
+          key={index}
+        >
           {FINAL_MESSAGE[index]}
         </p>
         <div className="mt-8 flex items-center justify-between gap-3">
@@ -201,7 +225,9 @@ export function Fireworks({ onBackToMap }: { onBackToMap: () => void }) {
     <main className="relative h-screen w-full overflow-hidden bg-ink">
       <canvas ref={ref} className="absolute inset-0 h-full w-full" />
       <div className="relative z-10 flex h-full flex-col items-center justify-center gap-4 px-6 text-center">
-        <h1 className="text-4xl text-primary text-glow sm:text-6xl">FELIZ ANIVERSÁRIO, {BIRTHDAY_NAME.toUpperCase()}</h1>
+        <h1 className="text-4xl text-primary text-glow sm:text-6xl">
+          FELIZ ANIVERSÁRIO, {BIRTHDAY_NAME.toUpperCase()}
+        </h1>
         {step >= 1 && (
           <p className="animate-title-in text-lg text-foreground sm:text-2xl">
             Que seus sonhos se tornem realidade.

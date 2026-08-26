@@ -169,7 +169,8 @@ export class GameEngine {
     if (!context) throw new Error("Canvas 2D não disponível neste dispositivo.");
     this.ctx = context;
     this.map = generateLevel(level.index);
-    const coarse = typeof window !== "undefined" && window.matchMedia?.("(pointer: coarse)").matches;
+    const coarse =
+      typeof window !== "undefined" && window.matchMedia?.("(pointer: coarse)").matches;
     this.director = new MusicDirector(stageTrack(level.index).plan, coarse ? 0.75 : 1);
     this.rng = createRng(4242 + level.index * 31);
     this.weapon = level.weapon;
@@ -226,7 +227,10 @@ export class GameEngine {
     this.player.medkits--;
     this.player.hp = Math.min(this.player.maxHp, this.player.hp + 45);
     audio.heal();
-    this.particles.burst(this.player.x, this.player.y - 24, 18, "#7ee08a", { speed: 90, life: 0.7 });
+    this.particles.burst(this.player.x, this.player.y - 24, 18, "#7ee08a", {
+      speed: 90,
+      life: 0.7,
+    });
     this.emitHud(true);
   }
 
@@ -245,7 +249,18 @@ export class GameEngine {
   /* -------------------------------- world -------------------------------- */
 
   private makeBullet(): Bullet {
-    return { active: false, x: 0, y: 0, vx: 0, vy: 0, life: 0, damage: 0, size: 3, knockback: 0, color: "#ffd98a" };
+    return {
+      active: false,
+      x: 0,
+      y: 0,
+      vx: 0,
+      vy: 0,
+      life: 0,
+      damage: 0,
+      size: 3,
+      knockback: 0,
+      color: "#ffd98a",
+    };
   }
 
   private populateWorld() {
@@ -323,7 +338,11 @@ export class GameEngine {
       attackCooldown: 0,
     };
     this.enemies.push(enemy);
-    this.particles.burst(spot.x, spot.y - 20, 10, "#8b8b8b", { speed: 70, life: 0.5, shape: "smoke" });
+    this.particles.burst(spot.x, spot.y - 20, 10, "#8b8b8b", {
+      speed: 70,
+      life: 0.5,
+      shape: "smoke",
+    });
   }
 
   private spawnBoss() {
@@ -492,13 +511,25 @@ export class GameEngine {
 
   private openCrate(crate: Crate) {
     crate.opened = true;
-    this.particles.burst(crate.x, crate.y - 10, 20, "#c79a5b", { speed: 130, life: 0.6, shape: "shard", gravity: 260 });
+    this.particles.burst(crate.x, crate.y - 10, 20, "#c79a5b", {
+      speed: 130,
+      life: 0.6,
+      shape: "shard",
+      gravity: 260,
+    });
     audio.pickup();
     if (crate.loot === "ammo") {
       const amount = randInt(this.rng, 10, 20);
       this.pickups.push({ active: true, kind: "ammo", x: crate.x, y: crate.y, amount, bob: 0 });
     } else {
-      this.pickups.push({ active: true, kind: "medkit", x: crate.x, y: crate.y, amount: 1, bob: 0 });
+      this.pickups.push({
+        active: true,
+        kind: "medkit",
+        x: crate.x,
+        y: crate.y,
+        amount: 1,
+        bob: 0,
+      });
     }
   }
 
@@ -569,7 +600,8 @@ export class GameEngine {
       }
       if (!b.active) continue;
 
-      const targets: Enemy[] = this.boss && this.boss.alive ? [...this.enemies, this.boss] : this.enemies;
+      const targets: Enemy[] =
+        this.boss && this.boss.alive ? [...this.enemies, this.boss] : this.enemies;
       for (const e of targets) {
         if (!e.alive) continue;
         const stats = ENEMIES[e.kind];
@@ -665,10 +697,16 @@ export class GameEngine {
       this.stats = statsFor(this.progress.level);
       const prevMax = this.player.maxHp;
       this.player.maxHp = this.stats.maxHp;
-      this.player.hp = Math.min(this.player.maxHp, this.player.hp + (this.player.maxHp - prevMax) + 12);
+      this.player.hp = Math.min(
+        this.player.maxHp,
+        this.player.hp + (this.player.maxHp - prevMax) + 12,
+      );
       this.player.speed = 190 * this.stats.speedMul;
       audio.heal();
-      this.particles.burst(this.player.x, this.player.y - 26, 34, "#ffd98a", { speed: 170, life: 0.8 });
+      this.particles.burst(this.player.x, this.player.y - 26, 34, "#ffd98a", {
+        speed: 170,
+        life: 0.8,
+      });
       this.callbacks.onToast(`Nível ${this.progress.level} — mais forte!`);
       this.emitHud(true);
     }
@@ -763,7 +801,11 @@ export class GameEngine {
 
       if (ranged) {
         e.fireTimer -= dt;
-        if (e.fireTimer <= 0 && dist < 460 && hasLineOfSight(this.map, e.x, e.y - 20, p.x, p.y - 26)) {
+        if (
+          e.fireTimer <= 0 &&
+          dist < 460 &&
+          hasLineOfSight(this.map, e.x, e.y - 20, p.x, p.y - 26)
+        ) {
           e.fireTimer = stats.fireRate * rand(this.rng, 0.8, 1.3);
           this.enemyShoot(e, stats.projectileSpeed, stats.damage * 0.8);
         }
@@ -780,10 +822,13 @@ export class GameEngine {
   private enemyShoot(e: Enemy, speed: number, damage: number, angleOverride?: number) {
     const b = this.enemyBullets.find((bullet) => !bullet.active);
     if (!b) return;
-    const angle =
-      angleOverride ?? Math.atan2(this.player.y - 26 - (e.y - 24), this.player.x - e.x);
+    const angle = angleOverride ?? Math.atan2(this.player.y - 26 - (e.y - 24), this.player.x - e.x);
     const color =
-      e.kind === "frost" ? "#a9e6ff" : e.kind === "vampire" || e.kind === "boss" ? "#ff6b8a" : "#cfd6a0";
+      e.kind === "frost"
+        ? "#a9e6ff"
+        : e.kind === "vampire" || e.kind === "boss"
+          ? "#ff6b8a"
+          : "#cfd6a0";
     b.active = true;
     b.x = e.x + Math.cos(angle) * 18;
     b.y = e.y - 24 + Math.sin(angle) * 18;
@@ -812,7 +857,14 @@ export class GameEngine {
     st.phase = hpRatio > 0.66 ? 1 : hpRatio > 0.33 ? 2 : 3;
 
     const move = (speed: number) => {
-      const moved = moveCircle(this.map, boss.x, boss.y, (dx / dist) * speed * dt, (dy / dist) * speed * dt, 26);
+      const moved = moveCircle(
+        this.map,
+        boss.x,
+        boss.y,
+        (dx / dist) * speed * dt,
+        (dy / dist) * speed * dt,
+        26,
+      );
       boss.x = moved.x;
       boss.y = moved.y;
     };
@@ -931,7 +983,11 @@ export class GameEngine {
         this.player.victory = true;
         this.phase = "done";
         this.completeTimer = 1.4;
-        this.particles.burst(item.x, item.y - 20, 60, "#ffd88a", { speed: 210, life: 1.2, size: 3.4 });
+        this.particles.burst(item.x, item.y - 20, 60, "#ffd88a", {
+          speed: 210,
+          life: 1.2,
+          size: 3.4,
+        });
       }
       item.active = false;
       this.pickups.splice(i, 1);
@@ -979,11 +1035,41 @@ export class GameEngine {
       const x = this.cam.x + rand(this.rng, -this.viewW / 2, this.viewW / 2);
       const y = this.cam.y - this.viewH / 2 - 20;
       const cfg = {
-        leaf: { color: "#9ccf7a", vx: rand(this.rng, -30, 10), vy: rand(this.rng, 20, 50), size: 2.6, life: 6 },
-        dust: { color: "rgba(220,210,190,0.7)", vx: rand(this.rng, -20, 20), vy: rand(this.rng, 10, 30), size: 1.8, life: 5 },
-        snow: { color: "#ffffff", vx: rand(this.rng, -60, -10), vy: rand(this.rng, 60, 120), size: 2.4, life: 5 },
-        sand: { color: "#e6cd9a", vx: rand(this.rng, -140, -60), vy: rand(this.rng, 10, 40), size: 2, life: 4 },
-        ash: { color: "#d68b8b", vx: rand(this.rng, -25, 25), vy: rand(this.rng, 20, 45), size: 2.2, life: 6 },
+        leaf: {
+          color: "#9ccf7a",
+          vx: rand(this.rng, -30, 10),
+          vy: rand(this.rng, 20, 50),
+          size: 2.6,
+          life: 6,
+        },
+        dust: {
+          color: "rgba(220,210,190,0.7)",
+          vx: rand(this.rng, -20, 20),
+          vy: rand(this.rng, 10, 30),
+          size: 1.8,
+          life: 5,
+        },
+        snow: {
+          color: "#ffffff",
+          vx: rand(this.rng, -60, -10),
+          vy: rand(this.rng, 60, 120),
+          size: 2.4,
+          life: 5,
+        },
+        sand: {
+          color: "#e6cd9a",
+          vx: rand(this.rng, -140, -60),
+          vy: rand(this.rng, 10, 40),
+          size: 2,
+          life: 4,
+        },
+        ash: {
+          color: "#d68b8b",
+          vx: rand(this.rng, -25, 25),
+          vy: rand(this.rng, 20, 45),
+          size: 2.2,
+          life: 6,
+        },
       }[theme.particle];
       this.ambient.spawn({ ...cfg, x, y, drag: 1, shape: "dot" });
     }
@@ -1293,7 +1379,12 @@ export class GameEngine {
       for (let tx = 0; tx < this.map.cols; tx += 1) {
         if (this.map.tiles[ty * this.map.cols + tx] === 1) continue;
         ctx.fillStyle = "rgba(200,190,170,0.35)";
-        ctx.fillRect(ox + tx * TILE * scale, oy + ty * TILE * scale, TILE * scale + 0.5, TILE * scale + 0.5);
+        ctx.fillRect(
+          ox + tx * TILE * scale,
+          oy + ty * TILE * scale,
+          TILE * scale + 0.5,
+          TILE * scale + 0.5,
+        );
       }
     }
     for (const e of this.enemies) {

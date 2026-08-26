@@ -72,7 +72,9 @@ export function FinalSequence({ onFinished }: { onFinished: () => void }) {
     return (
       <main className="vignette-screen flex min-h-screen items-center justify-center px-3 py-6">
         <div className="panel-parchment flex max-h-[88vh] w-full max-w-2xl flex-col rounded-2xl p-5 sm:p-8">
-          <h1 className="text-center text-xl text-primary sm:text-2xl">Pergaminho dos Cinco Fragmentos</h1>
+          <h1 className="text-center text-xl text-primary sm:text-2xl">
+            Pergaminho dos Cinco Fragmentos
+          </h1>
           <div className="mt-4 min-h-0 flex-1 space-y-4 overflow-y-auto pr-1 text-[15px] leading-relaxed text-foreground">
             {FINAL_MESSAGE.map((paragraph, i) => (
               <p key={i} className="whitespace-pre-line break-words">
@@ -103,7 +105,9 @@ export function FinalSequence({ onFinished }: { onFinished: () => void }) {
   if (step === "thanks") {
     return (
       <main className="flex min-h-screen items-center justify-center bg-ink px-6">
-        <p className="animate-fade-in text-center text-2xl text-primary/90 sm:text-4xl">Obrigado por jogar.</p>
+        <p className="animate-fade-in text-center text-2xl text-primary/90 sm:text-4xl">
+          Obrigado por jogar.
+        </p>
       </main>
     );
   }

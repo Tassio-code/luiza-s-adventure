@@ -44,7 +44,8 @@ export class AudioManager {
   /** True once the browser reports a user gesture (required for WebAudio). */
   private hasUserActivation() {
     if (typeof navigator === "undefined") return false;
-    const ua = (navigator as Navigator & { userActivation?: { hasBeenActive: boolean } }).userActivation;
+    const ua = (navigator as Navigator & { userActivation?: { hasBeenActive: boolean } })
+      .userActivation;
     return ua ? ua.hasBeenActive : true;
   }
 
@@ -68,7 +69,8 @@ export class AudioManager {
       return;
     }
     const Ctx: Ctor | undefined =
-      window.AudioContext ?? (window as unknown as { webkitAudioContext?: Ctor }).webkitAudioContext;
+      window.AudioContext ??
+      (window as unknown as { webkitAudioContext?: Ctor }).webkitAudioContext;
     if (!Ctx) return;
 
     try {
@@ -373,7 +375,6 @@ export class AudioManager {
     this.musicDuration = null;
     this.currentTrack = null;
   }
-
 
   dispose() {
     this.stopMusic();

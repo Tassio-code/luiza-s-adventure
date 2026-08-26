@@ -7,7 +7,19 @@ export type Room = { x: number; y: number; w: number; h: number; cx: number; cy:
 export type Decoration = {
   x: number;
   y: number;
-  kind: "tree" | "bush" | "rock" | "car" | "lamp" | "sign" | "cactus" | "pillar" | "torch" | "crystal" | "grave" | "puddle";
+  kind:
+    | "tree"
+    | "bush"
+    | "rock"
+    | "car"
+    | "lamp"
+    | "sign"
+    | "cactus"
+    | "pillar"
+    | "torch"
+    | "crystal"
+    | "grave"
+    | "puddle";
   scale: number;
   rot: number;
 };
