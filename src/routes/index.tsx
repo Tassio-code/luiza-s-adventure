@@ -109,7 +109,7 @@ function Game() {
             setLevelIndex(i);
             setScene("level");
           }}
-          onOpenMessage={() => setScene("message")}
+          onOpenMessage={() => setScene("final")}
           onEditAvatar={() => setScene("creator")}
         />
       );
