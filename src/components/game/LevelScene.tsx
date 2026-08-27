@@ -223,22 +223,24 @@ export function LevelScene({
         </p>
       )}
 
-      <button
-        type="button"
-        onClick={() => setPaused(true)}
-        className="absolute right-4 top-44 h-11 rounded-md border border-border bg-card/80 px-4 text-xs text-foreground active:scale-95"
-      >
-        Pausar
-      </button>
+      {!touch && (
+        <button
+          type="button"
+          onClick={() => setPaused(true)}
+          className="absolute right-4 top-44 h-11 rounded-md border border-border bg-card/80 px-4 text-xs text-foreground active:scale-95"
+        >
+          Pausar
+        </button>
+      )}
 
       {touch && (
-        <div className="absolute inset-x-0 bottom-0 flex items-end justify-between px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-2">
-          <Stick label="Mover" onMove={(x, y) => engineRef.current?.getInput().setJoystick(x, y)} />
-          <div className="flex flex-col items-center gap-3">
+        <>
+          {/* action row sits well above the sticks so thumbs never overlap */}
+          <div className="absolute inset-x-0 bottom-[calc(11.5rem+env(safe-area-inset-bottom))] flex items-center justify-center gap-3 px-4">
             <button
               type="button"
               onClick={() => engineRef.current?.useMedkit()}
-              className="h-14 w-14 rounded-full border border-primary/50 bg-card/70 text-xs text-primary active:scale-95"
+              className="h-12 min-w-[5.25rem] rounded-full border border-primary/50 bg-card/80 text-xs text-primary active:scale-95"
             >
               Curar
             </button>
@@ -250,18 +252,33 @@ export function LevelScene({
                 if (!engine) return;
                 engine.getInput().state.interact = true;
               }}
-              className="h-14 w-14 rounded-full border border-primary/50 bg-card/70 text-xs text-primary active:scale-95"
+              className="h-12 min-w-[5.25rem] rounded-full border border-primary/50 bg-card/80 text-xs text-primary active:scale-95"
             >
               Interagir
             </button>
+            <button
+              type="button"
+              onClick={() => setPaused(true)}
+              className="h-12 min-w-[4.5rem] rounded-full border border-border bg-card/80 text-xs text-foreground active:scale-95"
+            >
+              Pausar
+            </button>
+          </div>
+
+          <div className="absolute inset-x-0 bottom-0 flex items-end justify-between px-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
+            <Stick
+              label="Mover"
+              onMove={(x, y) => engineRef.current?.getInput().setJoystick(x, y)}
+            />
             <Stick
               label="Mirar / Atirar"
               fire
               onMove={(x, y, active) => engineRef.current?.getInput().setAimStick(x, y, active)}
             />
           </div>
-        </div>
+        </>
       )}
+
 
       {!touch && (
         <p className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-muted-foreground">
