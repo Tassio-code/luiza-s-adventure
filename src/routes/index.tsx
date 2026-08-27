@@ -84,7 +84,16 @@ function Game() {
 
   switch (scene) {
     case "intro":
-      return <IntroSequence onDone={() => setScene("menu")} />;
+      return (
+        <IntroSequence
+          onDone={() => {
+            audio.resume();
+            // as frases terminam e o jogo entra direto na criação do personagem
+            setDraft(save.avatar ?? defaultAvatar());
+            setScene(save.avatar ? "map" : "creator");
+          }}
+        />
+      );
     case "creator":
       return (
         <CharacterCreator
