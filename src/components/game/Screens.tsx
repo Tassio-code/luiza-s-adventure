@@ -132,6 +132,7 @@ export function WorldMap({
           <Button variant="secondary" className="h-12" onClick={onEditAvatar}>
             Ajustar avatar
           </Button>
+          <InstallButton />
           {all && (
             <Button className="h-12" onClick={onOpenMessage}>
               Abrir o pergaminho

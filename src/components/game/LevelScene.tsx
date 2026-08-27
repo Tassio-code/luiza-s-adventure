@@ -279,7 +279,6 @@ export function LevelScene({
         </>
       )}
 
-
       {!touch && (
         <p className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-muted-foreground">
           WASD para mover · mouse para mirar · clique/espaço para atirar · E interagir · Q curar ·

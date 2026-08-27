@@ -49,6 +49,12 @@ function Game() {
   const [levelIndex, setLevelIndex] = useState(0);
 
   useEffect(() => {
+    // instalável no celular: registra o service worker do app
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js").catch(() => {
+        /* sem offline; o jogo continua normalmente */
+      });
+    }
     const loaded = loadSave();
     setSave(loaded);
     if (loaded.avatar) setDraft(loaded.avatar);
