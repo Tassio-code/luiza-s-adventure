@@ -5,6 +5,7 @@ import { audio } from "@/game/audio";
 import { FireworksShow } from "@/game/fireworks";
 import { FINAL_MESSAGE, BIRTHDAY_NAME } from "@/game/message";
 import { AvatarCanvas } from "./AvatarCanvas";
+import { InstallButton } from "./InstallButton";
 import type { AvatarConfig } from "@/game/avatar/options";
 
 export function TitleScreen({
@@ -131,6 +132,7 @@ export function WorldMap({
           <Button variant="secondary" className="h-12" onClick={onEditAvatar}>
             Ajustar avatar
           </Button>
+          <InstallButton />
           {all && (
             <Button className="h-12" onClick={onOpenMessage}>
               Abrir o pergaminho

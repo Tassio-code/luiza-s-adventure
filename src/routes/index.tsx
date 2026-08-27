@@ -49,6 +49,12 @@ function Game() {
   const [levelIndex, setLevelIndex] = useState(0);
 
   useEffect(() => {
+    // instalável no celular: registra o service worker do app
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js").catch(() => {
+        /* sem offline; o jogo continua normalmente */
+      });
+    }
     const loaded = loadSave();
     setSave(loaded);
     if (loaded.avatar) setDraft(loaded.avatar);
@@ -84,7 +90,16 @@ function Game() {
 
   switch (scene) {
     case "intro":
-      return <IntroSequence onDone={() => setScene("menu")} />;
+      return (
+        <IntroSequence
+          onDone={() => {
+            audio.resume();
+            // as frases terminam e o jogo entra direto na criação do personagem
+            setDraft(save.avatar ?? defaultAvatar());
+            setScene(save.avatar ? "map" : "creator");
+          }}
+        />
+      );
     case "creator":
       return (
         <CharacterCreator
