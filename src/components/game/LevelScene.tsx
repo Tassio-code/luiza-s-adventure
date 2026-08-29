@@ -31,7 +31,7 @@ function Stick({
       dx /= m;
       dy /= m;
     }
-    setKnob({ x: dx * 34, y: dy * 34 });
+    setKnob({ x: dx * 30, y: dy * 30 });
     onMove(dx, dy, true);
   };
   const release = () => {
@@ -50,7 +50,7 @@ function Stick({
       }}
       onPointerUp={release}
       onPointerCancel={release}
-      className={`relative h-36 w-36 touch-none rounded-full border sm:h-32 sm:w-32 ${
+      className={`relative h-32 w-32 touch-none rounded-full border ${
         fire ? "border-accent/60 bg-accent/15" : "border-primary/40 bg-card/60"
       } backdrop-blur-sm`}
       aria-label={label}
@@ -265,7 +265,7 @@ export function LevelScene({
             </button>
           </div>
 
-          <div className="absolute inset-x-0 bottom-0 flex items-end justify-between px-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
+          <div className="absolute inset-x-0 bottom-0 flex items-end justify-between px-3 pb-[max(1.75rem,env(safe-area-inset-bottom))]">
             <Stick
               label="Mover"
               onMove={(x, y) => engineRef.current?.getInput().setJoystick(x, y)}
