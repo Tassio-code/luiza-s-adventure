@@ -19,6 +19,12 @@ export class FireworksShow {
   private last = 0;
   private timer = 0;
   private running = false;
+  private fading = false;
+
+  /** Stops launching new rockets; remaining sparks fade out naturally. */
+  fadeOut() {
+    this.fading = true;
+  }
 
   constructor(
     private canvas: HTMLCanvasElement,
@@ -118,7 +124,7 @@ export class FireworksShow {
     const dt = Math.min(0.05, (now - this.last) / 1000);
     this.last = now;
     this.timer -= dt;
-    if (this.timer <= 0) {
+    if (!this.fading && this.timer <= 0) {
       this.timer = 0.35 + Math.random() * 0.55;
       this.launch();
       if (Math.random() < 0.35) this.launch();
