@@ -61,7 +61,7 @@ function Stick({
         }`}
         style={{ transform: `translate(calc(-50% + ${knob.x}px), calc(-50% + ${knob.y}px))` }}
       />
-      <span className="pointer-events-none absolute inset-x-0 -bottom-6 text-center text-[10px] uppercase tracking-widest text-muted-foreground">
+      <span className="pointer-events-none absolute inset-x-0 bottom-2 text-center text-[10px] uppercase tracking-widest text-muted-foreground">
         {label}
       </span>
     </div>
