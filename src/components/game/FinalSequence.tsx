@@ -34,10 +34,9 @@ export function FinalSequence({ onFinished }: { onFinished: () => void }) {
     timers.current.forEach(window.clearTimeout);
     timers.current = [];
     if (step === "merge") {
-      push(() => setMerged(true), 400);
-      push(() => audio.fragment(), 1800);
-      push(() => setStep("scroll"), 4200);
+      // Handled by <FragmentMerge /> (canvas timeline + skip button).
     }
+
     if (step === "scroll") {
       // One paragraph at a time: fade in, hold, fade out, next.
       const total = FINAL_MESSAGE.length;
