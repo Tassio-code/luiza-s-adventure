@@ -236,7 +236,13 @@ export function LevelScene({
               </span>
             </div>
           </div>
-          <div className="panel-parchment max-w-[45%] rounded-xl px-4 py-3 text-right">
+          <div
+            className={`panel-parchment rounded-xl text-right ${
+              touch && landscape
+                ? "max-w-[38%] origin-top-right scale-[0.8] px-3 py-2"
+                : "max-w-[45%] px-4 py-3"
+            }`}
+          >
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Objetivo</p>
             <p className="text-sm text-foreground">{hud?.objective ?? level.intro}</p>
           </div>
