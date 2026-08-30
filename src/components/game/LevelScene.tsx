@@ -197,9 +197,17 @@ export function LevelScene({
       )}
 
       {/* HUD */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 flex flex-col gap-2 p-4">
+      <div
+        className={`pointer-events-none absolute inset-x-0 top-0 flex flex-col gap-2 ${
+          touch && landscape ? "p-2" : "p-4"
+        }`}
+      >
         <div className="flex items-start justify-between gap-3">
-          <div className="panel-parchment rounded-xl px-4 py-3">
+          <div
+            className={`panel-parchment rounded-xl ${
+              touch && landscape ? "origin-top-left scale-[0.8] px-3 py-2" : "px-4 py-3"
+            }`}
+          >
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
               {level.name}
             </p>
