@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { audio } from "@/game/audio";
 import { FireworksShow } from "@/game/fireworks";
+import { FragmentMerge } from "@/components/game/FragmentMerge";
 import { BIRTHDAY_NAME, FINAL_MESSAGE } from "@/game/message";
 
 /** Optional photo — dropped in later. Missing file degrades gracefully. */
@@ -15,7 +16,6 @@ const PARAGRAPH_FADE_MS = 900;
 
 export function FinalSequence({ onFinished }: { onFinished: () => void }) {
   const [step, setStep] = useState<Step>("merge");
-  const [merged, setMerged] = useState(false);
   const [photoOk, setPhotoOk] = useState<boolean | null>(null);
   const [paragraph, setParagraph] = useState(0);
   const [paragraphOut, setParagraphOut] = useState(false);
