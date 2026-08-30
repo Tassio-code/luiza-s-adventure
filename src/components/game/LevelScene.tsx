@@ -278,51 +278,96 @@ export function LevelScene({
         </button>
       )}
 
-      {touch && (
-        <>
-          {/* action row sits well above the sticks so thumbs never overlap */}
-          <div className="absolute inset-x-0 bottom-[calc(11.5rem+env(safe-area-inset-bottom))] flex items-center justify-center gap-3 px-4">
-            <button
-              type="button"
-              onClick={() => engineRef.current?.useMedkit()}
-              className="h-12 min-w-[5.25rem] rounded-full border border-primary/50 bg-card/80 text-xs text-primary active:scale-95"
-            >
-              Curar
-            </button>
-            <button
-              type="button"
-              onPointerDown={() => engineRef.current?.getInput().setJoystick(0, 0)}
-              onClick={() => {
-                const engine = engineRef.current;
-                if (!engine) return;
-                engine.getInput().state.interact = true;
-              }}
-              className="h-12 min-w-[5.25rem] rounded-full border border-primary/50 bg-card/80 text-xs text-primary active:scale-95"
-            >
-              Interagir
-            </button>
+      {touch &&
+        (landscape ? (
+          <>
+            {/* Landscape: sticks tucked into the bottom corners, actions within right-thumb reach */}
             <button
               type="button"
               onClick={() => setPaused(true)}
-              className="h-12 min-w-[4.5rem] rounded-full border border-border bg-card/80 text-xs text-foreground active:scale-95"
+              className="absolute right-3 top-1/2 h-10 min-w-[4rem] -translate-y-1/2 rounded-full border border-border bg-card/80 text-[11px] text-foreground active:scale-95"
             >
               Pausar
             </button>
-          </div>
+            <div className="absolute bottom-[calc(7.25rem+env(safe-area-inset-bottom))] right-[max(0.75rem,env(safe-area-inset-right))] flex flex-col items-end gap-2">
+              <button
+                type="button"
+                onClick={() => engineRef.current?.useMedkit()}
+                className="h-10 min-w-[4.5rem] rounded-full border border-primary/50 bg-card/80 text-[11px] text-primary active:scale-95"
+              >
+                Curar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const engine = engineRef.current;
+                  if (!engine) return;
+                  engine.getInput().state.interact = true;
+                }}
+                className="h-10 min-w-[4.5rem] rounded-full border border-primary/50 bg-card/80 text-[11px] text-primary active:scale-95"
+              >
+                Interagir
+              </button>
+            </div>
 
-          <div className="absolute inset-x-0 bottom-0 flex items-end justify-between px-3 pb-[max(1.75rem,env(safe-area-inset-bottom))]">
-            <Stick
-              label="Mover"
-              onMove={(x, y) => engineRef.current?.getInput().setJoystick(x, y)}
-            />
-            <Stick
-              label="Mirar / Atirar"
-              fire
-              onMove={(x, y, active) => engineRef.current?.getInput().setAimStick(x, y, active)}
-            />
-          </div>
-        </>
-      )}
+            <div className="absolute inset-x-0 bottom-0 flex items-end justify-between px-[max(0.75rem,env(safe-area-inset-right))] pb-[max(0.75rem,env(safe-area-inset-bottom))] pl-[max(0.75rem,env(safe-area-inset-left))]">
+              <Stick
+                label="Mover"
+                size={104}
+                onMove={(x, y) => engineRef.current?.getInput().setJoystick(x, y)}
+              />
+              <Stick
+                label="Mirar / Atirar"
+                fire
+                size={104}
+                onMove={(x, y, active) => engineRef.current?.getInput().setAimStick(x, y, active)}
+              />
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Portrait fallback: action row above the sticks */}
+            <div className="absolute inset-x-0 bottom-[calc(11.5rem+env(safe-area-inset-bottom))] flex items-center justify-center gap-3 px-4">
+              <button
+                type="button"
+                onClick={() => engineRef.current?.useMedkit()}
+                className="h-12 min-w-[5.25rem] rounded-full border border-primary/50 bg-card/80 text-xs text-primary active:scale-95"
+              >
+                Curar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const engine = engineRef.current;
+                  if (!engine) return;
+                  engine.getInput().state.interact = true;
+                }}
+                className="h-12 min-w-[5.25rem] rounded-full border border-primary/50 bg-card/80 text-xs text-primary active:scale-95"
+              >
+                Interagir
+              </button>
+              <button
+                type="button"
+                onClick={() => setPaused(true)}
+                className="h-12 min-w-[4.5rem] rounded-full border border-border bg-card/80 text-xs text-foreground active:scale-95"
+              >
+                Pausar
+              </button>
+            </div>
+
+            <div className="absolute inset-x-0 bottom-0 flex items-end justify-between px-3 pb-[max(1.75rem,env(safe-area-inset-bottom))]">
+              <Stick
+                label="Mover"
+                onMove={(x, y) => engineRef.current?.getInput().setJoystick(x, y)}
+              />
+              <Stick
+                label="Mirar / Atirar"
+                fire
+                onMove={(x, y, active) => engineRef.current?.getInput().setAimStick(x, y, active)}
+              />
+            </div>
+          </>
+        ))}
 
       {!touch && (
         <p className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-muted-foreground">
