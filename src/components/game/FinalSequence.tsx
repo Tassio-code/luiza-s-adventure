@@ -87,35 +87,13 @@ export function FinalSequence({ onFinished }: { onFinished: () => void }) {
 
   if (step === "merge") {
     return (
-      <main className="vignette-screen relative flex min-h-screen items-center justify-center overflow-hidden bg-ink">
-        <div className="relative h-64 w-64">
-          {[0, 1, 2, 3, 4].map((i) => {
-            const angle = (i / 5) * Math.PI * 2;
-            const r = merged ? 0 : 110;
-            return (
-              <span
-                key={i}
-                className="absolute left-1/2 top-1/2 h-10 w-10 rounded-sm bg-primary shadow-[0_0_28px_hsl(var(--primary)/0.8)] transition-all duration-[3400ms] ease-in-out"
-                style={{
-                  transform: `translate(calc(-50% + ${Math.cos(angle) * r}px), calc(-50% + ${
-                    Math.sin(angle) * r
-                  }px)) rotate(${merged ? 405 : 45}deg) scale(${merged ? 0.7 : 1})`,
-                  opacity: merged ? 0.95 : 0.85,
-                }}
-              />
-            );
-          })}
-          <span
-            className="absolute left-1/2 top-1/2 h-24 w-24 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/30 blur-2xl transition-opacity duration-[3000ms]"
-            style={{ opacity: merged ? 1 : 0 }}
-          />
-        </div>
-        <p className="absolute bottom-24 px-8 text-center text-sm uppercase tracking-[0.3em] text-primary/80">
-          os fragmentos se unem
-        </p>
-      </main>
+      <FragmentMerge
+        onImpact={() => audio.fragment()}
+        onDone={() => setStep("scroll")}
+      />
     );
   }
+
 
   if (step === "scroll") {
     return (
