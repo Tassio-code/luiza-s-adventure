@@ -11,10 +11,12 @@ function Stick({
   onMove,
   label,
   fire,
+  size = 128,
 }: {
   onMove: (x: number, y: number, active: boolean) => void;
   label: string;
   fire?: boolean;
+  size?: number;
 }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [knob, setKnob] = useState({ x: 0, y: 0 });
@@ -31,7 +33,8 @@ function Stick({
       dx /= m;
       dy /= m;
     }
-    setKnob({ x: dx * 30, y: dy * 30 });
+    const travel = size / 2 - 34;
+    setKnob({ x: dx * travel, y: dy * travel });
     onMove(dx, dy, true);
   };
   const release = () => {
@@ -50,18 +53,23 @@ function Stick({
       }}
       onPointerUp={release}
       onPointerCancel={release}
-      className={`relative h-32 w-32 touch-none rounded-full border ${
+      className={`relative touch-none rounded-full border ${
         fire ? "border-accent/60 bg-accent/15" : "border-primary/40 bg-card/60"
       } backdrop-blur-sm`}
+      style={{ width: size, height: size }}
       aria-label={label}
     >
       <span
-        className={`absolute left-1/2 top-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full ${
+        className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full ${
           fire ? "bg-accent/80" : "bg-primary/70"
         }`}
-        style={{ transform: `translate(calc(-50% + ${knob.x}px), calc(-50% + ${knob.y}px))` }}
+        style={{
+          width: size / 2,
+          height: size / 2,
+          transform: `translate(calc(-50% + ${knob.x}px), calc(-50% + ${knob.y}px))`,
+        }}
       />
-      <span className="pointer-events-none absolute inset-x-0 bottom-2 text-center text-[10px] uppercase tracking-widest text-muted-foreground">
+      <span className="pointer-events-none absolute inset-x-0 bottom-1.5 text-center text-[9px] uppercase tracking-widest text-muted-foreground">
         {label}
       </span>
     </div>
@@ -89,10 +97,33 @@ export function LevelScene({
   const [attempt, setAttempt] = useState(0);
   const [touch, setTouch] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [landscape, setLandscape] = useState(true);
 
   useEffect(() => {
     setTouch(typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches);
+    const mq = window.matchMedia("(orientation: landscape)");
+    const update = () => setLandscape(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
   }, []);
+
+  // On touch devices, try to lock the screen to landscape while playing.
+  useEffect(() => {
+    if (!touch) return;
+    const orientation = screen.orientation as ScreenOrientation & {
+      lock?: (o: string) => Promise<void>;
+      unlock?: () => void;
+    };
+    orientation.lock?.("landscape").catch(() => undefined);
+    return () => {
+      try {
+        orientation.unlock?.();
+      } catch {
+        /* ignore */
+      }
+    };
+  }, [touch]);
 
   useEffect(() => {
     let cancelled = false;
@@ -166,9 +197,17 @@ export function LevelScene({
       )}
 
       {/* HUD */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 flex flex-col gap-2 p-4">
+      <div
+        className={`pointer-events-none absolute inset-x-0 top-0 flex flex-col gap-2 ${
+          touch && landscape ? "p-2" : "p-4"
+        }`}
+      >
         <div className="flex items-start justify-between gap-3">
-          <div className="panel-parchment rounded-xl px-4 py-3">
+          <div
+            className={`panel-parchment rounded-xl ${
+              touch && landscape ? "origin-top-left scale-[0.8] px-3 py-2" : "px-4 py-3"
+            }`}
+          >
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
               {level.name}
             </p>
@@ -197,7 +236,13 @@ export function LevelScene({
               </span>
             </div>
           </div>
-          <div className="panel-parchment max-w-[45%] rounded-xl px-4 py-3 text-right">
+          <div
+            className={`panel-parchment rounded-xl text-right ${
+              touch && landscape
+                ? "max-w-[38%] origin-top-right scale-[0.8] px-3 py-2"
+                : "max-w-[45%] px-4 py-3"
+            }`}
+          >
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Objetivo</p>
             <p className="text-sm text-foreground">{hud?.objective ?? level.intro}</p>
           </div>
@@ -233,51 +278,96 @@ export function LevelScene({
         </button>
       )}
 
-      {touch && (
-        <>
-          {/* action row sits well above the sticks so thumbs never overlap */}
-          <div className="absolute inset-x-0 bottom-[calc(11.5rem+env(safe-area-inset-bottom))] flex items-center justify-center gap-3 px-4">
-            <button
-              type="button"
-              onClick={() => engineRef.current?.useMedkit()}
-              className="h-12 min-w-[5.25rem] rounded-full border border-primary/50 bg-card/80 text-xs text-primary active:scale-95"
-            >
-              Curar
-            </button>
-            <button
-              type="button"
-              onPointerDown={() => engineRef.current?.getInput().setJoystick(0, 0)}
-              onClick={() => {
-                const engine = engineRef.current;
-                if (!engine) return;
-                engine.getInput().state.interact = true;
-              }}
-              className="h-12 min-w-[5.25rem] rounded-full border border-primary/50 bg-card/80 text-xs text-primary active:scale-95"
-            >
-              Interagir
-            </button>
+      {touch &&
+        (landscape ? (
+          <>
+            {/* Landscape: sticks tucked into the bottom corners, actions within right-thumb reach */}
             <button
               type="button"
               onClick={() => setPaused(true)}
-              className="h-12 min-w-[4.5rem] rounded-full border border-border bg-card/80 text-xs text-foreground active:scale-95"
+              className="absolute right-3 top-1/2 h-10 min-w-[4rem] -translate-y-1/2 rounded-full border border-border bg-card/80 text-[11px] text-foreground active:scale-95"
             >
               Pausar
             </button>
-          </div>
+            <div className="absolute bottom-[calc(7.25rem+env(safe-area-inset-bottom))] right-[max(0.75rem,env(safe-area-inset-right))] flex flex-col items-end gap-2">
+              <button
+                type="button"
+                onClick={() => engineRef.current?.useMedkit()}
+                className="h-10 min-w-[4.5rem] rounded-full border border-primary/50 bg-card/80 text-[11px] text-primary active:scale-95"
+              >
+                Curar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const engine = engineRef.current;
+                  if (!engine) return;
+                  engine.getInput().state.interact = true;
+                }}
+                className="h-10 min-w-[4.5rem] rounded-full border border-primary/50 bg-card/80 text-[11px] text-primary active:scale-95"
+              >
+                Interagir
+              </button>
+            </div>
 
-          <div className="absolute inset-x-0 bottom-0 flex items-end justify-between px-3 pb-[max(1.75rem,env(safe-area-inset-bottom))]">
-            <Stick
-              label="Mover"
-              onMove={(x, y) => engineRef.current?.getInput().setJoystick(x, y)}
-            />
-            <Stick
-              label="Mirar / Atirar"
-              fire
-              onMove={(x, y, active) => engineRef.current?.getInput().setAimStick(x, y, active)}
-            />
-          </div>
-        </>
-      )}
+            <div className="absolute inset-x-0 bottom-0 flex items-end justify-between px-[max(0.75rem,env(safe-area-inset-right))] pb-[max(0.75rem,env(safe-area-inset-bottom))] pl-[max(0.75rem,env(safe-area-inset-left))]">
+              <Stick
+                label="Mover"
+                size={104}
+                onMove={(x, y) => engineRef.current?.getInput().setJoystick(x, y)}
+              />
+              <Stick
+                label="Mirar / Atirar"
+                fire
+                size={104}
+                onMove={(x, y, active) => engineRef.current?.getInput().setAimStick(x, y, active)}
+              />
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Portrait fallback: action row above the sticks */}
+            <div className="absolute inset-x-0 bottom-[calc(11.5rem+env(safe-area-inset-bottom))] flex items-center justify-center gap-3 px-4">
+              <button
+                type="button"
+                onClick={() => engineRef.current?.useMedkit()}
+                className="h-12 min-w-[5.25rem] rounded-full border border-primary/50 bg-card/80 text-xs text-primary active:scale-95"
+              >
+                Curar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const engine = engineRef.current;
+                  if (!engine) return;
+                  engine.getInput().state.interact = true;
+                }}
+                className="h-12 min-w-[5.25rem] rounded-full border border-primary/50 bg-card/80 text-xs text-primary active:scale-95"
+              >
+                Interagir
+              </button>
+              <button
+                type="button"
+                onClick={() => setPaused(true)}
+                className="h-12 min-w-[4.5rem] rounded-full border border-border bg-card/80 text-xs text-foreground active:scale-95"
+              >
+                Pausar
+              </button>
+            </div>
+
+            <div className="absolute inset-x-0 bottom-0 flex items-end justify-between px-3 pb-[max(1.75rem,env(safe-area-inset-bottom))]">
+              <Stick
+                label="Mover"
+                onMove={(x, y) => engineRef.current?.getInput().setJoystick(x, y)}
+              />
+              <Stick
+                label="Mirar / Atirar"
+                fire
+                onMove={(x, y, active) => engineRef.current?.getInput().setAimStick(x, y, active)}
+              />
+            </div>
+          </>
+        ))}
 
       {!touch && (
         <p className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-muted-foreground">
