@@ -97,10 +97,33 @@ export function LevelScene({
   const [attempt, setAttempt] = useState(0);
   const [touch, setTouch] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [landscape, setLandscape] = useState(true);
 
   useEffect(() => {
     setTouch(typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches);
+    const mq = window.matchMedia("(orientation: landscape)");
+    const update = () => setLandscape(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
   }, []);
+
+  // On touch devices, try to lock the screen to landscape while playing.
+  useEffect(() => {
+    if (!touch) return;
+    const orientation = screen.orientation as ScreenOrientation & {
+      lock?: (o: string) => Promise<void>;
+      unlock?: () => void;
+    };
+    orientation.lock?.("landscape").catch(() => undefined);
+    return () => {
+      try {
+        orientation.unlock?.();
+      } catch {
+        /* ignore */
+      }
+    };
+  }, [touch]);
 
   useEffect(() => {
     let cancelled = false;
