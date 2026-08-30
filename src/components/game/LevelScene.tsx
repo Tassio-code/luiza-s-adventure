@@ -11,10 +11,12 @@ function Stick({
   onMove,
   label,
   fire,
+  size = 128,
 }: {
   onMove: (x: number, y: number, active: boolean) => void;
   label: string;
   fire?: boolean;
+  size?: number;
 }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [knob, setKnob] = useState({ x: 0, y: 0 });
