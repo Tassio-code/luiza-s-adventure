@@ -33,7 +33,8 @@ function Stick({
       dx /= m;
       dy /= m;
     }
-    setKnob({ x: dx * 30, y: dy * 30 });
+    const travel = size / 2 - 34;
+    setKnob({ x: dx * travel, y: dy * travel });
     onMove(dx, dy, true);
   };
   const release = () => {
@@ -52,18 +53,23 @@ function Stick({
       }}
       onPointerUp={release}
       onPointerCancel={release}
-      className={`relative h-32 w-32 touch-none rounded-full border ${
+      className={`relative touch-none rounded-full border ${
         fire ? "border-accent/60 bg-accent/15" : "border-primary/40 bg-card/60"
       } backdrop-blur-sm`}
+      style={{ width: size, height: size }}
       aria-label={label}
     >
       <span
-        className={`absolute left-1/2 top-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full ${
+        className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full ${
           fire ? "bg-accent/80" : "bg-primary/70"
         }`}
-        style={{ transform: `translate(calc(-50% + ${knob.x}px), calc(-50% + ${knob.y}px))` }}
+        style={{
+          width: size / 2,
+          height: size / 2,
+          transform: `translate(calc(-50% + ${knob.x}px), calc(-50% + ${knob.y}px))`,
+        }}
       />
-      <span className="pointer-events-none absolute inset-x-0 bottom-2 text-center text-[10px] uppercase tracking-widest text-muted-foreground">
+      <span className="pointer-events-none absolute inset-x-0 bottom-1.5 text-center text-[9px] uppercase tracking-widest text-muted-foreground">
         {label}
       </span>
     </div>
