@@ -356,12 +356,15 @@ export function LevelScene({
               </button>
             </div>
 
-            <div className="absolute inset-x-0 bottom-0 flex items-end justify-between px-[max(0.75rem,env(safe-area-inset-right))] pb-[max(0.75rem,env(safe-area-inset-bottom))] pl-[max(0.75rem,env(safe-area-inset-left))]">
+            {/* Floating stick zones: left half moves, right half aims/fires */}
+            <div className="absolute bottom-0 left-0 h-[55%] w-[45%] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)]">
               <Stick
                 label="Mover"
                 size={104}
                 onMove={(x, y) => engineRef.current?.getInput().setJoystick(x, y)}
               />
+            </div>
+            <div className="absolute bottom-0 right-0 h-[55%] w-[45%] pb-[env(safe-area-inset-bottom)] pr-[env(safe-area-inset-right)]">
               <Stick
                 label="Mirar / Atirar"
                 fire
