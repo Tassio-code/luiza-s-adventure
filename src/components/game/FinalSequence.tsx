@@ -8,11 +8,11 @@ import { BIRTHDAY_NAME, FINAL_MESSAGE } from "@/game/message";
 /** Optional photo — dropped in later. Missing file degrades gracefully. */
 const PHOTO_SRC = "/final/photo.jpg";
 
-type Step = "merge" | "scroll" | "birthday" | "thanks" | "photo" | "end";
+type Step = "merge" | "scroll" | "birthday" | "photo" | "end";
 
 /** Time each parchment paragraph stays fully visible before fading away. */
-const PARAGRAPH_MS = 5200;
-const PARAGRAPH_FADE_MS = 900;
+const PARAGRAPH_MS = 9000;
+const PARAGRAPH_FADE_MS = 1200;
 
 export function FinalSequence({ onFinished }: { onFinished: () => void }) {
   const [step, setStep] = useState<Step>("merge");
@@ -33,9 +33,6 @@ export function FinalSequence({ onFinished }: { onFinished: () => void }) {
     const push = (fn: () => void, ms: number) => timers.current.push(window.setTimeout(fn, ms));
     timers.current.forEach(window.clearTimeout);
     timers.current = [];
-    if (step === "merge") {
-      // Handled by <FragmentMerge /> (canvas timeline + skip button).
-    }
 
     if (step === "scroll") {
       // One paragraph at a time: fade in, hold, fade out, next.
@@ -60,11 +57,10 @@ export function FinalSequence({ onFinished }: { onFinished: () => void }) {
     }
     if (step === "birthday") {
       // Fireworks keep going while the title rises, then everything fades slowly.
-      push(() => fireworksRef.current?.fadeOut(), 5200);
-      push(() => setBirthdayOut(true), 5800);
-      push(() => setStep("thanks"), 10200);
+      push(() => fireworksRef.current?.fadeOut(), 7200);
+      push(() => setBirthdayOut(true), 8200);
+      push(() => setStep("photo"), 13000);
     }
-    if (step === "thanks") push(() => setStep("photo"), 4200);
     return () => {
       timers.current.forEach(window.clearTimeout);
       timers.current = [];
@@ -94,40 +90,17 @@ export function FinalSequence({ onFinished }: { onFinished: () => void }) {
     );
   }
 
-
   if (step === "scroll") {
     return (
-      <main className="vignette-screen flex min-h-screen items-center justify-center px-4 py-6">
-        <div className="panel-parchment flex min-h-[60vh] w-full max-w-2xl flex-col items-center justify-center rounded-2xl p-6 sm:p-10">
-          <h1 className="mb-8 text-center text-xl text-primary sm:text-2xl">
-            Pergaminho dos Cinco Fragmentos
-          </h1>
-          <p
-            key={paragraph}
-            className={`whitespace-pre-line break-words text-center text-[16px] leading-relaxed text-foreground transition-opacity duration-1000 sm:text-lg ${
-              paragraphOut ? "opacity-0" : "animate-fade-in opacity-100"
-            }`}
-          >
-            {FINAL_MESSAGE[paragraph]}
-          </p>
-          <div className="mt-8 flex gap-2">
-            {FINAL_MESSAGE.map((_, i) => (
-              <span
-                key={i}
-                className={`h-1.5 w-1.5 rounded-full transition-colors duration-500 ${
-                  i === paragraph ? "bg-primary" : i < paragraph ? "bg-primary/40" : "bg-foreground/15"
-                }`}
-              />
-            ))}
-          </div>
-          <Button
-            variant="ghost"
-            className="mt-6 text-xs uppercase tracking-[0.25em] text-muted-foreground"
-            onClick={() => setStep("birthday")}
-          >
-            Pular
-          </Button>
-        </div>
+      <main className="vignette-screen flex min-h-screen items-center justify-center px-6 py-8">
+        <p
+          key={paragraph}
+          className={`max-w-3xl whitespace-pre-line break-words text-center text-[18px] leading-relaxed text-foreground transition-opacity duration-1000 sm:text-2xl ${
+            paragraphOut ? "opacity-0" : "animate-fade-in opacity-100"
+          }`}
+        >
+          {FINAL_MESSAGE[paragraph]}
+        </p>
       </main>
     );
   }
@@ -137,7 +110,7 @@ export function FinalSequence({ onFinished }: { onFinished: () => void }) {
       <main className="relative flex min-h-screen items-end justify-center overflow-hidden bg-ink px-6">
         <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
         <h1
-          className={`animate-rise-slow relative z-10 pb-10 text-center text-4xl leading-tight text-primary text-glow transition-opacity duration-[4000ms] ease-out sm:text-6xl ${
+          className={`animate-rise-slow relative z-10 pb-10 text-center text-4xl leading-tight text-primary text-glow transition-opacity duration-[5000ms] ease-out sm:text-6xl ${
             birthdayOut ? "opacity-0" : "opacity-100"
           }`}
         >
@@ -145,16 +118,6 @@ export function FinalSequence({ onFinished }: { onFinished: () => void }) {
           <br />
           {BIRTHDAY_NAME}
         </h1>
-      </main>
-    );
-  }
-
-  if (step === "thanks") {
-    return (
-      <main className="flex min-h-screen items-center justify-center bg-ink px-6">
-        <p className="animate-fade-in text-center text-2xl text-primary/90 sm:text-4xl">
-          Obrigado por jogar.
-        </p>
       </main>
     );
   }
