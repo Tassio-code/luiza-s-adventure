@@ -404,11 +404,13 @@ export function LevelScene({
               </button>
             </div>
 
-            <div className="absolute inset-x-0 bottom-0 flex items-end justify-between px-3 pb-[max(1.75rem,env(safe-area-inset-bottom))]">
+            <div className="absolute bottom-0 left-0 h-[45%] w-1/2 pb-[env(safe-area-inset-bottom)]">
               <Stick
                 label="Mover"
                 onMove={(x, y) => engineRef.current?.getInput().setJoystick(x, y)}
               />
+            </div>
+            <div className="absolute bottom-0 right-0 h-[45%] w-1/2 pb-[env(safe-area-inset-bottom)]">
               <Stick
                 label="Mirar / Atirar"
                 fire
