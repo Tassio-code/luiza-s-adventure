@@ -18,60 +18,106 @@ function Stick({
   fire?: boolean;
   size?: number;
 }) {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const [knob, setKnob] = useState({ x: 0, y: 0 });
-  const handle = (e: React.PointerEvent) => {
-    const el = ref.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    let dx = (e.clientX - cx) / (rect.width / 2);
-    let dy = (e.clientY - cy) / (rect.height / 2);
+  // Floating joystick: the base spawns where the finger lands inside the zone
+  // and the knob tracks that finger anywhere on screen until it lifts.
+  const zoneRef = useRef<HTMLDivElement | null>(null);
+  const pointerId = useRef<number | null>(null);
+  const origin = useRef({ x: 0, y: 0 });
+  const [state, setState] = useState<{ active: boolean; ox: number; oy: number; kx: number; ky: number }>({
+    active: false,
+    ox: 0,
+    oy: 0,
+    kx: 0,
+    ky: 0,
+  });
+  const radius = size / 2;
+
+  const update = (clientX: number, clientY: number) => {
+    let dx = (clientX - origin.current.x) / radius;
+    let dy = (clientY - origin.current.y) / radius;
     const m = Math.hypot(dx, dy);
     if (m > 1) {
       dx /= m;
       dy /= m;
     }
-    const travel = size / 2 - 34;
-    setKnob({ x: dx * travel, y: dy * travel });
+    const travel = radius - 30;
+    setState((s) => ({ ...s, kx: dx * travel, ky: dy * travel }));
     onMove(dx, dy, true);
   };
-  const release = () => {
-    setKnob({ x: 0, y: 0 });
+
+  const release = (e: React.PointerEvent) => {
+    if (pointerId.current !== e.pointerId) return;
+    pointerId.current = null;
+    setState((s) => ({ ...s, active: false, kx: 0, ky: 0 }));
     onMove(0, 0, false);
   };
+
   return (
     <div
-      ref={ref}
+      ref={zoneRef}
       onPointerDown={(e) => {
-        (e.target as HTMLElement).setPointerCapture(e.pointerId);
-        handle(e);
+        if (pointerId.current !== null) return;
+        pointerId.current = e.pointerId;
+        e.currentTarget.setPointerCapture(e.pointerId);
+        const rect = e.currentTarget.getBoundingClientRect();
+        origin.current = { x: e.clientX, y: e.clientY };
+        setState({ active: true, ox: e.clientX - rect.left, oy: e.clientY - rect.top, kx: 0, ky: 0 });
+        update(e.clientX, e.clientY);
       }}
       onPointerMove={(e) => {
-        if (e.buttons || e.pressure > 0) handle(e);
+        if (pointerId.current === e.pointerId) update(e.clientX, e.clientY);
       }}
       onPointerUp={release}
       onPointerCancel={release}
-      className={`relative touch-none rounded-full border ${
-        fire ? "border-accent/60 bg-accent/15" : "border-primary/40 bg-card/60"
-      } backdrop-blur-sm`}
-      style={{ width: size, height: size }}
+      onLostPointerCapture={release}
+      className="relative touch-none"
+      style={{ width: "100%", height: "100%" }}
       aria-label={label}
     >
-      <span
-        className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full ${
-          fire ? "bg-accent/80" : "bg-primary/70"
-        }`}
-        style={{
-          width: size / 2,
-          height: size / 2,
-          transform: `translate(calc(-50% + ${knob.x}px), calc(-50% + ${knob.y}px))`,
-        }}
-      />
-      <span className="pointer-events-none absolute inset-x-0 bottom-1.5 text-center text-[9px] uppercase tracking-widest text-muted-foreground">
-        {label}
-      </span>
+      {/* Idle base hint (centered in the zone) */}
+      {!state.active && (
+        <div
+          className={`pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border opacity-50 ${
+            fire ? "border-accent/60 bg-accent/10" : "border-primary/40 bg-card/50"
+          }`}
+          style={{ width: size, height: size }}
+        >
+          <span
+            className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full ${
+              fire ? "bg-accent/60" : "bg-primary/50"
+            }`}
+            style={{ width: size / 2, height: size / 2 }}
+          />
+          <span className="absolute inset-x-0 bottom-1.5 text-center text-[9px] uppercase tracking-widest text-muted-foreground">
+            {label}
+          </span>
+        </div>
+      )}
+      {/* Active base follows the finger */}
+      {state.active && (
+        <div
+          className={`pointer-events-none absolute rounded-full border ${
+            fire ? "border-accent/70 bg-accent/15" : "border-primary/50 bg-card/60"
+          } backdrop-blur-sm`}
+          style={{
+            width: size,
+            height: size,
+            left: state.ox - radius,
+            top: state.oy - radius,
+          }}
+        >
+          <span
+            className={`absolute left-1/2 top-1/2 rounded-full ${
+              fire ? "bg-accent/85" : "bg-primary/75"
+            }`}
+            style={{
+              width: size / 2,
+              height: size / 2,
+              transform: `translate(calc(-50% + ${state.kx}px), calc(-50% + ${state.ky}px))`,
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }
