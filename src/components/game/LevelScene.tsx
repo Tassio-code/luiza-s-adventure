@@ -385,29 +385,38 @@ export function LevelScene({
         ) : (
           <>
             {/* Portrait fallback: action row above the sticks */}
-            <div className="absolute inset-x-0 bottom-[calc(11.5rem+env(safe-area-inset-bottom))] flex items-center justify-center gap-3 px-4">
+            <div className="absolute inset-x-0 bottom-[calc(11.5rem+env(safe-area-inset-bottom))] z-20 flex items-center justify-center gap-3 px-4">
               <button
                 type="button"
-                onClick={() => engineRef.current?.useMedkit()}
-                className="h-12 min-w-[5.25rem] rounded-full border border-primary/50 bg-card/80 text-xs text-primary active:scale-95"
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  engineRef.current?.useMedkit();
+                }}
+                className="h-12 min-w-[5.25rem] touch-none rounded-full border border-primary/50 bg-card/90 text-xs text-primary active:scale-95"
               >
                 Curar
               </button>
               <button
                 type="button"
-                onClick={() => {
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   const engine = engineRef.current;
-                  if (!engine) return;
-                  engine.getInput().state.interact = true;
+                  if (engine) engine.getInput().state.interact = true;
                 }}
-                className="h-12 min-w-[5.25rem] rounded-full border border-primary/50 bg-card/80 text-xs text-primary active:scale-95"
+                className="h-12 min-w-[5.25rem] touch-none rounded-full border border-primary/50 bg-card/90 text-xs text-primary active:scale-95"
               >
                 Interagir
               </button>
               <button
                 type="button"
-                onClick={() => setPaused(true)}
-                className="h-12 min-w-[4.5rem] rounded-full border border-border bg-card/80 text-xs text-foreground active:scale-95"
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setPaused(true);
+                }}
+                className="h-12 min-w-[4.5rem] touch-none rounded-full border border-border bg-card/80 text-xs text-foreground active:scale-95"
               >
                 Pausar
               </button>
