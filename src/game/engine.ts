@@ -12,6 +12,8 @@ import { createRng, rand, randInt, type Rng } from "./systems/rng";
 import { MusicDirector, type DirectorPhase } from "./systems/director";
 import { addXp, createProgress, statsFor, type CombatStats, type Progress } from "./progression";
 import { bossTrack, stageTrack } from "./music";
+import { loadSave, writeSave } from "./save";
+import { xpForLevel } from "./progression";
 
 export type HudState = {
   hp: number;
@@ -182,6 +184,15 @@ export class GameEngine {
 
     for (let i = 0; i < MAX_BULLETS; i++) this.bullets.push(this.makeBullet());
     for (let i = 0; i < MAX_ENEMY_BULLETS; i++) this.enemyBullets.push(this.makeBullet());
+
+    const saved = loadSave().progress;
+    if (saved) {
+      this.progress = { level: saved.level, xp: saved.xp, next: xpForLevel(saved.level) };
+      this.stats = statsFor(saved.level);
+      this.player.maxHp = this.stats.maxHp;
+      this.player.hp = this.stats.maxHp;
+      this.player.speed = 190 * this.stats.speedMul;
+    }
 
     this.populateWorld();
   }
@@ -693,6 +704,12 @@ export class GameEngine {
   private grantXp(amount: number) {
     const result = addXp(this.progress, amount);
     this.progress = result.progress;
+    try {
+      const save = loadSave();
+      writeSave({ ...save, progress: { level: this.progress.level, xp: this.progress.xp } });
+    } catch {
+      /* ignore */
+    }
     if (result.levelsGained > 0) {
       this.stats = statsFor(this.progress.level);
       const prevMax = this.player.maxHp;

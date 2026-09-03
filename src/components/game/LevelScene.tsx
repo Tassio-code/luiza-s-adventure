@@ -248,7 +248,7 @@ export function LevelScene({
           touch && landscape ? "p-2" : "p-4"
         }`}
       >
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex flex-col items-start gap-2 pr-[8.5rem]">
           <div
             className={`panel-parchment rounded-xl ${
               touch && landscape ? "origin-top-left scale-[0.8] px-3 py-2" : "px-4 py-3"
@@ -283,10 +283,10 @@ export function LevelScene({
             </div>
           </div>
           <div
-            className={`panel-parchment rounded-xl text-right ${
+            className={`panel-parchment rounded-xl ${
               touch && landscape
-                ? "max-w-[38%] origin-top-right scale-[0.8] px-3 py-2"
-                : "max-w-[45%] px-4 py-3"
+                ? "max-w-[60vw] origin-top-left scale-[0.8] px-3 py-1.5"
+                : "max-w-[45%] px-4 py-2"
             }`}
           >
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Objetivo</p>
@@ -327,44 +327,53 @@ export function LevelScene({
       {touch &&
         (landscape ? (
           <>
-            {/* Landscape: sticks tucked into the bottom corners, actions within right-thumb reach */}
-            <button
-              type="button"
-              onClick={() => setPaused(true)}
-              className="absolute right-3 top-1/2 h-10 min-w-[4rem] -translate-y-1/2 rounded-full border border-border bg-card/80 text-[11px] text-foreground active:scale-95"
-            >
-              Pausar
-            </button>
-            <div className="absolute bottom-[calc(7.25rem+env(safe-area-inset-bottom))] right-[max(0.75rem,env(safe-area-inset-right))] flex flex-col items-end gap-2">
+            {/* Landscape: sticks in the bottom corners, action buttons in the free center strip */}
+            <div className="absolute bottom-[calc(0.75rem+env(safe-area-inset-bottom))] left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-2">
               <button
                 type="button"
-                onClick={() => engineRef.current?.useMedkit()}
-                className="h-10 min-w-[4.5rem] rounded-full border border-primary/50 bg-card/80 text-[11px] text-primary active:scale-95"
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  const engine = engineRef.current;
+                  if (engine) engine.getInput().state.interact = true;
+                }}
+                className="h-11 min-w-[5rem] touch-none rounded-full border border-primary/50 bg-card/90 text-[11px] text-primary active:scale-95"
+              >
+                Interagir
+              </button>
+              <button
+                type="button"
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  engineRef.current?.useMedkit();
+                }}
+                className="h-11 min-w-[5rem] touch-none rounded-full border border-primary/50 bg-card/90 text-[11px] text-primary active:scale-95"
               >
                 Curar
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  const engine = engineRef.current;
-                  if (!engine) return;
-                  engine.getInput().state.interact = true;
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setPaused(true);
                 }}
-                className="h-10 min-w-[4.5rem] rounded-full border border-primary/50 bg-card/80 text-[11px] text-primary active:scale-95"
+                className="h-9 min-w-[4.25rem] touch-none rounded-full border border-border bg-card/80 text-[11px] text-foreground active:scale-95"
               >
-                Interagir
+                Pausar
               </button>
             </div>
 
-            {/* Floating stick zones: left half moves, right half aims/fires */}
-            <div className="absolute bottom-0 left-0 h-[55%] w-[45%] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)]">
+            {/* Floating stick zones: left side moves, right side aims/fires */}
+            <div className="absolute bottom-0 left-0 h-[58%] w-[36%] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)]">
               <Stick
                 label="Mover"
                 size={104}
                 onMove={(x, y) => engineRef.current?.getInput().setJoystick(x, y)}
               />
             </div>
-            <div className="absolute bottom-0 right-0 h-[55%] w-[45%] pb-[env(safe-area-inset-bottom)] pr-[env(safe-area-inset-right)]">
+            <div className="absolute bottom-0 right-0 h-[58%] w-[36%] pb-[env(safe-area-inset-bottom)] pr-[env(safe-area-inset-right)]">
               <Stick
                 label="Mirar / Atirar"
                 fire
@@ -376,29 +385,38 @@ export function LevelScene({
         ) : (
           <>
             {/* Portrait fallback: action row above the sticks */}
-            <div className="absolute inset-x-0 bottom-[calc(11.5rem+env(safe-area-inset-bottom))] flex items-center justify-center gap-3 px-4">
+            <div className="absolute inset-x-0 bottom-[calc(11.5rem+env(safe-area-inset-bottom))] z-20 flex items-center justify-center gap-3 px-4">
               <button
                 type="button"
-                onClick={() => engineRef.current?.useMedkit()}
-                className="h-12 min-w-[5.25rem] rounded-full border border-primary/50 bg-card/80 text-xs text-primary active:scale-95"
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  engineRef.current?.useMedkit();
+                }}
+                className="h-12 min-w-[5.25rem] touch-none rounded-full border border-primary/50 bg-card/90 text-xs text-primary active:scale-95"
               >
                 Curar
               </button>
               <button
                 type="button"
-                onClick={() => {
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   const engine = engineRef.current;
-                  if (!engine) return;
-                  engine.getInput().state.interact = true;
+                  if (engine) engine.getInput().state.interact = true;
                 }}
-                className="h-12 min-w-[5.25rem] rounded-full border border-primary/50 bg-card/80 text-xs text-primary active:scale-95"
+                className="h-12 min-w-[5.25rem] touch-none rounded-full border border-primary/50 bg-card/90 text-xs text-primary active:scale-95"
               >
                 Interagir
               </button>
               <button
                 type="button"
-                onClick={() => setPaused(true)}
-                className="h-12 min-w-[4.5rem] rounded-full border border-border bg-card/80 text-xs text-foreground active:scale-95"
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setPaused(true);
+                }}
+                className="h-12 min-w-[4.5rem] touch-none rounded-full border border-border bg-card/80 text-xs text-foreground active:scale-95"
               >
                 Pausar
               </button>
