@@ -248,7 +248,7 @@ export function LevelScene({
           touch && landscape ? "p-2" : "p-4"
         }`}
       >
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex flex-col items-start gap-2 pr-[8.5rem]">
           <div
             className={`panel-parchment rounded-xl ${
               touch && landscape ? "origin-top-left scale-[0.8] px-3 py-2" : "px-4 py-3"
@@ -283,10 +283,10 @@ export function LevelScene({
             </div>
           </div>
           <div
-            className={`panel-parchment rounded-xl text-right ${
+            className={`panel-parchment rounded-xl ${
               touch && landscape
-                ? "max-w-[38%] origin-top-right scale-[0.8] px-3 py-2"
-                : "max-w-[45%] px-4 py-3"
+                ? "max-w-[60vw] origin-top-left scale-[0.8] px-3 py-1.5"
+                : "max-w-[45%] px-4 py-2"
             }`}
           >
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Objetivo</p>
