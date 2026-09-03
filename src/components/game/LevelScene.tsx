@@ -327,8 +327,8 @@ export function LevelScene({
       {touch &&
         (landscape ? (
           <>
-            {/* Landscape: sticks in the bottom corners, action buttons in the free center strip */}
-            <div className="absolute bottom-[calc(0.75rem+env(safe-area-inset-bottom))] left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-2">
+            {/* Landscape: action buttons stacked on the right edge, clear of sticks and minimap */}
+            <div className="absolute top-40 right-3 z-20 flex flex-col items-end gap-2">
               <button
                 type="button"
                 onPointerDown={(e) => {
@@ -337,7 +337,7 @@ export function LevelScene({
                   const engine = engineRef.current;
                   if (engine) engine.getInput().state.interact = true;
                 }}
-                className="h-11 min-w-[5rem] touch-none rounded-full border border-primary/50 bg-card/90 text-[11px] text-primary active:scale-95"
+                className="h-10 min-w-[4.75rem] touch-none rounded-full border border-primary/50 bg-card/85 px-3 text-[11px] text-primary shadow-frame active:scale-95"
               >
                 Interagir
               </button>
@@ -348,7 +348,7 @@ export function LevelScene({
                   e.stopPropagation();
                   engineRef.current?.useMedkit();
                 }}
-                className="h-11 min-w-[5rem] touch-none rounded-full border border-primary/50 bg-card/90 text-[11px] text-primary active:scale-95"
+                className="h-10 min-w-[4.75rem] touch-none rounded-full border border-primary/50 bg-card/85 px-3 text-[11px] text-primary shadow-frame active:scale-95"
               >
                 Curar
               </button>
@@ -359,7 +359,7 @@ export function LevelScene({
                   e.stopPropagation();
                   setPaused(true);
                 }}
-                className="h-9 min-w-[4.25rem] touch-none rounded-full border border-border bg-card/80 text-[11px] text-foreground active:scale-95"
+                className="h-9 min-w-[4.25rem] touch-none rounded-full border border-border bg-card/80 px-3 text-[11px] text-foreground shadow-frame active:scale-95"
               >
                 Pausar
               </button>
