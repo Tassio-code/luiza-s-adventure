@@ -11,6 +11,8 @@ export type SaveData = {
   unlocked: number;
   messageUnlocked: boolean;
   settings: { volume: number; muted: boolean };
+  /** persisted player progression across levels */
+  progress: { level: number; xp: number } | null;
   lastScene: string | null;
 };
 
@@ -21,6 +23,7 @@ export const EMPTY_SAVE: SaveData = {
   unlocked: 0,
   messageUnlocked: false,
   settings: { volume: 0.7, muted: false },
+  progress: null,
   lastScene: null,
 };
 
@@ -53,6 +56,13 @@ export function loadSave(): SaveData {
             : 0.7,
         muted: Boolean(parsed.settings?.muted),
       },
+      progress:
+        parsed.progress && typeof parsed.progress.level === "number"
+          ? {
+              level: Math.min(20, Math.max(1, Math.floor(parsed.progress.level))),
+              xp: Math.max(0, Math.floor(Number(parsed.progress.xp) || 0)),
+            }
+          : null,
       lastScene: typeof parsed.lastScene === "string" ? parsed.lastScene : null,
     };
   } catch {
