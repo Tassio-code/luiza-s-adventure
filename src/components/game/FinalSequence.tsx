@@ -34,42 +34,11 @@ export function FinalSequence({ onFinished }: { onFinished: () => void }) {
     timers.current = [];
 
     if (step === "scroll") {
-    const total = FINAL_MESSAGE.length;
-    const advance = () => {
-      audio.ui();
-      setParagraphOut(true);
-      window.setTimeout(() => {
-        if (paragraph + 1 >= total) {
-          setStep("birthday");
-          return;
-        }
-        setParagraph((n) => n + 1);
-        setParagraphOut(false);
-      }, PARAGRAPH_FADE_MS);
-    };
-    return (
-      <main className="vignette-screen flex min-h-screen flex-col items-center justify-center gap-8 px-6 py-8">
-        <p
-          key={paragraph}
-          className={`max-w-3xl whitespace-pre-line break-words text-center text-[18px] leading-relaxed text-foreground transition-opacity duration-700 sm:text-2xl ${
-            paragraphOut ? "opacity-0" : "animate-fade-in opacity-100"
-          }`}
-        >
-          {FINAL_MESSAGE[paragraph]}
-        </p>
-        <div className="flex flex-col items-center gap-2">
-          <Button variant="secondary" className="h-12 px-10" onClick={advance}>
-            {paragraph + 1 >= total ? "Continuar" : "Continuar"}
-          </Button>
-          <span className="text-[11px] uppercase tracking-widest text-muted-foreground">
-            {paragraph + 1} / {total}
-          </span>
-        </div>
-      </main>
-    );
-  }
-
-  if (step === "birthday") {
+      // A leitura é manual: cada parágrafo espera o clique em "Continuar".
+      setParagraph(0);
+      setParagraphOut(false);
+    }
+    if (step === "birthday") {
       // Fireworks keep going while the title rises, then everything fades slowly.
       push(() => fireworksRef.current?.fadeOut(), 7200);
       push(() => setBirthdayOut(true), 8200);
