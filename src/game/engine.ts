@@ -561,7 +561,7 @@ export class GameEngine {
 
     const dist = weaponMuzzleDistance(w.visual);
     const originX = this.player.x + Math.cos(this.player.aim) * dist;
-    const originY = this.player.y - 34 + Math.sin(this.player.aim) * dist;
+    const originY = this.player.y - 42 + Math.sin(this.player.aim) * dist;
 
     for (let i = 0; i < w.pellets; i++) {
       const angle = this.player.aim + rand(this.rng, -w.spread, w.spread);
