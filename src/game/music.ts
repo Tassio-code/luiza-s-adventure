@@ -3,10 +3,8 @@ import type { MusicPlan } from "./systems/director";
 /**
  * Music registry. Each stage has one track and each boss has another.
  *
- * `src` is intentionally nullable: while the real songs are not delivered yet,
- * the generative fallback plays and the timeline is simulated with `duration`.
- * To plug a real song, drop the file in `public/music/` and set `src` — nothing
- * else in the game needs to change.
+ * Real songs live in `public/music/` as lightweight .m4a files.
+ * Bosses reuse the stage track so the music never breaks immersion.
  */
 export type TrackConfig = {
   id: string;
