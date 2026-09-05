@@ -19,10 +19,10 @@ export type TrackConfig = {
 export const STAGE_TRACKS: TrackConfig[] = [
   {
     id: "stage-floresta",
-    src: null,
-    duration: 135,
+    src: "/music/fase01.m4a",
+    duration: 445,
     plan: {
-      duration: 135,
+      duration: 445,
       rampStart: 0.74,
       spawnStop: 0.9,
       baseAlive: 7,
@@ -33,10 +33,10 @@ export const STAGE_TRACKS: TrackConfig[] = [
   },
   {
     id: "stage-cidade",
-    src: null,
-    duration: 145,
+    src: "/music/fase02.m4a",
+    duration: 204,
     plan: {
-      duration: 145,
+      duration: 204,
       rampStart: 0.76,
       spawnStop: 0.91,
       baseAlive: 8,
@@ -47,10 +47,10 @@ export const STAGE_TRACKS: TrackConfig[] = [
   },
   {
     id: "stage-neve",
-    src: null,
-    duration: 155,
+    src: "/music/fase03.m4a",
+    duration: 215,
     plan: {
-      duration: 155,
+      duration: 215,
       rampStart: 0.78,
       spawnStop: 0.92,
       baseAlive: 8,
@@ -61,10 +61,10 @@ export const STAGE_TRACKS: TrackConfig[] = [
   },
   {
     id: "stage-deserto",
-    src: null,
-    duration: 160,
+    src: "/music/fase04.m4a",
+    duration: 167,
     plan: {
-      duration: 160,
+      duration: 167,
       rampStart: 0.8,
       spawnStop: 0.93,
       baseAlive: 9,
@@ -75,10 +75,10 @@ export const STAGE_TRACKS: TrackConfig[] = [
   },
   {
     id: "stage-castelo",
-    src: null,
-    duration: 175,
+    src: "/music/fase05.m4a",
+    duration: 256,
     plan: {
-      duration: 175,
+      duration: 256,
       rampStart: 0.82,
       spawnStop: 0.94,
       baseAlive: 10,
@@ -89,10 +89,10 @@ export const STAGE_TRACKS: TrackConfig[] = [
   },
 ];
 
-export const BOSS_TRACKS: TrackConfig[] = STAGE_TRACKS.map((t, i) => ({
+export const BOSS_TRACKS: TrackConfig[] = STAGE_TRACKS.map((t) => ({
   id: `boss-${t.id.replace("stage-", "")}`,
-  src: null,
-  duration: 120 + i * 8,
+  src: t.src,
+  duration: t.duration,
   plan: {},
 }));
 
