@@ -306,42 +306,14 @@ export class AudioManager {
         el.volume = this.muted ? 0 : Math.min(1, this.volume * 0.6);
         this.musicEl = el;
         void el.play().catch(() => {
-          // file missing or blocked — fall back to the generative loop
+          // arquivo ausente ou bloqueado — sem música de sistema
           this.musicEl = null;
-          this.startGenerative(track);
         });
         return;
       } catch {
         this.musicEl = null;
       }
     }
-    this.startGenerative(track);
-  }
-
-  private startGenerative(track: "menu" | "map" | "level" | "boss" | "ending") {
-    if (!this.ctx || !this.musicGain) return;
-    const scales: Record<string, number[]> = {
-      menu: [220, 261.6, 329.6, 392, 440, 392, 329.6, 261.6],
-      map: [196, 246.9, 293.7, 349.2, 392, 349.2, 293.7, 246.9],
-      level: [174.6, 174.6, 207.7, 233.1, 174.6, 155.6, 207.7, 233.1],
-      boss: [146.8, 155.6, 146.8, 138.6, 116.5, 138.6, 146.8, 155.6],
-      ending: [261.6, 329.6, 392, 523.3, 659.3, 523.3, 392, 329.6],
-    };
-    const scale = scales[track] ?? scales["menu"] ?? [220];
-    const interval = track === "boss" ? 260 : track === "ending" ? 520 : 400;
-    this.musicStep = 0;
-    const tick = () => {
-      if (!this.ctx || !this.musicGain) return;
-      const note = scale[this.musicStep % scale.length];
-      const type: OscillatorType = track === "boss" ? "sawtooth" : "triangle";
-      this.tone(note, interval / 1000 + 0.4, type, 0.12, undefined, this.musicGain);
-      if (this.musicStep % 4 === 0) {
-        this.tone(note / 2, 0.9, "sine", 0.14, undefined, this.musicGain);
-      }
-      this.musicStep++;
-    };
-    tick();
-    this.musicTimer = window.setInterval(tick, interval);
   }
 
   /** 0..1 position inside the current main track, or null when unknown. */

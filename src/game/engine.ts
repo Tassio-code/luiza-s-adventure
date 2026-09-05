@@ -11,7 +11,7 @@ import { drawAtmosphere, drawDecoration, drawGround } from "./systems/worldRende
 import { createRng, rand, randInt, type Rng } from "./systems/rng";
 import { MusicDirector, type DirectorPhase } from "./systems/director";
 import { addXp, createProgress, statsFor, type CombatStats, type Progress } from "./progression";
-import { bossTrack, stageTrack } from "./music";
+import { stageTrack } from "./music";
 import { loadSave, writeSave } from "./save";
 import { xpForLevel } from "./progression";
 
@@ -380,8 +380,7 @@ export class GameEngine {
     };
     this.phase = "boss";
     audio.bossRoar();
-    const bt = bossTrack(this.level.index);
-    audio.playMusic("boss", { id: bt.id, src: bt.src, duration: bt.duration, loop: true });
+    // A trilha da fase continua tocando durante o boss (sem troca de música).
     this.cam.shake = 16;
     this.callbacks.onBoss();
     this.callbacks.onToast(`${this.level.bossName} despertou!`);
@@ -576,9 +575,9 @@ export class GameEngine {
       b.damage = w.damage * this.stats.damageMul;
       b.size = w.bulletSize;
       b.knockback = w.knockback;
-      b.color = "#ffe6a3";
+      b.color = "#5fc8ff";
     }
-    this.particles.burst(originX, originY, 6, "#ffd77a", { speed: 150, life: 0.18, size: 2.2 });
+    this.particles.burst(originX, originY, 6, "#7fd4ff", { speed: 150, life: 0.18, size: 2.2 });
   }
 
   private updateBullets(dt: number) {
@@ -840,12 +839,7 @@ export class GameEngine {
     const b = this.enemyBullets.find((bullet) => !bullet.active);
     if (!b) return;
     const angle = angleOverride ?? Math.atan2(this.player.y - 26 - (e.y - 24), this.player.x - e.x);
-    const color =
-      e.kind === "frost"
-        ? "#ff4444"
-        : e.kind === "vampire" || e.kind === "boss"
-          ? "#ff6b8a"
-          : "#cfd6a0";
+    const color = "#ff4444";
     b.active = true;
     b.x = e.x + Math.cos(angle) * 18;
     b.y = e.y - 24 + Math.sin(angle) * 18;
