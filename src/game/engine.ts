@@ -842,7 +842,7 @@ export class GameEngine {
     const angle = angleOverride ?? Math.atan2(this.player.y - 26 - (e.y - 24), this.player.x - e.x);
     const color =
       e.kind === "frost"
-        ? "#a9e6ff"
+        ? "#ff4444"
         : e.kind === "vampire" || e.kind === "boss"
           ? "#ff6b8a"
           : "#cfd6a0";
