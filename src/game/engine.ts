@@ -561,7 +561,7 @@ export class GameEngine {
 
     const dist = weaponMuzzleDistance(w.visual);
     const originX = this.player.x + Math.cos(this.player.aim) * dist;
-    const originY = this.player.y - 34 + Math.sin(this.player.aim) * dist;
+    const originY = this.player.y - 42 + Math.sin(this.player.aim) * dist;
 
     for (let i = 0; i < w.pellets; i++) {
       const angle = this.player.aim + rand(this.rng, -w.spread, w.spread);
@@ -842,7 +842,7 @@ export class GameEngine {
     const angle = angleOverride ?? Math.atan2(this.player.y - 26 - (e.y - 24), this.player.x - e.x);
     const color =
       e.kind === "frost"
-        ? "#a9e6ff"
+        ? "#ff4444"
         : e.kind === "vampire" || e.kind === "boss"
           ? "#ff6b8a"
           : "#cfd6a0";
@@ -1266,7 +1266,7 @@ export class GameEngine {
       const w = WEAPONS[this.weapon];
       const d = weaponMuzzleDistance(w.visual);
       const mx = p.x + Math.cos(p.aim) * d;
-      const my = p.y - 34 + Math.sin(p.aim) * d;
+      const my = p.y - 42 + Math.sin(p.aim) * d;
       ctx.save();
       ctx.globalCompositeOperation = "screen";
       const g = ctx.createRadialGradient(mx, my, 1, mx, my, 34 * this.muzzleFlash);
