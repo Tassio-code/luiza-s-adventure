@@ -1266,7 +1266,7 @@ export class GameEngine {
       const w = WEAPONS[this.weapon];
       const d = weaponMuzzleDistance(w.visual);
       const mx = p.x + Math.cos(p.aim) * d;
-      const my = p.y - 34 + Math.sin(p.aim) * d;
+      const my = p.y - 42 + Math.sin(p.aim) * d;
       ctx.save();
       ctx.globalCompositeOperation = "screen";
       const g = ctx.createRadialGradient(mx, my, 1, mx, my, 34 * this.muzzleFlash);
