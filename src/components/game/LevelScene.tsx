@@ -195,7 +195,7 @@ export function LevelScene({
     if (!canvas || !level || !loaded) return;
     audio.resume();
     const track = stageTrack(levelIndex);
-    audio.playMusic("level", { id: track.id, src: track.src, duration: track.duration });
+    audio.playMusic("level", { id: track.id, src: track.src, duration: track.duration, loop: true });
     let engine: GameEngine | null = null;
     try {
       engine = new GameEngine(canvas, level, resolveAvatar(avatar), {
