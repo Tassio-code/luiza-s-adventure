@@ -110,10 +110,10 @@ export function FinalSequence({ onFinished }: { onFinished: () => void }) {
 
   if (step === "birthday") {
     return (
-      <main className="relative flex min-h-screen items-end justify-center overflow-hidden bg-ink px-6">
+      <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-ink px-6">
         <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
         <h1
-          className={`animate-rise-slow relative z-10 pb-10 text-center text-4xl leading-tight text-primary text-glow transition-opacity duration-[5000ms] ease-out sm:text-6xl ${
+          className={`animate-rise-slow relative z-10 text-center text-4xl leading-tight text-primary text-glow transition-opacity duration-[5000ms] ease-out sm:text-6xl ${
             birthdayOut ? "opacity-0" : "opacity-100"
           }`}
         >
