@@ -1026,7 +1026,7 @@ export class GameEngine {
     if (!this.director.spawnsOpen && this.enemies.length === 0) {
       if (this.bossIntro < 0) {
         this.bossIntro = 2.1;
-        audio.stopMusic();
+        // a trilha da fase continua tocando durante o boss — sem parar a música
         this.callbacks.onToast("A horda acabou…");
       } else {
         this.bossIntro -= dt;
