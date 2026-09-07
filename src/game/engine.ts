@@ -1222,21 +1222,22 @@ export class GameEngine {
         },
       });
     }
-    if (this.boss?.alive) {
+    if (this.boss && (this.boss.alive || this.boss.boss?.state === "dying")) {
       const boss = this.boss;
+      const variant = LEVEL_BOSS_GOLEM[this.level.index] ?? 1;
       items.push({
         y: boss.y,
         draw: () =>
-          drawEnemy(
+          drawBossSprite(
             ctx,
-            "boss",
-            boss.anim,
+            variant,
+            boss.spriteAnim ?? "walking",
+            boss.spriteTime ?? 0,
             boss.facing,
             boss.hurt,
-            1,
             boss.x,
             boss.y,
-            boss.boss?.state === "vulnerable",
+            150,
           ),
       });
     }
