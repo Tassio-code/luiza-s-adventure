@@ -936,6 +936,11 @@ export class GameEngine {
           const next = options[randInt(this.rng, 0, options.length - 1)] ?? "radial";
           st.state = next;
           st.timer = next === "charge" ? 0.85 : 0.6;
+          if (next !== "charge") {
+            boss.spriteAnim = "throwing";
+            boss.spriteTime = 0;
+            st.animLock = 0.62;
+          }
           if (next === "charge") {
             st.chargeVX = (dx / dist) * 460;
             st.chargeVY = (dy / dist) * 460;
@@ -1005,6 +1010,9 @@ export class GameEngine {
       if (boss.attackCooldown <= 0) {
         boss.attackCooldown = 1.1;
         this.damagePlayer(ENEMIES.boss.damage * 0.7);
+        boss.spriteAnim = "slashing";
+        boss.spriteTime = 0;
+        st.animLock = 0.55;
       }
     }
     boss.attackCooldown = Math.max(0, boss.attackCooldown - dt);
