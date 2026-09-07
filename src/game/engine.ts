@@ -179,6 +179,7 @@ export class GameEngine {
       typeof window !== "undefined" && window.matchMedia?.("(pointer: coarse)").matches;
     this.director = new MusicDirector(stageTrack(level.index).plan, coarse ? 0.75 : 1);
     this.rng = createRng(4242 + level.index * 31);
+    preloadBossSprites(LEVEL_BOSS_GOLEM[level.index] ?? 1);
     this.weapon = level.weapon;
     this.ammo = WEAPONS[this.weapon].startAmmo;
     this.player.x = this.map.playerStart.x;
@@ -380,7 +381,17 @@ export class GameEngine {
       knockX: 0,
       knockY: 0,
       attackCooldown: 0,
-      boss: { state: "approach", timer: 0, nextAttack: 2.4, chargeVX: 0, chargeVY: 0, phase: 1 },
+      boss: {
+        state: "approach",
+        timer: 0,
+        nextAttack: 2.4,
+        chargeVX: 0,
+        chargeVY: 0,
+        phase: 1,
+        animLock: 0,
+      },
+      spriteAnim: "walking",
+      spriteTime: 0,
     };
     this.phase = "boss";
     audio.bossRoar();
