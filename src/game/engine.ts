@@ -45,7 +45,7 @@ export type EngineCallbacks = {
   onToast: (text: string) => void;
 };
 
-type BossState = "approach" | "radial" | "volley" | "charge" | "summon" | "vulnerable";
+type BossState = "approach" | "radial" | "volley" | "charge" | "summon" | "vulnerable" | "dying";
 
 type Bullet = {
   active: boolean;
@@ -84,7 +84,10 @@ type Enemy = {
     chargeVX: number;
     chargeVY: number;
     phase: number;
+    animLock?: number;
   };
+  spriteAnim?: BossAnim;
+  spriteTime?: number;
 };
 
 type Pickup = {
