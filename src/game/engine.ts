@@ -1,6 +1,7 @@
 import { drawAvatar, weaponMuzzleDistance, type AvatarPose } from "./avatar/renderer";
 import type { ResolvedAvatar } from "./avatar/options";
 import { ENEMIES, WEAPONS, type EnemyKind, type LevelDef, type WeaponId } from "./content";
+import { drawBossSprite, preloadBossSprites, LEVEL_BOSS_GOLEM, type BossAnim } from "./bossSprites";
 import { audio } from "./audio";
 import { drawEnemy } from "./systems/enemyRender";
 import { drawSheetSprite, setPixelated } from "./systems/spriteRender";
