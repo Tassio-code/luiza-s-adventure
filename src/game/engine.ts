@@ -693,8 +693,13 @@ export class GameEngine {
     });
     if (e.kind === "boss") {
       this.cam.shake = 26;
-      this.boss = null;
-      this.onBossDefeated();
+      if (e.boss) {
+        // plays the death animation before the level completes
+        e.boss.state = "dying";
+        e.boss.timer = 1.5;
+        e.spriteAnim = "dying";
+        e.spriteTime = 0;
+      }
       return;
     }
     this.killed++;
