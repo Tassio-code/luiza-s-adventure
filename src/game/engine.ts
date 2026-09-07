@@ -897,6 +897,18 @@ export class GameEngine {
     const hpRatio = boss.hp / boss.maxHp;
     st.phase = hpRatio > 0.66 ? 1 : hpRatio > 0.33 ? 2 : 3;
 
+    // sprite animation: locked one-shots (attacks/hits) win, otherwise follow the AI state
+    boss.spriteTime = (boss.spriteTime ?? 0) + dt;
+    st.animLock = Math.max(0, (st.animLock ?? 0) - dt);
+    if (st.animLock <= 0) {
+      const want: BossAnim =
+        st.state === "charge" ? "running" : st.state === "vulnerable" ? "idle" : "walking";
+      if (boss.spriteAnim !== want) {
+        boss.spriteAnim = want;
+        boss.spriteTime = 0;
+      }
+    }
+
     const move = (speed: number) => {
       const moved = moveCircle(
         this.map,
