@@ -874,9 +874,19 @@ export class GameEngine {
 
   private updateBoss(dt: number) {
     const boss = this.boss;
-    if (!boss || !boss.alive || !boss.boss) return;
-    const p = this.player;
+    if (!boss || !boss.boss) return;
     const st = boss.boss;
+    if (st.state === "dying") {
+      st.timer -= dt;
+      boss.spriteTime = (boss.spriteTime ?? 0) + dt;
+      if (st.timer <= 0) {
+        this.boss = null;
+        this.onBossDefeated();
+      }
+      return;
+    }
+    if (!boss.alive) return;
+    const p = this.player;
     boss.hurt = Math.max(0, boss.hurt - dt * 3);
     boss.anim += dt;
     const dx = p.x - boss.x;
