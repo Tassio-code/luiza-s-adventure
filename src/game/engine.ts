@@ -1,6 +1,7 @@
 import { drawAvatar, weaponMuzzleDistance, type AvatarPose } from "./avatar/renderer";
 import type { ResolvedAvatar } from "./avatar/options";
 import { ENEMIES, WEAPONS, type EnemyKind, type LevelDef, type WeaponId } from "./content";
+import { drawBossSprite, preloadBossSprites, LEVEL_BOSS_GOLEM, type BossAnim } from "./bossSprites";
 import { audio } from "./audio";
 import { drawEnemy } from "./systems/enemyRender";
 import { drawSheetSprite, setPixelated } from "./systems/spriteRender";
@@ -45,7 +46,7 @@ export type EngineCallbacks = {
   onToast: (text: string) => void;
 };
 
-type BossState = "approach" | "radial" | "volley" | "charge" | "summon" | "vulnerable";
+type BossState = "approach" | "radial" | "volley" | "charge" | "summon" | "vulnerable" | "dying";
 
 type Bullet = {
   active: boolean;
@@ -84,7 +85,10 @@ type Enemy = {
     chargeVX: number;
     chargeVY: number;
     phase: number;
+    animLock?: number;
   };
+  spriteAnim?: BossAnim;
+  spriteTime?: number;
 };
 
 type Pickup = {
@@ -175,6 +179,7 @@ export class GameEngine {
       typeof window !== "undefined" && window.matchMedia?.("(pointer: coarse)").matches;
     this.director = new MusicDirector(stageTrack(level.index).plan, coarse ? 0.75 : 1);
     this.rng = createRng(4242 + level.index * 31);
+    preloadBossSprites(LEVEL_BOSS_GOLEM[level.index] ?? 1);
     this.weapon = level.weapon;
     this.ammo = WEAPONS[this.weapon].startAmmo;
     this.player.x = this.map.playerStart.x;
@@ -376,7 +381,17 @@ export class GameEngine {
       knockX: 0,
       knockY: 0,
       attackCooldown: 0,
-      boss: { state: "approach", timer: 0, nextAttack: 2.4, chargeVX: 0, chargeVY: 0, phase: 1 },
+      boss: {
+        state: "approach",
+        timer: 0,
+        nextAttack: 2.4,
+        chargeVX: 0,
+        chargeVY: 0,
+        phase: 1,
+        animLock: 0,
+      },
+      spriteAnim: "walking",
+      spriteTime: 0,
     };
     this.phase = "boss";
     audio.bossRoar();
@@ -678,8 +693,13 @@ export class GameEngine {
     });
     if (e.kind === "boss") {
       this.cam.shake = 26;
-      this.boss = null;
-      this.onBossDefeated();
+      if (e.boss) {
+        // plays the death animation before the level completes
+        e.boss.state = "dying";
+        e.boss.timer = 1.5;
+        e.spriteAnim = "dying";
+        e.spriteTime = 0;
+      }
       return;
     }
     this.killed++;
@@ -854,9 +874,19 @@ export class GameEngine {
 
   private updateBoss(dt: number) {
     const boss = this.boss;
-    if (!boss || !boss.alive || !boss.boss) return;
-    const p = this.player;
+    if (!boss || !boss.boss) return;
     const st = boss.boss;
+    if (st.state === "dying") {
+      st.timer -= dt;
+      boss.spriteTime = (boss.spriteTime ?? 0) + dt;
+      if (st.timer <= 0) {
+        this.boss = null;
+        this.onBossDefeated();
+      }
+      return;
+    }
+    if (!boss.alive) return;
+    const p = this.player;
     boss.hurt = Math.max(0, boss.hurt - dt * 3);
     boss.anim += dt;
     const dx = p.x - boss.x;
@@ -866,6 +896,18 @@ export class GameEngine {
     st.timer -= dt;
     const hpRatio = boss.hp / boss.maxHp;
     st.phase = hpRatio > 0.66 ? 1 : hpRatio > 0.33 ? 2 : 3;
+
+    // sprite animation: locked one-shots (attacks/hits) win, otherwise follow the AI state
+    boss.spriteTime = (boss.spriteTime ?? 0) + dt;
+    st.animLock = Math.max(0, (st.animLock ?? 0) - dt);
+    if (st.animLock <= 0) {
+      const want: BossAnim =
+        st.state === "charge" ? "running" : st.state === "vulnerable" ? "idle" : "walking";
+      if (boss.spriteAnim !== want) {
+        boss.spriteAnim = want;
+        boss.spriteTime = 0;
+      }
+    }
 
     const move = (speed: number) => {
       const moved = moveCircle(
@@ -894,6 +936,11 @@ export class GameEngine {
           const next = options[randInt(this.rng, 0, options.length - 1)] ?? "radial";
           st.state = next;
           st.timer = next === "charge" ? 0.85 : 0.6;
+          if (next !== "charge") {
+            boss.spriteAnim = "throwing";
+            boss.spriteTime = 0;
+            st.animLock = 0.62;
+          }
           if (next === "charge") {
             st.chargeVX = (dx / dist) * 460;
             st.chargeVY = (dy / dist) * 460;
@@ -963,6 +1010,9 @@ export class GameEngine {
       if (boss.attackCooldown <= 0) {
         boss.attackCooldown = 1.1;
         this.damagePlayer(ENEMIES.boss.damage * 0.7);
+        boss.spriteAnim = "slashing";
+        boss.spriteTime = 0;
+        st.animLock = 0.55;
       }
     }
     boss.attackCooldown = Math.max(0, boss.attackCooldown - dt);
@@ -1172,21 +1222,22 @@ export class GameEngine {
         },
       });
     }
-    if (this.boss?.alive) {
+    if (this.boss && (this.boss.alive || this.boss.boss?.state === "dying")) {
       const boss = this.boss;
+      const variant = LEVEL_BOSS_GOLEM[this.level.index] ?? 1;
       items.push({
         y: boss.y,
         draw: () =>
-          drawEnemy(
+          drawBossSprite(
             ctx,
-            "boss",
-            boss.anim,
+            variant,
+            boss.spriteAnim ?? "walking",
+            boss.spriteTime ?? 0,
             boss.facing,
             boss.hurt,
-            1,
             boss.x,
             boss.y,
-            boss.boss?.state === "vulnerable",
+            150,
           ),
       });
     }
