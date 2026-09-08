@@ -94,6 +94,7 @@ export function drawEnemy(
   y: number,
   charging = false,
 ) {
+  if (kind !== "boss" && drawMonsterSprite(ctx, kind, time, facing, hurt, scale, x, y)) return;
   if (drawEnemySprite(ctx, kind, time, facing, hurt, scale, x, y, charging)) return;
 
   const walk = Math.sin(time * 7);
