@@ -1245,27 +1245,44 @@ export class GameEngine {
     items.sort((a, b) => a.y - b.y);
     for (const item of items) item.draw();
 
-    // bullets
+    // bullets (bright core + glow so they read over any terrain)
+    ctx.save();
     for (const b of this.bullets) {
       if (!b.active) continue;
+      ctx.strokeStyle = "rgba(140,220,255,0.55)";
+      ctx.lineWidth = b.size * 1.1;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(b.x - b.vx * 0.022, b.y - b.vy * 0.022);
+      ctx.lineTo(b.x, b.y);
+      ctx.stroke();
+      ctx.shadowColor = b.color;
+      ctx.shadowBlur = 16;
       ctx.fillStyle = b.color;
       ctx.beginPath();
       ctx.arc(b.x, b.y, b.size, 0, Math.PI * 2);
       ctx.fill();
-      ctx.strokeStyle = "rgba(255,230,160,0.5)";
-      ctx.lineWidth = 1.6;
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = "#ffffff";
       ctx.beginPath();
-      ctx.moveTo(b.x - b.vx * 0.012, b.y - b.vy * 0.012);
-      ctx.lineTo(b.x, b.y);
-      ctx.stroke();
+      ctx.arc(b.x, b.y, b.size * 0.45, 0, Math.PI * 2);
+      ctx.fill();
     }
     for (const b of this.enemyBullets) {
       if (!b.active) continue;
+      ctx.shadowColor = b.color;
+      ctx.shadowBlur = 14;
       ctx.fillStyle = b.color;
       ctx.beginPath();
       ctx.arc(b.x, b.y, b.size, 0, Math.PI * 2);
       ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = "rgba(255,220,220,0.9)";
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, b.size * 0.4, 0, Math.PI * 2);
+      ctx.fill();
     }
+    ctx.restore();
 
     this.particles.render(ctx);
     this.ambient.render(ctx);
