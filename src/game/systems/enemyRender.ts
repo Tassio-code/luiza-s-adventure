@@ -1,6 +1,7 @@
 import type { EnemyKind } from "../content";
 import type { SheetKey } from "../assets";
 import { drawSheetSprite } from "./spriteRender";
+import { drawMonsterSprite } from "../monsterSprites";
 
 type Ctx = CanvasRenderingContext2D;
 
