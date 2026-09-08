@@ -154,14 +154,14 @@ export function LevelScene({
     return () => mq.removeEventListener("change", update);
   }, []);
 
-  // On touch devices, try to lock the screen to landscape while playing.
+  // On touch devices, keep the screen in portrait while playing.
   useEffect(() => {
     if (!touch) return;
     const orientation = screen.orientation as ScreenOrientation & {
       lock?: (o: string) => Promise<void>;
       unlock?: () => void;
     };
-    orientation.lock?.("landscape").catch(() => undefined);
+    orientation.lock?.("portrait").catch(() => undefined);
     return () => {
       try {
         orientation.unlock?.();
