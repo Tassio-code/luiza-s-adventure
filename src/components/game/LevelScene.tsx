@@ -296,8 +296,8 @@ export function LevelScene({
           </div>
           <div
             className={`panel-parchment rounded-xl ${
-              touch && landscape
-                ? "max-w-[60vw] origin-top-left scale-[0.8] px-3 py-1.5"
+              touch
+                ? "max-w-[70vw] origin-top-left scale-[0.8] px-3 py-1.5"
                 : "max-w-[45%] px-4 py-2"
             }`}
           >
@@ -305,19 +305,6 @@ export function LevelScene({
             <p className="text-sm text-foreground">{hud?.objective ?? level.intro}</p>
           </div>
         </div>
-        {hud && hud.phase === "boss" && hud.bossMaxHp > 0 && (
-          <div className="panel-parchment mx-auto w-full max-w-md rounded-xl px-4 py-2">
-            <p className="text-center text-xs uppercase tracking-widest text-accent">
-              {hud.bossName}
-            </p>
-            <div className="mt-1 h-3 overflow-hidden rounded-full bg-secondary">
-              <div
-                className="h-full rounded-full bg-accent transition-[width] duration-200"
-                style={{ width: `${(hud.bossHp / hud.bossMaxHp) * 100}%` }}
-              />
-            </div>
-          </div>
-        )}
       </div>
 
       {toast && (
