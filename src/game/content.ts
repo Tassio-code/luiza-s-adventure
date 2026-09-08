@@ -38,7 +38,7 @@ export const WEAPONS: Record<WeaponId, Weapon> = {
     startAmmo: 110,
     maxAmmo: 160,
     knockback: 110,
-    bulletSize: 3.2,
+    bulletSize: 4.6,
     description: "Precisa e confiável. Cada bala conta.",
   },
   dual: {
@@ -55,7 +55,7 @@ export const WEAPONS: Record<WeaponId, Weapon> = {
     startAmmo: 110,
     maxAmmo: 260,
     knockback: 90,
-    bulletSize: 3,
+    bulletSize: 4.4,
     description: "Duas mãos, dois canos, o dobro de ritmo.",
   },
   rifle: {
@@ -72,7 +72,7 @@ export const WEAPONS: Record<WeaponId, Weapon> = {
     startAmmo: 160,
     maxAmmo: 340,
     knockback: 120,
-    bulletSize: 3.4,
+    bulletSize: 4.8,
     description: "Rajadas longas que atravessam a nevasca.",
   },
   shotgun: {
@@ -89,7 +89,7 @@ export const WEAPONS: Record<WeaponId, Weapon> = {
     startAmmo: 48,
     maxAmmo: 110,
     knockback: 300,
-    bulletSize: 3.6,
+    bulletSize: 5,
     description: "Dano brutal a curta distância. Munição rara.",
   },
   smg: {
@@ -106,7 +106,7 @@ export const WEAPONS: Record<WeaponId, Weapon> = {
     startAmmo: 520,
     maxAmmo: 900,
     knockback: 70,
-    bulletSize: 2.8,
+    bulletSize: 4.2,
     description: "Cadência absurda para a noite mais longa.",
   },
 };

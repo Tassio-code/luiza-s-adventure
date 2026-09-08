@@ -154,14 +154,14 @@ export function LevelScene({
     return () => mq.removeEventListener("change", update);
   }, []);
 
-  // On touch devices, try to lock the screen to landscape while playing.
+  // On touch devices, keep the screen in portrait while playing.
   useEffect(() => {
     if (!touch) return;
     const orientation = screen.orientation as ScreenOrientation & {
       lock?: (o: string) => Promise<void>;
       unlock?: () => void;
     };
-    orientation.lock?.("landscape").catch(() => undefined);
+    orientation.lock?.("portrait").catch(() => undefined);
     return () => {
       try {
         orientation.unlock?.();
@@ -242,16 +242,28 @@ export function LevelScene({
         </div>
       )}
 
+      {/* Boss health: slim bar pinned to the very top, no name */}
+      {hud && hud.phase === "boss" && hud.bossMaxHp > 0 && (
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-30 px-3 pt-[calc(0.35rem+env(safe-area-inset-top))]">
+          <div className="mx-auto h-2.5 w-full max-w-md overflow-hidden rounded-full border border-accent/50 bg-ink/70">
+            <div
+              className="h-full rounded-full bg-accent transition-[width] duration-200"
+              style={{ width: `${(hud.bossHp / hud.bossMaxHp) * 100}%` }}
+            />
+          </div>
+        </div>
+      )}
+
       {/* HUD */}
       <div
         className={`pointer-events-none absolute inset-x-0 top-0 flex flex-col gap-2 ${
-          touch && landscape ? "p-2" : "p-4"
+          touch ? "p-2 pt-6" : "p-4"
         }`}
       >
-        <div className="flex flex-col items-start gap-2 pr-[8.5rem]">
+        <div className={`flex flex-col items-start gap-2 ${touch && landscape ? "pr-[8.5rem]" : "pr-2"}`}>
           <div
             className={`panel-parchment rounded-xl ${
-              touch && landscape ? "origin-top-left scale-[0.8] px-3 py-2" : "px-4 py-3"
+              touch ? "origin-top-left scale-[0.8] px-3 py-2" : "px-4 py-3"
             }`}
           >
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
@@ -284,8 +296,8 @@ export function LevelScene({
           </div>
           <div
             className={`panel-parchment rounded-xl ${
-              touch && landscape
-                ? "max-w-[60vw] origin-top-left scale-[0.8] px-3 py-1.5"
+              touch
+                ? "max-w-[70vw] origin-top-left scale-[0.8] px-3 py-1.5"
                 : "max-w-[45%] px-4 py-2"
             }`}
           >
@@ -293,19 +305,6 @@ export function LevelScene({
             <p className="text-sm text-foreground">{hud?.objective ?? level.intro}</p>
           </div>
         </div>
-        {hud && hud.phase === "boss" && hud.bossMaxHp > 0 && (
-          <div className="panel-parchment mx-auto w-full max-w-md rounded-xl px-4 py-2">
-            <p className="text-center text-xs uppercase tracking-widest text-accent">
-              {hud.bossName}
-            </p>
-            <div className="mt-1 h-3 overflow-hidden rounded-full bg-secondary">
-              <div
-                className="h-full rounded-full bg-accent transition-[width] duration-200"
-                style={{ width: `${(hud.bossHp / hud.bossMaxHp) * 100}%` }}
-              />
-            </div>
-          </div>
-        )}
       </div>
 
       {toast && (
