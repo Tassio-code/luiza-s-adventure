@@ -117,7 +117,7 @@ function Game() {
       return (
         <WorldMap
           avatar={avatar}
-          unlocked={save.unlocked}
+          unlocked={UNLOCK_ALL ? LEVELS.length - 1 : save.unlocked}
           fragments={fragments}
           onPlay={(i) => {
             audio.resume();
