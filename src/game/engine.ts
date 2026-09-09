@@ -850,7 +850,8 @@ export class GameEngine {
       }
 
       const ranged = stats.ranged;
-      const preferred = ranged ? 230 : 26;
+      const style = e.style ?? (ranged ? "spread" : "rusher");
+      const preferred = ranged ? (style === "sniper" ? 320 : style === "spread" ? 170 : 230) : 26;
       let dirX = dx / dist;
       let dirY = dy / dist;
       if (ranged && dist < preferred * 0.8) {
