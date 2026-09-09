@@ -144,7 +144,7 @@ export function toggleAccessory(current: string[], id: string): string[] {
 }
 
 export const DEFAULT_AVATAR: AvatarConfig = {
-  name: "Luiza",
+  name: "",
   skin: "light",
   hair: "long",
   hairColor: "darkbrown",
