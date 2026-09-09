@@ -862,8 +862,37 @@ export class GameEngine {
         dirY = dirX;
       }
 
-      const vx = dirX * stats.speed + sepX + e.knockX;
-      const vy = dirY * stats.speed + sepY + e.knockY;
+      // melee flavour: rushers push in faster, lungers wind up and dash
+      let speedMul = 1;
+      e.dashTimer = Math.max(0, (e.dashTimer ?? 0) - dt);
+      let dashing = false;
+      if (!ranged) {
+        if (style === "rusher") speedMul = dist > 120 ? 1.28 : 1.05;
+        if (style === "lunger") {
+          if ((e.dashVX ?? 0) !== 0 || (e.dashVY ?? 0) !== 0) {
+            dashing = true;
+          } else if (e.dashTimer <= 0 && dist < 260 && dist > 50) {
+            e.dashVX = (dx / dist) * 430;
+            e.dashVY = (dy / dist) * 430;
+            e.dashTimer = rand(this.rng, 1.8, 3.2);
+            dashing = true;
+            this.particles.burst(e.x, e.y - 18, 8, "#d9d0c2", { speed: 90, life: 0.3 });
+          }
+        }
+      }
+
+      let vx = dirX * stats.speed * speedMul + sepX + e.knockX;
+      let vy = dirY * stats.speed * speedMul + sepY + e.knockY;
+      if (dashing) {
+        vx = (e.dashVX ?? 0) + e.knockX;
+        vy = (e.dashVY ?? 0) + e.knockY;
+        e.dashVX = (e.dashVX ?? 0) * 0.86;
+        e.dashVY = (e.dashVY ?? 0) * 0.86;
+        if (Math.hypot(e.dashVX, e.dashVY) < 40) {
+          e.dashVX = 0;
+          e.dashVY = 0;
+        }
+      }
       e.knockX *= 0.86;
       e.knockY *= 0.86;
       const moved = moveCircle(this.map, e.x, e.y, vx * dt, vy * dt, stats.radius * 0.8);
@@ -872,18 +901,40 @@ export class GameEngine {
 
       if (ranged) {
         e.fireTimer -= dt;
-        if (
-          e.fireTimer <= 0 &&
-          dist < 460 &&
-          hasLineOfSight(this.map, e.x, e.y - 20, p.x, p.y - 26)
-        ) {
+        e.burstTimer = Math.max(0, (e.burstTimer ?? 0) - dt);
+        const sees =
+          dist < (style === "sniper" ? 620 : 460) &&
+          hasLineOfSight(this.map, e.x, e.y - 20, p.x, p.y - 26);
+        // finish a burst already in progress
+        if ((e.burstLeft ?? 0) > 0) {
+          if (e.burstTimer <= 0) {
+            e.burstLeft = (e.burstLeft ?? 0) - 1;
+            e.burstTimer = 0.12;
+            this.enemyShoot(e, stats.projectileSpeed * 1.1, stats.damage * 0.55);
+          }
+        } else if (e.fireTimer <= 0 && sees) {
           e.fireTimer = stats.fireRate * rand(this.rng, 0.8, 1.3);
-          this.enemyShoot(e, stats.projectileSpeed, stats.damage * 0.8);
+          if (style === "spread") {
+            const base = Math.atan2(p.y - 26 - (e.y - 24), p.x - e.x);
+            for (let s = -1; s <= 1; s++) {
+              this.enemyShoot(e, stats.projectileSpeed * 0.95, stats.damage * 0.5, base + s * 0.2);
+            }
+          } else if (style === "burst") {
+            e.burstLeft = 3;
+            e.burstTimer = 0;
+          } else if (style === "sniper") {
+            e.fireTimer *= 1.5;
+            this.enemyShoot(e, stats.projectileSpeed * 1.7, stats.damage * 1.1);
+          } else {
+            this.enemyShoot(e, stats.projectileSpeed, stats.damage * 0.8);
+          }
         }
       }
       if (dist < stats.radius + p.r + 4 && e.attackCooldown <= 0) {
-        e.attackCooldown = 0.9;
-        this.damagePlayer(stats.damage);
+        e.attackCooldown = style === "rusher" ? 0.7 : 0.9;
+        this.damagePlayer(stats.damage * (dashing ? 1.35 : 1));
+        e.dashVX = 0;
+        e.dashVY = 0;
         e.knockX -= dirX * 260;
         e.knockY -= dirY * 260;
       }
