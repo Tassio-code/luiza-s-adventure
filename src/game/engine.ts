@@ -371,6 +371,12 @@ export class GameEngine {
       knockX: 0,
       knockY: 0,
       attackCooldown: 0,
+      style: this.pickEnemyStyle(kind),
+      dashTimer: rand(this.rng, 1.2, 3),
+      dashVX: 0,
+      dashVY: 0,
+      burstLeft: 0,
+      burstTimer: 0,
     };
     this.enemies.push(enemy);
     this.particles.burst(spot.x, spot.y - 20, 10, "#8b8b8b", {
