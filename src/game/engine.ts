@@ -90,6 +90,12 @@ type Enemy = {
   knockX: number;
   knockY: number;
   attackCooldown: number;
+  style?: EnemyStyle;
+  dashTimer?: number;
+  dashVX?: number;
+  dashVY?: number;
+  burstLeft?: number;
+  burstTimer?: number;
   // boss only
   boss?: {
     state: BossState;
