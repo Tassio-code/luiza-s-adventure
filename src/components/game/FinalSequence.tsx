@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { audio } from "@/game/audio";
 import { FireworksShow } from "@/game/fireworks";
 import { FragmentMerge } from "@/components/game/FragmentMerge";
-import { FINAL_MESSAGE } from "@/game/message";
+import { FINAL_MESSAGE, BIRTHDAY_NAME } from "@/game/message";
 
 /** Optional photo — dropped in later. Missing file degrades gracefully. */
 const PHOTO_SRC = "/final/photo.jpg";

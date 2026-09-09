@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { LEVELS } from "@/game/content";
 import { audio } from "@/game/audio";
 import { FireworksShow } from "@/game/fireworks";
-import { FINAL_MESSAGE } from "@/game/message";
+import { FINAL_MESSAGE, BIRTHDAY_NAME } from "@/game/message";
 import { AvatarCanvas } from "./AvatarCanvas";
 import { InstallButton } from "./InstallButton";
 import type { AvatarConfig } from "@/game/avatar/options";
