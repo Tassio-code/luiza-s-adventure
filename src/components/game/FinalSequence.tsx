@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { audio } from "@/game/audio";
 import { FireworksShow } from "@/game/fireworks";
 import { FragmentMerge } from "@/components/game/FragmentMerge";
-import { BIRTHDAY_NAME, FINAL_MESSAGE } from "@/game/message";
+import { FINAL_MESSAGE } from "@/game/message";
 
 /** Optional photo — dropped in later. Missing file degrades gracefully. */
 const PHOTO_SRC = "/final/photo.jpg";
@@ -117,9 +117,7 @@ export function FinalSequence({ onFinished }: { onFinished: () => void }) {
             birthdayOut ? "opacity-0" : "opacity-100"
           }`}
         >
-          Feliz Aniversário,
-          <br />
-          {BIRTHDAY_NAME}
+          Feliz Aniversário
         </h1>
       </main>
     );

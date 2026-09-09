@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { LEVELS } from "@/game/content";
 import { audio } from "@/game/audio";
 import { FireworksShow } from "@/game/fireworks";
-import { FINAL_MESSAGE, BIRTHDAY_NAME } from "@/game/message";
+import { FINAL_MESSAGE } from "@/game/message";
 import { AvatarCanvas } from "./AvatarCanvas";
 import { InstallButton } from "./InstallButton";
 import type { AvatarConfig } from "@/game/avatar/options";
@@ -228,7 +228,7 @@ export function Fireworks({ onBackToMap }: { onBackToMap: () => void }) {
       <canvas ref={ref} className="absolute inset-0 h-full w-full" />
       <div className="relative z-10 flex h-full flex-col items-center justify-center gap-4 px-6 text-center">
         <h1 className="text-4xl text-primary text-glow sm:text-6xl">
-          FELIZ ANIVERSÁRIO, {BIRTHDAY_NAME.toUpperCase()}
+          FELIZ ANIVERSÁRIO
         </h1>
         {step >= 1 && (
           <p className="animate-title-in text-lg text-foreground sm:text-2xl">
