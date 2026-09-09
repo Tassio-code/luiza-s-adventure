@@ -336,6 +336,15 @@ export class GameEngine {
     });
   }
 
+  /** Melee enemies charge or lunge; shooters spread, burst or snipe. */
+  private pickEnemyStyle(kind: EnemyKind): EnemyStyle {
+    const ranged = ENEMIES[kind].ranged;
+    const pool: EnemyStyle[] = ranged
+      ? ["spread", "burst", "sniper", "burst"]
+      : ["rusher", "lunger", "lunger"];
+    return pool[randInt(this.rng, 0, pool.length - 1)] ?? "rusher";
+  }
+
   private spawnEnemy(kind: EnemyKind) {
     const stats = ENEMIES[kind];
     const rooms = this.map.rooms;
