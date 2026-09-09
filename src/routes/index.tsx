@@ -59,8 +59,14 @@ function Game() {
     writeSave(next);
   }, []);
 
+  // modo de visualização livre: todas as fases e o pergaminho ficam abertos
+  const UNLOCK_ALL = true;
   const avatar = save?.avatar ?? draft;
-  const fragments = useMemo(() => save?.fragments ?? [], [save]);
+  const fragments = useMemo(
+    () => (UNLOCK_ALL ? [0, 1, 2, 3, 4] : (save?.fragments ?? [])),
+    [save, UNLOCK_ALL],
+  );
+
 
   useEffect(() => {
     if (scene === "menu") audio.playMusic("menu");
@@ -111,7 +117,7 @@ function Game() {
       return (
         <WorldMap
           avatar={avatar}
-          unlocked={save.unlocked}
+          unlocked={UNLOCK_ALL ? LEVELS.length - 1 : save.unlocked}
           fragments={fragments}
           onPlay={(i) => {
             audio.resume();
