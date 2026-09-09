@@ -46,7 +46,20 @@ export type EngineCallbacks = {
   onToast: (text: string) => void;
 };
 
-type BossState = "approach" | "radial" | "volley" | "charge" | "summon" | "vulnerable" | "dying";
+type BossState =
+  | "approach"
+  | "radial"
+  | "volley"
+  | "charge"
+  | "summon"
+  | "spiral"
+  | "slam"
+  | "snipe"
+  | "vulnerable"
+  | "dying";
+
+/** Combat personality picked when an enemy spawns, so hordes never feel identical. */
+type EnemyStyle = "rusher" | "lunger" | "spread" | "burst" | "sniper";
 
 type Bullet = {
   active: boolean;
