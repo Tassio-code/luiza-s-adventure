@@ -1099,6 +1099,71 @@ export class GameEngine {
         }
         break;
       }
+      // rotating stream of shots while slowly circling the arena
+      case "spiral": {
+        st.nextAttack -= dt;
+        st.spiralAngle = (st.spiralAngle ?? 0) + dt * (st.phase === 3 ? 3.4 : 2.4);
+        if (st.nextAttack <= 0) {
+          st.nextAttack = 0.09;
+          const arms = st.phase === 3 ? 3 : 2;
+          for (let a = 0; a < arms; a++) {
+            this.enemyShoot(
+              boss,
+              230,
+              ENEMIES.boss.damage * 0.42,
+              (st.spiralAngle ?? 0) + (a / arms) * Math.PI * 2,
+            );
+          }
+          boss.spriteAnim = "throwing";
+          st.animLock = 0.3;
+        }
+        if (st.timer <= 0) {
+          st.state = "vulnerable";
+          st.timer = st.phase === 3 ? 0.8 : 1.3;
+        }
+        break;
+      }
+      // ground smash: shockwave ring plus heavy close-range damage
+      case "slam": {
+        if (st.timer <= 0) {
+          this.cam.shake = 20;
+          audio.bossRoar();
+          this.particles.burst(boss.x, boss.y - 10, 60, "#e0b062", {
+            speed: 260,
+            life: 0.6,
+            shape: "smoke",
+          });
+          const count = st.phase === 3 ? 26 : 18;
+          for (let i = 0; i < count; i++) {
+            this.enemyShoot(
+              boss,
+              165,
+              ENEMIES.boss.damage * 0.45,
+              (i / count) * Math.PI * 2 + this.rng() * 0.1,
+            );
+          }
+          if (dist < 130) this.damagePlayer(ENEMIES.boss.damage * 1.1);
+          st.state = "vulnerable";
+          st.timer = st.phase === 3 ? 1 : 1.6;
+        }
+        break;
+      }
+      // three fast, precisely aimed shots
+      case "snipe": {
+        st.nextAttack -= dt;
+        if (st.nextAttack <= 0) {
+          st.nextAttack = 0.28;
+          boss.spriteAnim = "throwing";
+          st.animLock = 0.3;
+          const base = Math.atan2(p.y - 26 - (boss.y - 48), p.x - boss.x);
+          this.enemyShoot(boss, 520, ENEMIES.boss.damage * 0.6, base);
+        }
+        if (st.timer <= 0) {
+          st.state = "vulnerable";
+          st.timer = st.phase === 3 ? 0.9 : 1.4;
+        }
+        break;
+      }
       case "vulnerable": {
         if (st.timer <= 0) {
           st.state = "approach";
