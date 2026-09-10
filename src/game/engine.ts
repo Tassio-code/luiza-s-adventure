@@ -105,6 +105,8 @@ type Enemy = {
     chargeVY: number;
     phase: number;
     animLock?: number;
+    lastAttack?: BossState;
+    spiralAngle?: number;
   };
   spriteAnim?: BossAnim;
   spriteTime?: number;
