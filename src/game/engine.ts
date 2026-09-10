@@ -1015,14 +1015,35 @@ export class GameEngine {
         if (st.timer <= 0) {
           const options: BossState[] =
             st.phase === 1
-              ? ["radial", "volley", "charge"]
+              ? ["radial", "volley", "charge", "slam", "snipe"]
               : st.phase === 2
-                ? ["radial", "charge", "summon", "volley"]
-                : ["radial", "radial", "charge", "volley", "summon"];
-          const next = options[randInt(this.rng, 0, options.length - 1)] ?? "radial";
+                ? ["radial", "charge", "summon", "volley", "spiral", "slam", "snipe"]
+                : ["radial", "spiral", "charge", "volley", "summon", "slam", "spiral", "snipe"];
+          let next = options[randInt(this.rng, 0, options.length - 1)] ?? "radial";
+          // never repeat the same special twice in a row
+          if (next === st.lastAttack) {
+            next = options[randInt(this.rng, 0, options.length - 1)] ?? "radial";
+          }
+          st.lastAttack = next;
           st.state = next;
-          st.timer = next === "charge" ? 0.85 : 0.6;
-          if (next !== "charge") {
+          st.timer =
+            next === "charge"
+              ? 0.85
+              : next === "spiral"
+                ? 2.2
+                : next === "slam"
+                  ? 0.55
+                  : next === "snipe"
+                    ? 1.1
+                    : 0.6;
+          st.nextAttack = 0;
+          st.spiralAngle = this.rng() * Math.PI * 2;
+          if (next === "slam") {
+            boss.spriteAnim = "slashing";
+            boss.spriteTime = 0;
+            st.animLock = 0.6;
+            this.callbacks.onToast("Ele vai golpear o chão!");
+          } else if (next !== "charge") {
             boss.spriteAnim = "throwing";
             boss.spriteTime = 0;
             st.animLock = 0.62;
