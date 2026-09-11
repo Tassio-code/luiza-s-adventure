@@ -125,6 +125,64 @@
   }
 }
 
+@media (orientation: landscape) and (pointer: coarse) {
+  body {
+    overflow: hidden;
+  }
+
+  .game-landscape-root {
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .world-map-layout {
+    display: grid;
+    height: calc(100dvh - 1.5rem);
+    grid-template-columns: minmax(12rem, 0.8fr) minmax(20rem, 1.8fr) minmax(10rem, 0.7fr);
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .world-map-layout > header,
+  .world-map-board,
+  .world-map-actions {
+    min-height: 0;
+  }
+
+  .world-map-layout > header {
+    align-self: center;
+  }
+
+  .world-map-path {
+    height: 100%;
+    flex-direction: row-reverse;
+    justify-content: space-around;
+    gap: 0.5rem;
+  }
+
+  .world-map-node-even {
+    transform: translateY(-2rem);
+  }
+
+  .world-map-node-odd {
+    transform: translateY(2rem);
+  }
+
+  .world-map-actions {
+    align-content: center;
+  }
+
+  .game-creator {
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .game-creator-avatar {
+    height: min(42dvh, 12rem);
+    width: min(32dvh, 9rem);
+  }
+}
+
 @utility text-glow {
   text-shadow: 0 0 18px color-mix(in oklab, var(--gold) 60%, transparent);
 }
