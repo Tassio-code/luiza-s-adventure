@@ -6,6 +6,7 @@ import { LevelScene } from "@/components/game/LevelScene";
 import { FragmentReward, TitleScreen, WorldMap } from "@/components/game/Screens";
 import { IntroSequence } from "@/components/game/IntroSequence";
 import { FinalSequence } from "@/components/game/FinalSequence";
+import { LandscapeGate } from "@/components/game/LandscapeGate";
 import { audio } from "@/game/audio";
 import { defaultAvatar, loadSave, writeSave, type SaveData } from "@/game/save";
 import type { AvatarConfig } from "@/game/avatar/options";
@@ -37,7 +38,9 @@ type Scene = "intro" | "menu" | "creator" | "map" | "level" | "reward" | "final"
 function GamePage() {
   return (
     <ClientOnly fallback={<div className="vignette-screen min-h-screen" />}>
-      <Game />
+      <LandscapeGate>
+        <Game />
+      </LandscapeGate>
     </ClientOnly>
   );
 }

@@ -18,7 +18,7 @@ export function TitleScreen({
   onContinue: () => void;
 }) {
   return (
-    <main className="vignette-screen flex min-h-screen flex-col items-center justify-center gap-6 px-6 text-center">
+    <main className="vignette-screen flex min-h-dvh flex-col items-center justify-center gap-4 px-6 py-4 text-center">
       <p className="text-xs uppercase tracking-[0.4em] text-primary">
         uma aventura para {BIRTHDAY_NAME}
       </p>
@@ -61,8 +61,8 @@ export function WorldMap({
   const all = fragments.length >= LEVELS.length;
 
   return (
-    <main className="vignette-screen min-h-screen px-4 pb-10 pt-6">
-      <div className="mx-auto w-full max-w-xl space-y-5">
+    <main className="vignette-screen min-h-dvh px-4 py-3">
+      <div className="world-map-layout mx-auto w-full max-w-6xl">
         <header className="panel-parchment grid grid-cols-[auto_minmax(0,1fr)] items-center gap-4 rounded-2xl p-4">
           <AvatarCanvas config={avatar} className="h-20 w-16 shrink-0" />
           <div className="min-w-0">
@@ -87,18 +87,17 @@ export function WorldMap({
 
         {/* 3D-ish journey map: a perspective path with five nodes, no names. */}
         <div
-          className="panel-parchment relative overflow-hidden rounded-2xl px-4 py-8"
+          className="world-map-board panel-parchment relative overflow-hidden rounded-2xl px-4 py-5"
           style={{ perspective: "700px" }}
         >
           <div
-            className="flex flex-col-reverse items-center gap-6"
+            className="world-map-path flex flex-col-reverse items-center gap-4"
             style={{ transform: "rotateX(16deg)" }}
           >
             {LEVELS.map((l, i) => {
               const locked = i > unlocked;
               const done = fragments.includes(i);
               const current = !locked && !done;
-              const offset = (i % 2 === 0 ? -1 : 1) * 42;
               return (
                 <button
                   key={l.id}
@@ -109,8 +108,7 @@ export function WorldMap({
                     audio.ui();
                     if (!locked) onPlay(i);
                   }}
-                  style={{ transform: `translateX(${offset}px)` }}
-                  className={`relative flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-2 text-lg transition-transform active:scale-95 ${
+                  className={`world-map-node ${i % 2 === 0 ? "world-map-node-even" : "world-map-node-odd"} relative flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 text-lg transition-transform active:scale-95 ${
                     locked
                       ? "border-border/60 bg-secondary/60 text-muted-foreground"
                       : done
@@ -128,7 +126,7 @@ export function WorldMap({
           </div>
         </div>
 
-        <div className="grid gap-3">
+        <div className="world-map-actions grid gap-2">
           <Button variant="secondary" className="h-12" onClick={onEditAvatar}>
             Ajustar avatar
           </Button>
@@ -158,7 +156,7 @@ export function FragmentReward({
     audio.fragment();
   }, []);
   return (
-    <main className="vignette-screen flex min-h-screen flex-col items-center justify-center gap-6 px-6 text-center">
+    <main className="vignette-screen flex min-h-dvh flex-col items-center justify-center gap-4 px-6 py-4 text-center">
       <span className="h-24 w-24 rotate-45 rounded-lg bg-primary animate-fragment" />
       <div>
         <h1 className="text-3xl text-primary text-glow">Fragmento obtido</h1>
@@ -180,7 +178,7 @@ export function FinalMessage({ onFireworks }: { onFireworks: () => void }) {
   }, []);
   const last = index >= FINAL_MESSAGE.length - 1;
   return (
-    <main className="vignette-screen flex min-h-screen items-center justify-center px-4 py-10">
+    <main className="vignette-screen flex min-h-dvh items-center justify-center px-4 py-4">
       <div className="panel-parchment w-full max-w-2xl rounded-2xl p-8">
         <div className="mb-6 flex justify-center gap-2">
           {LEVELS.map((l) => (
@@ -224,7 +222,7 @@ export function Fireworks({ onBackToMap }: { onBackToMap: () => void }) {
     };
   }, []);
   return (
-    <main className="relative h-screen w-full overflow-hidden bg-ink">
+    <main className="relative h-dvh w-full overflow-hidden bg-ink">
       <canvas ref={ref} className="absolute inset-0 h-full w-full" />
       <div className="relative z-10 flex h-full flex-col items-center justify-center gap-4 px-6 text-center">
         <h1 className="text-4xl text-primary text-glow sm:text-6xl">

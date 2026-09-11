@@ -340,9 +340,9 @@ export function FragmentMerge({
   }, [duration]);
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-ink">
+    <main className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-ink">
       <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-20 flex flex-col items-center gap-3 px-8">
+      <div className="pointer-events-none absolute inset-x-0 bottom-12 flex flex-col items-center gap-3 px-8">
         <p className="animate-fade-in text-center text-[11px] uppercase tracking-[0.42em] text-primary/80">
           os cinco fragmentos se tornam um
         </p>
@@ -350,7 +350,7 @@ export function FragmentMerge({
       <button
         type="button"
         aria-label="Pular animação"
-        className="absolute bottom-6 right-6 rounded-full border border-primary/30 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-primary/70"
+        className="absolute bottom-[calc(0.75rem+env(safe-area-inset-bottom))] right-[calc(0.75rem+env(safe-area-inset-right))] rounded-full border border-primary/30 px-4 py-2 text-[10px] uppercase tracking-[0.3em] text-primary/70"
         onClick={() => {
           if (!doneRef.current) {
             doneRef.current = true;
