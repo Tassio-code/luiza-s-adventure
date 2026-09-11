@@ -87,7 +87,7 @@ export function FinalSequence({ onFinished }: { onFinished: () => void }) {
       }, PARAGRAPH_FADE_MS);
     };
     return (
-      <main className="vignette-screen relative flex min-h-screen flex-col items-center justify-center gap-8 px-6 py-10">
+      <main className="vignette-screen relative flex min-h-dvh flex-col items-center justify-center gap-5 px-6 py-4">
         <p
           key={paragraph}
           className={`max-w-3xl whitespace-pre-line break-words text-center text-[18px] leading-relaxed text-foreground transition-opacity duration-700 sm:text-2xl ${
@@ -99,7 +99,7 @@ export function FinalSequence({ onFinished }: { onFinished: () => void }) {
         <Button
           variant="ghost"
           size="sm"
-          className="absolute bottom-8 right-8 h-9 px-4 text-xs tracking-widest text-muted-foreground opacity-40 hover:bg-transparent hover:opacity-80"
+          className="absolute bottom-[calc(1rem+env(safe-area-inset-bottom))] right-[calc(1rem+env(safe-area-inset-right))] h-9 px-4 text-xs tracking-widest text-muted-foreground opacity-40 hover:bg-transparent hover:opacity-80"
           onClick={advance}
         >
           Continuar
@@ -110,7 +110,7 @@ export function FinalSequence({ onFinished }: { onFinished: () => void }) {
 
   if (step === "birthday") {
     return (
-      <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-ink px-6">
+      <main className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-ink px-6">
         <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
         <h1
           className={`animate-rise-slow relative z-10 text-center text-4xl leading-tight text-primary text-glow transition-opacity duration-[5000ms] ease-out sm:text-6xl ${
@@ -125,14 +125,14 @@ export function FinalSequence({ onFinished }: { onFinished: () => void }) {
 
   if (step === "photo") {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-ink px-6">
+      <main className="flex min-h-dvh flex-row items-center justify-center gap-6 bg-ink px-6 py-3">
         {photoOk !== false ? (
           <img
             src={PHOTO_SRC}
             alt={`Fotografia de ${BIRTHDAY_NAME}`}
             onLoad={() => setPhotoOk(true)}
             onError={() => setPhotoOk(false)}
-            className="animate-photo-in max-h-[70vh] w-full max-w-md rounded-2xl object-cover shadow-frame"
+            className="animate-photo-in max-h-[76dvh] w-auto max-w-[70vw] rounded-2xl object-cover shadow-frame"
           />
         ) : (
           <p className="animate-fade-in max-w-sm text-center text-sm text-muted-foreground">
@@ -147,7 +147,7 @@ export function FinalSequence({ onFinished }: { onFinished: () => void }) {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-8 bg-ink px-6">
+    <main className="flex min-h-dvh flex-col items-center justify-center gap-5 bg-ink px-6 py-4">
       <p className="animate-fade-in text-3xl tracking-[0.4em] text-primary">FIM</p>
       <Button variant="secondary" className="h-12 px-8" onClick={onFinished}>
         Voltar ao mapa

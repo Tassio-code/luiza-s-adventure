@@ -116,25 +116,25 @@ export function CharacterCreator({
   };
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-6 px-4 py-8 lg:flex-row lg:items-stretch">
-      <section className="panel-parchment relative flex flex-1 flex-col items-center justify-center rounded-2xl p-6">
-        <h1 className="mb-2 text-center text-2xl text-primary text-glow">Crie sua heroína</h1>
-        <p className="mb-4 max-w-sm text-center text-sm text-muted-foreground">
+    <div className="game-creator mx-auto flex min-h-dvh w-full max-w-6xl flex-col gap-3 px-3 py-3 sm:flex-row sm:items-stretch">
+      <section className="panel-parchment relative flex flex-1 flex-col items-center justify-center rounded-2xl p-4">
+        <h1 className="mb-1 text-center text-xl text-primary text-glow">Crie sua heroína</h1>
+        <p className="mb-2 max-w-sm text-center text-xs text-muted-foreground">
           Este é o personagem que vai atravessar as cinco regiões. Tudo o que você escolher aqui
           continua igual em todas as fases.
         </p>
-        <AvatarCanvas config={value} className="h-72 w-56 sm:h-96 sm:w-72" />
+        <AvatarCanvas config={value} className="game-creator-avatar h-52 w-40" />
         <input
           value={value.name}
           maxLength={18}
           onChange={(e) => onChange({ ...value, name: e.target.value })}
           placeholder="Nome da heroína"
-          className="mt-4 w-56 rounded-md border border-border bg-input px-3 py-2 text-center text-sm text-foreground outline-none focus:border-primary"
+          className="mt-2 w-52 rounded-md border border-border bg-input px-3 py-2 text-center text-sm text-foreground outline-none focus:border-primary"
         />
       </section>
 
-      <section className="panel-parchment flex flex-1 flex-col rounded-2xl p-5">
-        <div className="mb-4 flex flex-wrap gap-2">
+      <section className="panel-parchment flex min-h-0 flex-1 flex-col rounded-2xl p-4">
+        <div className="mb-3 flex flex-wrap gap-2">
           {TABS.map((t) => (
             <button
               key={t.id}
@@ -261,7 +261,7 @@ export function CharacterCreator({
           )}
         </div>
 
-        <div className="mt-5 flex gap-3">
+        <div className="mt-3 flex gap-3">
           <Button variant="secondary" onClick={onBack}>
             Voltar
           </Button>

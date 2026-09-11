@@ -51,7 +51,7 @@ export function IntroSequence({ onDone }: { onDone: () => void }) {
 
   return (
     <main
-      className="fixed inset-0 z-50 flex items-center justify-center bg-ink px-8"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-ink px-[calc(2rem+env(safe-area-inset-left))]"
       onPointerDown={finish}
       role="button"
       tabIndex={0}
@@ -69,7 +69,7 @@ export function IntroSequence({ onDone }: { onDone: () => void }) {
           {LINES[index]}
         </p>
       )}
-      <span className="absolute bottom-10 text-[10px] uppercase tracking-[0.35em] text-muted-foreground/60">
+      <span className="absolute bottom-[calc(1rem+env(safe-area-inset-bottom))] text-[10px] uppercase tracking-[0.35em] text-muted-foreground/60">
         toque para avançar
       </span>
     </main>
