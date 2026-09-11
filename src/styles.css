@@ -95,6 +95,7 @@
   html,
   body {
     height: 100%;
+    min-height: 100%;
   }
 
   body {
@@ -105,11 +106,22 @@
     -webkit-tap-highlight-color: transparent;
   }
 
+  #root,
+  .game-landscape-root {
+    min-height: 100%;
+  }
+
   h1,
   h2,
   h3 {
     font-family: var(--font-display);
     letter-spacing: 0.02em;
+  }
+}
+
+@supports (height: 100dvh) {
+  .game-landscape-root {
+    min-height: 100dvh;
   }
 }
 

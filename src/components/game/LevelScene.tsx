@@ -143,33 +143,10 @@ export function LevelScene({
   const [attempt, setAttempt] = useState(0);
   const [touch, setTouch] = useState(false);
   const [loaded, setLoaded] = useState(false);
-  const [landscape, setLandscape] = useState(true);
 
   useEffect(() => {
     setTouch(typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches);
-    const mq = window.matchMedia("(orientation: landscape)");
-    const update = () => setLandscape(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
   }, []);
-
-  // On touch devices, keep the screen in portrait while playing.
-  useEffect(() => {
-    if (!touch) return;
-    const orientation = screen.orientation as ScreenOrientation & {
-      lock?: (o: string) => Promise<void>;
-      unlock?: () => void;
-    };
-    orientation.lock?.("portrait").catch(() => undefined);
-    return () => {
-      try {
-        orientation.unlock?.();
-      } catch {
-        /* ignore */
-      }
-    };
-  }, [touch]);
 
   useEffect(() => {
     let cancelled = false;
@@ -231,7 +208,7 @@ export function LevelScene({
   const weapon = WEAPONS[level.weapon];
 
   return (
-    <div className="relative h-screen w-full overflow-hidden bg-background">
+    <div className="relative h-dvh w-full overflow-hidden bg-background">
       <canvas ref={canvasRef} className="h-full w-full touch-none" />
 
       {!loaded && (
@@ -260,7 +237,7 @@ export function LevelScene({
           touch ? "p-2 pt-6" : "p-4"
         }`}
       >
-        <div className={`flex flex-col items-start gap-2 ${touch && landscape ? "pr-[8.5rem]" : "pr-2"}`}>
+        <div className={`flex flex-col items-start gap-2 ${touch ? "pr-[8.5rem]" : "pr-2"}`}>
           <div
             className={`panel-parchment rounded-xl ${
               touch ? "origin-top-left scale-[0.8] px-3 py-2" : "px-4 py-3"
@@ -323,10 +300,9 @@ export function LevelScene({
         </button>
       )}
 
-      {touch &&
-        (landscape ? (
+      {touch && (
           <>
-            {/* Landscape: action buttons stacked on the right edge, clear of sticks and minimap */}
+            {/* Action buttons stay on the right edge, clear of both floating sticks. */}
             <div className="absolute top-40 right-3 z-20 flex flex-col items-end gap-2">
               <button
                 type="button"
@@ -381,61 +357,7 @@ export function LevelScene({
               />
             </div>
           </>
-        ) : (
-          <>
-            {/* Portrait fallback: action row above the sticks */}
-            <div className="absolute inset-x-0 bottom-[calc(11.5rem+env(safe-area-inset-bottom))] z-20 flex items-center justify-center gap-3 px-4">
-              <button
-                type="button"
-                onPointerDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  engineRef.current?.useMedkit();
-                }}
-                className="h-12 min-w-[5.25rem] touch-none rounded-full border border-primary/50 bg-card/90 text-xs text-primary active:scale-95"
-              >
-                Curar
-              </button>
-              <button
-                type="button"
-                onPointerDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  const engine = engineRef.current;
-                  if (engine) engine.getInput().state.interact = true;
-                }}
-                className="h-12 min-w-[5.25rem] touch-none rounded-full border border-primary/50 bg-card/90 text-xs text-primary active:scale-95"
-              >
-                Interagir
-              </button>
-              <button
-                type="button"
-                onPointerDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setPaused(true);
-                }}
-                className="h-12 min-w-[4.5rem] touch-none rounded-full border border-border bg-card/80 text-xs text-foreground active:scale-95"
-              >
-                Pausar
-              </button>
-            </div>
-
-            <div className="absolute bottom-0 left-0 h-[45%] w-1/2 pb-[env(safe-area-inset-bottom)]">
-              <Stick
-                label="Mover"
-                onMove={(x, y) => engineRef.current?.getInput().setJoystick(x, y)}
-              />
-            </div>
-            <div className="absolute bottom-0 right-0 h-[45%] w-1/2 pb-[env(safe-area-inset-bottom)]">
-              <Stick
-                label="Mirar / Atirar"
-                fire
-                onMove={(x, y, active) => engineRef.current?.getInput().setAimStick(x, y, active)}
-              />
-            </div>
-          </>
-        ))}
+      )}
 
       {!touch && (
         <p className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-muted-foreground">
