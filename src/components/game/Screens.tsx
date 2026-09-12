@@ -61,20 +61,20 @@ export function WorldMap({
   const all = fragments.length >= LEVELS.length;
 
   return (
-    <main className="vignette-screen min-h-dvh px-4 py-3">
+    <main className="vignette-screen min-h-dvh overflow-hidden px-[calc(0.75rem+env(safe-area-inset-left))] py-2 pr-[calc(0.75rem+env(safe-area-inset-right))]">
       <div className="world-map-layout mx-auto w-full max-w-6xl">
-        <header className="panel-parchment grid grid-cols-[auto_minmax(0,1fr)] items-center gap-4 rounded-2xl p-4">
-          <AvatarCanvas config={avatar} className="h-20 w-16 shrink-0" />
+        <header className="world-map-profile panel-parchment grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-xl p-3">
+          <AvatarCanvas config={avatar} className="world-map-avatar h-16 w-12 shrink-0" />
           <div className="min-w-0">
-            <h1 className="truncate text-xl text-primary">{avatar.name}</h1>
-            <p className="text-sm text-muted-foreground">
-              Fragmentos: {fragments.length}/{LEVELS.length}
+            <h1 className="truncate text-lg text-primary">{avatar.name || "Sua heroína"}</h1>
+            <p className="text-xs text-muted-foreground">
+              Fragmentos {fragments.length}/{LEVELS.length}
             </p>
-            <div className="mt-2 flex gap-1.5">
+            <div className="mt-2 flex gap-1">
               {LEVELS.map((l, i) => (
                 <span
                   key={l.id}
-                  className={`h-5 w-5 rotate-45 rounded-sm ${
+                  className={`h-3.5 w-3.5 rotate-45 rounded-sm ${
                     fragments.includes(i)
                       ? "bg-primary animate-fragment"
                       : "border border-border bg-secondary"
@@ -87,7 +87,7 @@ export function WorldMap({
 
         {/* 3D-ish journey map: a perspective path with five nodes, no names. */}
         <div
-          className="world-map-board panel-parchment relative overflow-hidden rounded-2xl px-4 py-5"
+          className="world-map-board panel-parchment relative overflow-hidden rounded-xl px-3 py-4"
           style={{ perspective: "700px" }}
         >
           <div
@@ -108,7 +108,7 @@ export function WorldMap({
                     audio.ui();
                     if (!locked) onPlay(i);
                   }}
-                  className={`world-map-node ${i % 2 === 0 ? "world-map-node-even" : "world-map-node-odd"} relative flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 text-lg transition-transform active:scale-95 ${
+                  className={`world-map-node ${i % 2 === 0 ? "world-map-node-even" : "world-map-node-odd"} relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 text-base transition-transform active:scale-95 ${
                     locked
                       ? "border-border/60 bg-secondary/60 text-muted-foreground"
                       : done
@@ -126,13 +126,13 @@ export function WorldMap({
           </div>
         </div>
 
-        <div className="world-map-actions grid gap-2">
-          <Button variant="secondary" className="h-12" onClick={onEditAvatar}>
+        <div className="world-map-actions grid min-w-0 gap-2">
+          <Button variant="secondary" className="h-10 w-full px-2 text-xs" onClick={onEditAvatar}>
             Ajustar avatar
           </Button>
-          <InstallButton />
+          <InstallButton className="min-w-0" />
           {all && (
-            <Button className="h-12" onClick={onOpenMessage}>
+            <Button className="h-10 w-full px-2 text-xs" onClick={onOpenMessage}>
               Abrir o pergaminho
             </Button>
           )}
