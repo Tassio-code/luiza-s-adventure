@@ -7,6 +7,9 @@ import { FINAL_MESSAGE, BIRTHDAY_NAME } from "@/game/message";
 import { AvatarCanvas } from "./AvatarCanvas";
 import { InstallButton } from "./InstallButton";
 import type { AvatarConfig } from "@/game/avatar/options";
+import { Building2, Castle, Check, Lock, Pyramid, ScrollText, Snowflake, Trees, UserRound } from "lucide-react";
+
+const MAP_ICONS = [Trees, Building2, Snowflake, Pyramid, Castle];
 
 export function TitleScreen({
   onStart,
@@ -61,79 +64,87 @@ export function WorldMap({
   const all = fragments.length >= LEVELS.length;
 
   return (
-    <main className="vignette-screen min-h-dvh overflow-hidden px-[calc(0.75rem+env(safe-area-inset-left))] py-2 pr-[calc(0.75rem+env(safe-area-inset-right))]">
-      <div className="world-map-layout mx-auto w-full max-w-6xl">
-        <header className="world-map-profile panel-parchment grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-xl p-3">
-          <AvatarCanvas config={avatar} className="world-map-avatar h-16 w-12 shrink-0" />
+    <main className="world-map-screen h-dvh overflow-hidden px-[calc(0.5rem+env(safe-area-inset-left))] py-2 pr-[calc(0.5rem+env(safe-area-inset-right))]">
+      <div className="world-map-layout relative mx-auto h-full w-full max-w-7xl overflow-hidden rounded-xl border border-primary/35">
+        <div className="world-map-sky" aria-hidden="true" />
+        <div className="world-map-biomes" aria-hidden="true">
+          <span className="map-biome map-biome-forest" />
+          <span className="map-biome map-biome-city" />
+          <span className="map-biome map-biome-snow" />
+          <span className="map-biome map-biome-desert" />
+          <span className="map-biome map-biome-castle" />
+        </div>
+        <div className="world-map-mist" aria-hidden="true" />
+
+        <header className="world-map-profile absolute left-3 top-3 z-20 flex items-center gap-2 rounded-lg border border-primary/30 bg-ink/75 px-2.5 py-1.5 backdrop-blur-md">
+          <AvatarCanvas config={avatar} className="world-map-avatar h-12 w-9 shrink-0" />
           <div className="min-w-0">
-            <h1 className="truncate text-lg text-primary">{avatar.name || "Sua heroína"}</h1>
-            <p className="text-xs text-muted-foreground">
-              Fragmentos {fragments.length}/{LEVELS.length}
-            </p>
-            <div className="mt-2 flex gap-1">
-              {LEVELS.map((l, i) => (
+            <h1 className="max-w-40 truncate text-sm text-primary">{avatar.name || "Sua heroína"}</h1>
+            <p className="text-[10px] uppercase text-muted-foreground">Jornada dos fragmentos</p>
+            <div className="mt-1 flex items-center gap-1" aria-label={`${fragments.length} de ${LEVELS.length} fragmentos`}>
+              {LEVELS.map((level, i) => (
                 <span
-                  key={l.id}
-                  className={`h-3.5 w-3.5 rotate-45 rounded-sm ${
-                    fragments.includes(i)
-                      ? "bg-primary animate-fragment"
-                      : "border border-border bg-secondary"
+                  key={level.id}
+                  className={`h-2.5 w-2.5 rotate-45 rounded-sm ${
+                    fragments.includes(i) ? "bg-primary shadow-glow" : "border border-border bg-secondary"
                   }`}
                 />
               ))}
+              <span className="ml-1 text-[10px] font-bold text-primary">{fragments.length}/{LEVELS.length}</span>
             </div>
           </div>
         </header>
 
-        {/* 3D-ish journey map: a perspective path with five nodes, no names. */}
-        <div
-          className="world-map-board panel-parchment relative overflow-hidden rounded-xl px-3 py-4"
-          style={{ perspective: "700px" }}
-        >
-          <div
-            className="world-map-path flex flex-col-reverse items-center gap-4"
-            style={{ transform: "rotateX(16deg)" }}
-          >
-            {LEVELS.map((l, i) => {
+        <section className="world-map-board absolute inset-0" aria-label="Mapa das cinco regiões">
+          <svg className="world-map-trail" viewBox="0 0 1000 400" preserveAspectRatio="none" aria-hidden="true">
+            <path className="world-map-trail-glow" d="M110 258 C190 130 270 138 330 235 S465 326 525 208 S660 103 720 218 S830 330 902 170" />
+            <path className="world-map-trail-dash" d="M110 258 C190 130 270 138 330 235 S465 326 525 208 S660 103 720 218 S830 330 902 170" />
+          </svg>
+
+          <div className="world-map-path">
+            {LEVELS.map((level, i) => {
               const locked = i > unlocked;
               const done = fragments.includes(i);
               const current = !locked && !done;
+              const Icon = MAP_ICONS[i] ?? Trees;
               return (
                 <button
-                  key={l.id}
+                  key={level.id}
                   type="button"
                   disabled={locked}
-                  aria-label={`Fase ${i + 1}${locked ? " bloqueada" : done ? " concluída" : ""}`}
+                  aria-label={`Fase ${i + 1}, ${level.name}${locked ? ", bloqueada" : done ? ", concluída" : ""}`}
                   onClick={() => {
                     audio.ui();
                     if (!locked) onPlay(i);
                   }}
-                  className={`world-map-node ${i % 2 === 0 ? "world-map-node-even" : "world-map-node-odd"} relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 text-base transition-transform active:scale-95 ${
-                    locked
-                      ? "border-border/60 bg-secondary/60 text-muted-foreground"
-                      : done
-                        ? "border-primary bg-primary/25 text-primary shadow-[0_0_24px_hsl(var(--primary)/0.45)]"
-                        : "border-accent bg-accent/20 text-accent shadow-[0_0_28px_hsl(var(--accent)/0.45)]"
-                  }`}
+                  className={`world-map-stop map-stop-${i + 1} ${locked ? "is-locked" : done ? "is-done" : "is-current"}`}
                 >
-                  {locked ? "🔒" : done ? "◆" : "▶"}
-                  {current && (
-                    <span className="absolute -inset-1 animate-ping rounded-full border border-accent/50" />
-                  )}
+                  <span className="world-map-node">
+                    {current && <span className="world-map-node-pulse" />}
+                    {locked ? <Lock /> : <Icon />}
+                    <span className="world-map-number">{i + 1}</span>
+                    {done && <Check className="world-map-check" />}
+                  </span>
+                  <span className="world-map-label">
+                    <strong>{level.region}</strong>
+                    <small>{locked ? "Bloqueada" : done ? "Concluída" : "Jogar agora"}</small>
+                  </span>
                 </button>
               );
             })}
           </div>
-        </div>
+        </section>
 
-        <div className="world-map-actions grid min-w-0 gap-2">
-          <Button variant="secondary" className="h-10 w-full px-2 text-xs" onClick={onEditAvatar}>
-            Ajustar avatar
+        <div className="world-map-actions absolute bottom-3 right-3 z-20 flex items-center gap-2">
+          <Button variant="secondary" size="sm" className="bg-ink/80 backdrop-blur-md" onClick={onEditAvatar}>
+            <UserRound />
+            Avatar
           </Button>
-          <InstallButton className="min-w-0" />
+          <InstallButton className="world-map-install" />
           {all && (
-            <Button className="h-10 w-full px-2 text-xs" onClick={onOpenMessage}>
-              Abrir o pergaminho
+            <Button size="sm" className="shadow-glow" onClick={onOpenMessage}>
+              <ScrollText />
+              Pergaminho
             </Button>
           )}
         </div>
