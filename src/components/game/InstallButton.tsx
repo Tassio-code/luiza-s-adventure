@@ -44,7 +44,8 @@ export function InstallButton({ className }: { className?: string }) {
     <div className={className}>
       <Button
         variant="secondary"
-        className="h-10 w-full px-2 text-xs"
+        size="sm"
+        className="h-8 w-full px-3 text-xs"
         onClick={async () => {
           if (prompt) {
             await prompt.prompt();
