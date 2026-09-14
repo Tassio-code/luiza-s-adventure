@@ -163,18 +163,23 @@ export function FragmentReward({
   onContinue: () => void;
 }) {
   const level = LEVELS[levelIndex];
-  useEffect(() => {
-    audio.fragment();
-  }, []);
   return (
-    <main className="vignette-screen flex min-h-dvh flex-col items-center justify-center gap-4 px-6 py-4 text-center">
-      <span className="h-24 w-24 rotate-45 rounded-lg bg-primary animate-fragment" />
-      <div>
-        <h1 className="text-3xl text-primary text-glow">Fragmento obtido</h1>
+    <main className="fragment-reward-screen vignette-screen flex min-h-dvh flex-col items-center justify-center gap-3 overflow-hidden px-6 py-4 text-center">
+      <div className="fragment-reward-reveal" aria-hidden="true">
+        <span className="fragment-reward-ring fragment-reward-ring-outer" />
+        <span className="fragment-reward-ring fragment-reward-ring-inner" />
+        <span className="fragment-reward-beam" />
+        <span className="fragment-reward-gem" />
+        {Array.from({ length: 12 }, (_, i) => (
+          <span key={i} className="fragment-reward-spark" style={{ "--spark-index": i } as React.CSSProperties} />
+        ))}
+      </div>
+      <div className="animate-title-in">
+        <h1 className="text-3xl text-primary text-glow">Fragmento conquistado</h1>
         <p className="mt-2 text-lg text-foreground">{level?.fragmentName}</p>
         <p className="mt-1 text-sm text-muted-foreground">{total}/5 reunidos</p>
       </div>
-      <Button size="lg" onClick={onContinue}>
+      <Button size="lg" className="animate-title-in" onClick={onContinue}>
         Voltar ao mapa
       </Button>
     </main>

@@ -23,10 +23,7 @@ export function FinalSequence({ onFinished }: { onFinished: () => void }) {
   const fireworksRef = useRef<FireworksShow | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  useEffect(() => {
-    audio.playMusic("ending", { id: "final", duration: 240, loop: true });
-    return () => audio.stopMusic();
-  }, []);
+  useEffect(() => () => audio.stopMusic(), []);
 
   useEffect(() => {
     const push = (fn: () => void, ms: number) => timers.current.push(window.setTimeout(fn, ms));
@@ -35,6 +32,7 @@ export function FinalSequence({ onFinished }: { onFinished: () => void }) {
 
     if (step === "scroll") {
       // A leitura é manual: cada parágrafo espera o clique em "Continuar".
+      audio.playMusic("ending", { id: "final", duration: 240, loop: true });
       setParagraph(0);
       setParagraphOut(false);
     }
@@ -67,7 +65,6 @@ export function FinalSequence({ onFinished }: { onFinished: () => void }) {
   if (step === "merge") {
     return (
       <FragmentMerge
-        onImpact={() => audio.fragment()}
         onDone={() => setStep("scroll")}
       />
     );
