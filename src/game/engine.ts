@@ -1,7 +1,7 @@
 import { drawAvatar, weaponMuzzleDistance, type AvatarPose } from "./avatar/renderer";
 import type { ResolvedAvatar } from "./avatar/options";
 import { ENEMIES, WEAPONS, type EnemyKind, type LevelDef, type WeaponId } from "./content";
-import { drawBossSprite, preloadBossSprites, LEVEL_BOSS_GOLEM, type BossAnim } from "./bossSprites";
+import type { BossAnim } from "./bossSprites";
 import { audio } from "./audio";
 import { drawEnemy } from "./systems/enemyRender";
 import { drawSheetSprite, setPixelated } from "./systems/spriteRender";
@@ -15,6 +15,7 @@ import { addXp, createProgress, statsFor, type CombatStats, type Progress } from
 import { stageTrack } from "./music";
 import { loadSave, writeSave } from "./save";
 import { xpForLevel } from "./progression";
+import { drawLevelBoss, preloadMonsterSprites } from "./monsterSprites";
 
 export type HudState = {
   hp: number;
@@ -200,7 +201,7 @@ export class GameEngine {
       typeof window !== "undefined" && window.matchMedia?.("(pointer: coarse)").matches;
     this.director = new MusicDirector(stageTrack(level.index).plan, coarse ? 0.75 : 1);
     this.rng = createRng(4242 + level.index * 31);
-    preloadBossSprites(LEVEL_BOSS_GOLEM[level.index] ?? 1);
+    preloadMonsterSprites();
     this.weapon = level.weapon;
     this.ammo = WEAPONS[this.weapon].startAmmo;
     this.player.x = this.map.playerStart.x;
@@ -400,7 +401,8 @@ export class GameEngine {
   private spawnBoss() {
     const stats = ENEMIES.boss;
     const room = this.map.rooms[this.map.rooms.length - 1];
-    const hp = stats.hp * (0.62 + this.level.index * 0.1);
+    const hpMultipliers = [0.72, 0.86, 1, 1.16, 1.62];
+    const hp = stats.hp * (hpMultipliers[this.level.index] ?? 1);
     this.boss = {
       alive: true,
       kind: "boss",
@@ -787,7 +789,7 @@ export class GameEngine {
   private onBossDefeated() {
     this.phase = "fragment";
     this.callbacks.onToast(`${this.level.bossName} derrotado!`);
-    audio.playMusic("ending", { id: "victory", duration: 40, loop: true });
+    // Keep the stage song uninterrupted through the victory and fragment pickup.
     const room = this.map.rooms[this.map.rooms.length - 1];
     this.pickups.push({
       active: true,
@@ -984,6 +986,8 @@ export class GameEngine {
     st.timer -= dt;
     const hpRatio = boss.hp / boss.maxHp;
     st.phase = hpRatio > 0.66 ? 1 : hpRatio > 0.33 ? 2 : 3;
+    const finalBoss = this.level.index === 4;
+    const bossDamage = ENEMIES.boss.damage * (finalBoss ? 1.35 : 1);
 
     // sprite animation: locked one-shots (attacks/hits) win, otherwise follow the AI state
     boss.spriteTime = (boss.spriteTime ?? 0) + dt;
@@ -1012,15 +1016,18 @@ export class GameEngine {
 
     switch (st.state) {
       case "approach": {
-        if (dist > 200) move(ENEMIES.boss.speed);
-        else if (dist < 130) move(-ENEMIES.boss.speed * 0.6);
+        const moveSpeed = ENEMIES.boss.speed * (finalBoss ? 1.22 : 1);
+        if (dist > 200) move(moveSpeed);
+        else if (dist < 130) move(-moveSpeed * 0.6);
         if (st.timer <= 0) {
-          const options: BossState[] =
-            st.phase === 1
-              ? ["radial", "volley", "charge", "slam", "snipe"]
-              : st.phase === 2
-                ? ["radial", "charge", "summon", "volley", "spiral", "slam", "snipe"]
-                : ["radial", "spiral", "charge", "volley", "summon", "slam", "spiral", "snipe"];
+          const themedAttacks: BossState[][] = [
+            ["charge", "slam", "summon", "charge"],
+            ["volley", "charge", "summon", "volley"],
+            ["radial", "spiral", "snipe", "radial"],
+            ["slam", "radial", "summon", "slam"],
+            ["spiral", "charge", "volley", "summon", "slam", "snipe", "radial"],
+          ];
+          const options = themedAttacks[this.level.index] ?? themedAttacks[4]!;
           let next = options[randInt(this.rng, 0, options.length - 1)] ?? "radial";
           // never repeat the same special twice in a row
           if (next === st.lastAttack) {
@@ -1058,19 +1065,19 @@ export class GameEngine {
           if (next === "radial") {
             const count = st.phase === 3 ? 18 : 12;
             for (let i = 0; i < count; i++) {
-              this.enemyShoot(boss, 210, ENEMIES.boss.damage * 0.55, (i / count) * Math.PI * 2);
+              this.enemyShoot(boss, finalBoss ? 260 : 210, bossDamage * 0.55, (i / count) * Math.PI * 2);
             }
             audio.bossRoar();
           }
           if (next === "volley") {
             for (let i = -2; i <= 2; i++) {
               const base = Math.atan2(p.y - 26 - (boss.y - 48), p.x - boss.x);
-              this.enemyShoot(boss, 300, ENEMIES.boss.damage * 0.5, base + i * 0.16);
+              this.enemyShoot(boss, finalBoss ? 360 : 300, bossDamage * 0.5, base + i * 0.16);
             }
           }
           if (next === "summon") {
             const before = this.enemies.length;
-            for (let i = 0; i < 6; i++) this.spawnEnemy(this.level.enemy);
+            for (let i = 0; i < (finalBoss ? 9 : 6); i++) this.spawnEnemy(this.level.enemy);
             if (this.enemies.length > before) this.callbacks.onToast("Ele chamou reforços!");
           }
         }
@@ -1091,7 +1098,7 @@ export class GameEngine {
           size: 6,
           shape: "smoke",
         });
-        if (dist < 60) this.damagePlayer(ENEMIES.boss.damage);
+        if (dist < 60) this.damagePlayer(bossDamage);
         if (st.timer <= 0) {
           st.state = "vulnerable";
           st.timer = 1.6;
@@ -1104,13 +1111,13 @@ export class GameEngine {
         st.nextAttack -= dt;
         st.spiralAngle = (st.spiralAngle ?? 0) + dt * (st.phase === 3 ? 3.4 : 2.4);
         if (st.nextAttack <= 0) {
-          st.nextAttack = 0.09;
-          const arms = st.phase === 3 ? 3 : 2;
+          st.nextAttack = finalBoss ? 0.065 : 0.09;
+          const arms = finalBoss ? (st.phase === 3 ? 4 : 3) : st.phase === 3 ? 3 : 2;
           for (let a = 0; a < arms; a++) {
             this.enemyShoot(
               boss,
               230,
-              ENEMIES.boss.damage * 0.42,
+              bossDamage * 0.42,
               (st.spiralAngle ?? 0) + (a / arms) * Math.PI * 2,
             );
           }
@@ -1138,11 +1145,11 @@ export class GameEngine {
             this.enemyShoot(
               boss,
               165,
-              ENEMIES.boss.damage * 0.45,
+              bossDamage * 0.45,
               (i / count) * Math.PI * 2 + this.rng() * 0.1,
             );
           }
-          if (dist < 130) this.damagePlayer(ENEMIES.boss.damage * 1.1);
+          if (dist < 130) this.damagePlayer(bossDamage * 1.1);
           st.state = "vulnerable";
           st.timer = st.phase === 3 ? 1 : 1.6;
         }
@@ -1152,11 +1159,11 @@ export class GameEngine {
       case "snipe": {
         st.nextAttack -= dt;
         if (st.nextAttack <= 0) {
-          st.nextAttack = 0.28;
+          st.nextAttack = finalBoss ? 0.19 : 0.28;
           boss.spriteAnim = "throwing";
           st.animLock = 0.3;
           const base = Math.atan2(p.y - 26 - (boss.y - 48), p.x - boss.x);
-          this.enemyShoot(boss, 520, ENEMIES.boss.damage * 0.6, base);
+          this.enemyShoot(boss, finalBoss ? 620 : 520, bossDamage * 0.6, base);
         }
         if (st.timer <= 0) {
           st.state = "vulnerable";
@@ -1167,7 +1174,7 @@ export class GameEngine {
       case "vulnerable": {
         if (st.timer <= 0) {
           st.state = "approach";
-          st.timer = st.phase === 3 ? 1.4 : 2.4;
+          st.timer = finalBoss ? (st.phase === 3 ? 0.75 : 1.25) : st.phase === 3 ? 1.4 : 2.4;
         }
         break;
       }
@@ -1183,7 +1190,7 @@ export class GameEngine {
     if (dist < 62 && st.state !== "charge") {
       if (boss.attackCooldown <= 0) {
         boss.attackCooldown = 1.1;
-        this.damagePlayer(ENEMIES.boss.damage * 0.7);
+        this.damagePlayer(bossDamage * 0.7);
         boss.spriteAnim = "slashing";
         boss.spriteTime = 0;
         st.animLock = 0.55;
@@ -1214,15 +1221,17 @@ export class GameEngine {
         audio.pickup();
         this.callbacks.onToast("Kit médico guardado (tecla Q)");
       } else {
-        audio.fragment();
         this.player.victory = true;
         this.phase = "done";
-        this.completeTimer = 1.4;
-        this.particles.burst(item.x, item.y - 20, 60, "#ffd88a", {
-          speed: 210,
-          life: 1.2,
-          size: 3.4,
-        });
+        this.completeTimer = 2.2;
+        this.cam.shake = 8;
+        for (let ring = 0; ring < 3; ring++) {
+          this.particles.burst(item.x, item.y - 20, 34 + ring * 18, ring % 2 ? "#fff1b8" : "#ffd88a", {
+            speed: 125 + ring * 72,
+            life: 1.15 + ring * 0.22,
+            size: 2.2 + ring * 0.6,
+          });
+        }
       }
       item.active = false;
       this.pickups.splice(i, 1);
@@ -1398,21 +1407,18 @@ export class GameEngine {
     }
     if (this.boss && (this.boss.alive || this.boss.boss?.state === "dying")) {
       const boss = this.boss;
-      const variant = LEVEL_BOSS_GOLEM[this.level.index] ?? 1;
       items.push({
         y: boss.y,
-        draw: () =>
-          drawBossSprite(
-            ctx,
-            variant,
-            boss.spriteAnim ?? "walking",
-            boss.spriteTime ?? 0,
-            boss.facing,
-            boss.hurt,
-            boss.x,
-            boss.y,
-            150,
-          ),
+        draw: () => drawLevelBoss(
+          ctx,
+          this.level.index,
+          boss.spriteTime ?? 0,
+          boss.facing,
+          boss.hurt,
+          boss.x,
+          boss.y,
+          boss.boss?.state === "dying",
+        ),
       });
     }
     items.push({ y: this.player.y, draw: () => this.drawPlayer() });

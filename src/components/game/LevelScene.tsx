@@ -136,6 +136,7 @@ export function LevelScene({
   const level = LEVELS[levelIndex];
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const engineRef = useRef<GameEngine | null>(null);
+  const completedRef = useRef(false);
   const [hud, setHud] = useState<HudState | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [paused, setPaused] = useState(false);
@@ -177,7 +178,10 @@ export function LevelScene({
     try {
       engine = new GameEngine(canvas, level, resolveAvatar(avatar), {
         onHud: setHud,
-        onComplete,
+        onComplete: () => {
+          completedRef.current = true;
+          onComplete();
+        },
         onDeath: () => setDead(true),
         onBoss: () => undefined,
         onToast: showToast,
@@ -196,7 +200,7 @@ export function LevelScene({
       window.removeEventListener("keydown", onKey);
       engine?.stop();
       engineRef.current = null;
-      audio.stopMusic();
+      if (!completedRef.current) audio.stopMusic();
     };
   }, [attempt, avatar, level, levelIndex, loaded, onComplete, showToast]);
 

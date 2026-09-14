@@ -73,3 +73,48 @@ export function drawMonsterSprite(
   ctx.restore();
   return true;
 }
+
+const BOSS_KINDS: EnemyKind[] = ["orc", "zombie", "frost", "skeleton", "vampire"];
+
+/** Draws a distinct, enlarged boss from the five monster packs supplied for the game. */
+export function drawLevelBoss(
+  ctx: CanvasRenderingContext2D,
+  levelIndex: number,
+  time: number,
+  facing: 1 | -1,
+  hurt: number,
+  x: number,
+  y: number,
+  dying: boolean,
+): void {
+  const kind = BOSS_KINDS[levelIndex] ?? "vampire";
+  const pulse = 1 + Math.sin(time * 3.2) * 0.035;
+  const scale = (levelIndex === 4 ? 3.15 : 2.75) * pulse;
+  const auraHue = [112, 18, 196, 42, 344][levelIndex] ?? 344;
+
+  ctx.save();
+  if (dying) {
+    const fade = Math.max(0, 1 - time / 1.5);
+    ctx.globalAlpha = fade;
+    ctx.translate(0, (1 - fade) * 22);
+  }
+  ctx.globalCompositeOperation = "screen";
+  const aura = ctx.createRadialGradient(x, y - 72, 8, x, y - 72, levelIndex === 4 ? 118 : 94);
+  aura.addColorStop(0, `hsla(${auraHue}, 90%, 62%, 0.32)`);
+  aura.addColorStop(0.55, `hsla(${auraHue}, 85%, 48%, 0.12)`);
+  aura.addColorStop(1, `hsla(${auraHue}, 80%, 35%, 0)`);
+  ctx.fillStyle = aura;
+  ctx.beginPath();
+  ctx.arc(x, y - 72, levelIndex === 4 ? 118 : 94, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  ctx.save();
+  if (dying) {
+    const fade = Math.max(0, 1 - time / 1.5);
+    ctx.globalAlpha = fade;
+    ctx.translate(0, (1 - fade) * 22);
+  }
+  drawMonsterSprite(ctx, kind, time, facing, hurt, scale, x, y);
+  ctx.restore();
+}
