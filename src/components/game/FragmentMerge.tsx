@@ -95,7 +95,7 @@ export function FragmentMerge({
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
-      ctx.fillStyle = "#05060b";
+      ctx.fillStyle = "#09070a";
       ctx.fillRect(0, 0, w, h);
       ctx.translate(sx, sy);
 
@@ -105,7 +105,7 @@ export function FragmentMerge({
         const px = st.x * w;
         const py = ((st.y + (el / 20000) * st.s) % 1) * h;
         ctx.globalAlpha = st.a * (0.6 + 0.4 * Math.sin(el / 600 + st.x * 20));
-        ctx.fillStyle = "#cfe3ff";
+        ctx.fillStyle = "#ffe8b0";
         ctx.beginPath();
         ctx.arc(px, py, st.r, 0, Math.PI * 2);
         ctx.fill();
@@ -138,7 +138,7 @@ export function FragmentMerge({
           const p0 = tr[j - 1]!;
           const p1 = tr[j]!;
           const k = j / tr.length;
-          ctx.strokeStyle = `hsla(${188 + i * 12}, 95%, ${58 + k * 20}%, ${k * 0.5})`;
+          ctx.strokeStyle = `hsla(${38 + i * 5}, 92%, ${58 + k * 20}%, ${k * 0.48})`;
           ctx.lineWidth = 1 + k * 4;
           ctx.lineCap = "round";
           ctx.beginPath();
@@ -149,21 +149,21 @@ export function FragmentMerge({
         if (fused) tr.shift();
       }
 
-      // energy arcs between neighbouring fragments (lightning)
+      // Fine luminous threads stitch the parchment pieces together.
       if (!fused && collapse > 0.25) {
         const strength = (collapse - 0.25) / 0.75;
         for (let i = 0; i < FRAGS; i++) {
           const a = pts[i]!;
           const b = pts[(i + 1) % FRAGS]!;
-          ctx.strokeStyle = `hsla(196, 100%, 78%, ${0.12 + strength * 0.5})`;
+          ctx.strokeStyle = `hsla(43, 96%, 74%, ${0.12 + strength * 0.46})`;
           ctx.lineWidth = 1 + strength * 1.6;
           ctx.beginPath();
           ctx.moveTo(a.x, a.y);
           const segs = 6;
           for (let s = 1; s < segs; s++) {
             const t = s / segs;
-            const jit = (Math.random() - 0.5) * 26 * strength;
-            ctx.lineTo(a.x + (b.x - a.x) * t + jit, a.y + (b.y - a.y) * t + jit);
+            const curve = Math.sin(t * Math.PI) * 10 * strength;
+            ctx.lineTo(a.x + (b.x - a.x) * t + curve, a.y + (b.y - a.y) * t - curve);
           }
           ctx.lineTo(b.x, b.y);
           ctx.stroke();
@@ -179,18 +179,23 @@ export function FragmentMerge({
           ctx.translate(p.x, p.y);
           ctx.rotate(spin * 1.4 + i);
           const g = ctx.createLinearGradient(-size, -size, size, size);
-          g.addColorStop(0, "hsla(190,100%,88%,0.95)");
-          g.addColorStop(1, `hsla(${205 + i * 8},95%,58%,0.95)`);
+          g.addColorStop(0, "hsla(48,92%,88%,0.98)");
+          g.addColorStop(0.55, `hsla(${39 + i * 4},84%,68%,0.98)`);
+          g.addColorStop(1, "hsla(17,72%,42%,0.96)");
           ctx.fillStyle = g;
-          ctx.shadowColor = "hsla(195,100%,70%,0.9)";
+          ctx.shadowColor = "hsla(43,100%,68%,0.9)";
           ctx.shadowBlur = 26;
           ctx.beginPath();
-          ctx.moveTo(0, -size);
-          ctx.lineTo(size * 0.72, 0);
-          ctx.lineTo(0, size);
-          ctx.lineTo(-size * 0.72, 0);
+          ctx.moveTo(-size * 0.15, -size);
+          ctx.lineTo(size * 0.76, -size * 0.36);
+          ctx.lineTo(size * 0.52, size * 0.78);
+          ctx.lineTo(-size * 0.28, size);
+          ctx.lineTo(-size * 0.78, size * 0.18);
           ctx.closePath();
           ctx.fill();
+          ctx.strokeStyle = "hsla(52,100%,92%,0.72)";
+          ctx.lineWidth = 1;
+          ctx.stroke();
           ctx.restore();
 
           if (Math.random() < 0.5) {
@@ -201,7 +206,7 @@ export function FragmentMerge({
               vy: (Math.random() - 0.5) * 60,
               life: 0,
               max: 0.5 + Math.random() * 0.6,
-              hue: 190 + Math.random() * 30,
+              hue: 34 + Math.random() * 22,
               size: 1 + Math.random() * 2,
             });
           }
@@ -224,7 +229,7 @@ export function FragmentMerge({
             vy: Math.sin(a) * sp,
             life: 0,
             max: 0.7 + Math.random() * 1.1,
-            hue: 185 + Math.random() * 55,
+            hue: 32 + Math.random() * 28,
             size: 1 + Math.random() * 2.6,
           });
         }
@@ -262,7 +267,7 @@ export function FragmentMerge({
         }
         if (r.t < 0) continue;
         const rad = easeOut(r.t) * r.max;
-        ctx.strokeStyle = `hsla(195,100%,80%,${(1 - r.t) * 0.55})`;
+        ctx.strokeStyle = `hsla(44,100%,78%,${(1 - r.t) * 0.55})`;
         ctx.lineWidth = r.width * (1 - r.t) + 0.5;
         ctx.beginPath();
         ctx.arc(cx, cy, rad, 0, Math.PI * 2);
@@ -276,8 +281,8 @@ export function FragmentMerge({
         : base * (0.02 + 0.05 * collapse);
       const cg = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR * 2.6);
       cg.addColorStop(0, "rgba(255,255,255,0.95)");
-      cg.addColorStop(0.28, "hsla(190,100%,75%,0.7)");
-      cg.addColorStop(1, "hsla(210,100%,50%,0)");
+      cg.addColorStop(0.28, "hsla(44,100%,72%,0.72)");
+      cg.addColorStop(1, "hsla(18,90%,42%,0)");
       ctx.fillStyle = cg;
       ctx.beginPath();
       ctx.arc(cx, cy, coreR * 2.6, 0, Math.PI * 2);
@@ -293,7 +298,7 @@ export function FragmentMerge({
           const a = (i / 16) * Math.PI * 2;
           const len = base * (0.2 + 0.6 * easeOut(rt)) * (0.6 + 0.4 * Math.sin(i * 2.1 + el / 500));
           ctx.globalAlpha = 0.16 * (1 - rt * 0.35);
-          ctx.fillStyle = "hsl(192,100%,80%)";
+          ctx.fillStyle = "hsl(44,100%,78%)";
           ctx.beginPath();
           ctx.moveTo(0, 0);
           ctx.lineTo(Math.cos(a - 0.03) * len, Math.sin(a - 0.03) * len);
