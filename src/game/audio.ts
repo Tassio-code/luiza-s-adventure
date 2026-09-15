@@ -1,9 +1,11 @@
 /**
  * AudioManager — plays the Kenney .ogg sample pack when available and
  * falls back to fully synthesized Web Audio tones otherwise.
- * Music is always generative.
  */
 type Ctor = typeof AudioContext;
+
+const SFX_MIX_LEVEL = 0.32;
+const MUSIC_MIX_LEVEL = 0.72;
 
 const SAMPLES = {
   "shoot-a": "/sfx/shoot-a.ogg",
@@ -76,7 +78,7 @@ export class AudioManager {
     try {
       this.ctx = new Ctx();
       this.master = this.ctx.createGain();
-      this.master.gain.value = this.muted ? 0 : this.volume;
+      this.master.gain.value = this.muted ? 0 : this.volume * SFX_MIX_LEVEL;
       this.master.connect(this.ctx.destination);
       this.musicGain = this.ctx.createGain();
       this.musicGain.gain.value = 0.28;
@@ -131,12 +133,18 @@ export class AudioManager {
 
   setVolume(v: number) {
     this.volume = Math.min(1, Math.max(0, v));
-    if (this.master) this.master.gain.value = this.muted ? 0 : this.volume;
+    if (this.master) this.master.gain.value = this.muted ? 0 : this.volume * SFX_MIX_LEVEL;
+    if (this.musicEl) {
+      this.musicEl.volume = this.muted ? 0 : Math.min(1, this.volume * MUSIC_MIX_LEVEL);
+    }
   }
 
   setMuted(m: boolean) {
     this.muted = m;
-    if (this.master) this.master.gain.value = m ? 0 : this.volume;
+    if (this.master) this.master.gain.value = m ? 0 : this.volume * SFX_MIX_LEVEL;
+    if (this.musicEl) {
+      this.musicEl.volume = m ? 0 : Math.min(1, this.volume * MUSIC_MIX_LEVEL);
+    }
   }
 
   private tone(
@@ -303,7 +311,7 @@ export class AudioManager {
       try {
         const el = new Audio(opts.src);
         el.loop = opts.loop ?? false;
-        el.volume = this.muted ? 0 : Math.min(1, this.volume * 0.6);
+        el.volume = this.muted ? 0 : Math.min(1, this.volume * MUSIC_MIX_LEVEL);
         this.musicEl = el;
         void el.play().catch(() => {
           // arquivo ausente ou bloqueado — sem música de sistema
