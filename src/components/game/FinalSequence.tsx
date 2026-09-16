@@ -6,7 +6,7 @@ import { FragmentMerge } from "@/components/game/FragmentMerge";
 import { FINAL_MESSAGE, BIRTHDAY_NAME } from "@/game/message";
 
 /** Optional photo — dropped in later. Missing file degrades gracefully. */
-const PHOTO_SRC = "/final/photo.jpg";
+const PHOTO_SRC = `${import.meta.env.BASE_URL}final/photo.jpg`;
 
 type Step = "merge" | "scroll" | "birthday" | "photo" | "end";
 

@@ -7,21 +7,23 @@ type Ctor = typeof AudioContext;
 const SFX_MIX_LEVEL = 0.32;
 const MUSIC_MIX_LEVEL = 0.72;
 
+const publicAsset = (path: string) => `${import.meta.env.BASE_URL}${path}`;
+
 const SAMPLES = {
-  "shoot-a": "/sfx/shoot-a.ogg",
-  "shoot-c": "/sfx/shoot-c.ogg",
-  "shoot-e": "/sfx/shoot-e.ogg",
-  "shoot-g": "/sfx/shoot-g.ogg",
-  "hurt-a": "/sfx/hurt-a.ogg",
-  "hurt-c": "/sfx/hurt-c.ogg",
-  "explosion-a": "/sfx/explosion-a.ogg",
-  "explosion-c": "/sfx/explosion-c.ogg",
-  "coin-a": "/sfx/coin-a.ogg",
-  "select-a": "/sfx/select-a.ogg",
-  "lose-a": "/sfx/lose-a.ogg",
-  "error-a": "/sfx/error-a.ogg",
-  "jump-a": "/sfx/jump-a.ogg",
-  "move-a": "/sfx/move-a.ogg",
+  "shoot-a": publicAsset("sfx/shoot-a.ogg"),
+  "shoot-c": publicAsset("sfx/shoot-c.ogg"),
+  "shoot-e": publicAsset("sfx/shoot-e.ogg"),
+  "shoot-g": publicAsset("sfx/shoot-g.ogg"),
+  "hurt-a": publicAsset("sfx/hurt-a.ogg"),
+  "hurt-c": publicAsset("sfx/hurt-c.ogg"),
+  "explosion-a": publicAsset("sfx/explosion-a.ogg"),
+  "explosion-c": publicAsset("sfx/explosion-c.ogg"),
+  "coin-a": publicAsset("sfx/coin-a.ogg"),
+  "select-a": publicAsset("sfx/select-a.ogg"),
+  "lose-a": publicAsset("sfx/lose-a.ogg"),
+  "error-a": publicAsset("sfx/error-a.ogg"),
+  "jump-a": publicAsset("sfx/jump-a.ogg"),
+  "move-a": publicAsset("sfx/move-a.ogg"),
 } as const;
 
 type SampleName = keyof typeof SAMPLES;

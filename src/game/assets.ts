@@ -6,14 +6,16 @@ export type SheetKey = "tiles" | "enemies" | "players" | "castle" | "city" | "we
 
 export type SheetDef = { src: string; tile: number; cols: number };
 
+const publicAsset = (path: string) => `${import.meta.env.BASE_URL}${path}`;
+
 export const SHEETS: Record<SheetKey, SheetDef> = {
-  tiles: { src: "/sprites/tiles.png", tile: 16, cols: 18 },
-  enemies: { src: "/sprites/enemies.png", tile: 24, cols: 4 },
-  players: { src: "/sprites/players.png", tile: 24, cols: 4 },
-  castle: { src: "/sprites/castle.png", tile: 16, cols: 12 },
-  city: { src: "/sprites/city.png", tile: 8, cols: 24 },
-  weapons: { src: "/sprites/weapons.png", tile: 24, cols: 10 },
-  ui: { src: "/sprites/ui.png", tile: 16, cols: 18 },
+  tiles: { src: publicAsset("sprites/tiles.png"), tile: 16, cols: 18 },
+  enemies: { src: publicAsset("sprites/enemies.png"), tile: 24, cols: 4 },
+  players: { src: publicAsset("sprites/players.png"), tile: 24, cols: 4 },
+  castle: { src: publicAsset("sprites/castle.png"), tile: 16, cols: 12 },
+  city: { src: publicAsset("sprites/city.png"), tile: 8, cols: 24 },
+  weapons: { src: publicAsset("sprites/weapons.png"), tile: 24, cols: 10 },
+  ui: { src: publicAsset("sprites/ui.png"), tile: 16, cols: 18 },
 };
 
 class AssetManager {

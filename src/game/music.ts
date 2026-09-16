@@ -1,5 +1,7 @@
 import type { MusicPlan } from "./systems/director";
 
+const publicAsset = (path: string) => `${import.meta.env.BASE_URL}${path}`;
+
 /**
  * Music registry. Each stage has one track and each boss has another.
  *
@@ -19,7 +21,7 @@ export type TrackConfig = {
 export const STAGE_TRACKS: TrackConfig[] = [
   {
     id: "stage-floresta",
-    src: "/music/fase01.m4a",
+    src: publicAsset("music/fase01.m4a"),
     duration: 445,
     plan: {
       duration: 445,
@@ -33,7 +35,7 @@ export const STAGE_TRACKS: TrackConfig[] = [
   },
   {
     id: "stage-cidade",
-    src: "/music/fase02.m4a",
+    src: publicAsset("music/fase02.m4a"),
     duration: 204,
     plan: {
       duration: 204,
@@ -47,7 +49,7 @@ export const STAGE_TRACKS: TrackConfig[] = [
   },
   {
     id: "stage-neve",
-    src: "/music/fase03.m4a",
+    src: publicAsset("music/fase03.m4a"),
     duration: 215,
     plan: {
       duration: 215,
@@ -61,7 +63,7 @@ export const STAGE_TRACKS: TrackConfig[] = [
   },
   {
     id: "stage-deserto",
-    src: "/music/fase04.m4a",
+    src: publicAsset("music/fase04.m4a"),
     duration: 167,
     plan: {
       duration: 167,
@@ -75,7 +77,7 @@ export const STAGE_TRACKS: TrackConfig[] = [
   },
   {
     id: "stage-castelo",
-    src: "/music/fase05.m4a",
+    src: publicAsset("music/fase05.m4a"),
     duration: 256,
     plan: {
       duration: 256,
