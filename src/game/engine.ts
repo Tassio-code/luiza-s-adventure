@@ -1065,7 +1065,12 @@ export class GameEngine {
           if (next === "radial") {
             const count = st.phase === 3 ? 18 : 12;
             for (let i = 0; i < count; i++) {
-              this.enemyShoot(boss, finalBoss ? 260 : 210, bossDamage * 0.55, (i / count) * Math.PI * 2);
+              this.enemyShoot(
+                boss,
+                finalBoss ? 260 : 210,
+                bossDamage * 0.55,
+                (i / count) * Math.PI * 2,
+              );
             }
             audio.bossRoar();
           }
@@ -1226,11 +1231,17 @@ export class GameEngine {
         this.completeTimer = 2.2;
         this.cam.shake = 8;
         for (let ring = 0; ring < 3; ring++) {
-          this.particles.burst(item.x, item.y - 20, 34 + ring * 18, ring % 2 ? "#fff1b8" : "#ffd88a", {
-            speed: 125 + ring * 72,
-            life: 1.15 + ring * 0.22,
-            size: 2.2 + ring * 0.6,
-          });
+          this.particles.burst(
+            item.x,
+            item.y - 20,
+            34 + ring * 18,
+            ring % 2 ? "#fff1b8" : "#ffd88a",
+            {
+              speed: 125 + ring * 72,
+              life: 1.15 + ring * 0.22,
+              size: 2.2 + ring * 0.6,
+            },
+          );
         }
       }
       item.active = false;
@@ -1409,16 +1420,17 @@ export class GameEngine {
       const boss = this.boss;
       items.push({
         y: boss.y,
-        draw: () => drawLevelBoss(
-          ctx,
-          this.level.index,
-          boss.spriteTime ?? 0,
-          boss.facing,
-          boss.hurt,
-          boss.x,
-          boss.y,
-          boss.boss?.state === "dying",
-        ),
+        draw: () =>
+          drawLevelBoss(
+            ctx,
+            this.level.index,
+            boss.spriteTime ?? 0,
+            boss.facing,
+            boss.hurt,
+            boss.x,
+            boss.y,
+            boss.boss?.state === "dying",
+          ),
       });
     }
     items.push({ y: this.player.y, draw: () => this.drawPlayer() });

@@ -67,13 +67,22 @@ function Game() {
   const avatar = save?.avatar ?? draft;
   const fragments = useMemo(() => save?.fragments ?? [], [save]);
 
-
   useEffect(() => {
     if (scene === "menu") {
-      audio.playMusic("menu", { id: "musica-do-mapa", src: MAP_MUSIC_SRC, duration: 40, loop: true });
+      audio.playMusic("menu", {
+        id: "musica-do-mapa",
+        src: MAP_MUSIC_SRC,
+        duration: 40,
+        loop: true,
+      });
     }
     if (scene === "map" || scene === "creator") {
-      audio.playMusic("map", { id: "musica-do-mapa", src: MAP_MUSIC_SRC, duration: 40, loop: true });
+      audio.playMusic("map", {
+        id: "musica-do-mapa",
+        src: MAP_MUSIC_SRC,
+        duration: 40,
+        loop: true,
+      });
     }
   }, [scene]);
 

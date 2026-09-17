@@ -69,11 +69,7 @@ export function FinalSequence({ onFinished }: { onFinished: () => void }) {
   }, [step]);
 
   if (step === "merge") {
-    return (
-      <FragmentMerge
-        onDone={() => setStep("scroll")}
-      />
-    );
+    return <FragmentMerge onDone={() => setStep("scroll")} />;
   }
 
   if (step === "scroll") {
