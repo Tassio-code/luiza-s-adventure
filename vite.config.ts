@@ -16,7 +16,6 @@ export default defineConfig({
   },
   nitro: {
     preset: process.env["GITHUB_ACTIONS"] === "true" ? "github-pages" : "cloudflare-module",
-    static: true,
   },
   tanstackStart: process.env["GITHUB_ACTIONS"] === "true" ? {} : {
     server: { entry: "server" },
