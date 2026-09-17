@@ -8,7 +8,7 @@ import { IntroSequence } from "@/components/game/IntroSequence";
 import { FinalSequence } from "@/components/game/FinalSequence";
 import { LandscapeGate } from "@/components/game/LandscapeGate";
 import { audio } from "@/game/audio";
-import { defaultAvatar, loadSave, writeSave, type SaveData } from "@/game/save";
+import { defaultAvatar, loadSave, resetCampaignOnce, writeSave, type SaveData } from "@/game/save";
 import type { AvatarConfig } from "@/game/avatar/options";
 import { LEVELS } from "@/game/content";
 
@@ -52,7 +52,7 @@ function Game() {
   const [levelIndex, setLevelIndex] = useState(0);
 
   useEffect(() => {
-    const loaded = loadSave();
+    const loaded = resetCampaignOnce(loadSave());
     setSave(loaded);
     if (loaded.avatar) setDraft(loaded.avatar);
   }, []);
@@ -62,13 +62,8 @@ function Game() {
     writeSave(next);
   }, []);
 
-  // modo de visualização livre: todas as fases e o pergaminho ficam abertos
-  const UNLOCK_ALL = true;
   const avatar = save?.avatar ?? draft;
-  const fragments = useMemo(
-    () => (UNLOCK_ALL ? [0, 1, 2, 3, 4] : (save?.fragments ?? [])),
-    [save, UNLOCK_ALL],
-  );
+  const fragments = useMemo(() => save?.fragments ?? [], [save]);
 
 
   useEffect(() => {
@@ -120,7 +115,7 @@ function Game() {
       return (
         <WorldMap
           avatar={avatar}
-          unlocked={UNLOCK_ALL ? LEVELS.length - 1 : save.unlocked}
+          unlocked={save.unlocked}
           fragments={fragments}
           onPlay={(i) => {
             audio.resume();

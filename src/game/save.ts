@@ -1,6 +1,7 @@
 import { DEFAULT_AVATAR, sanitizeAvatar, type AvatarConfig } from "./avatar/options";
 
 const KEY = "cinco-fragmentos:save:v1";
+const CAMPAIGN_RESET_KEY = "cinco-fragmentos:campaign-reset:2026-09-17";
 
 export type SaveData = {
   avatar: AvatarConfig | null;
@@ -77,6 +78,27 @@ export function writeSave(data: SaveData) {
   } catch {
     /* storage full or unavailable — gameplay continues in memory */
   }
+}
+
+/** Clears the former showcase unlocks once while preserving the created avatar and settings. */
+export function resetCampaignOnce(data: SaveData): SaveData {
+  if (!isBrowser() || window.localStorage.getItem(CAMPAIGN_RESET_KEY)) return data;
+  const reset: SaveData = {
+    ...data,
+    completed: [],
+    fragments: [],
+    unlocked: 0,
+    messageUnlocked: false,
+    progress: null,
+    lastScene: "map",
+  };
+  try {
+    window.localStorage.setItem(CAMPAIGN_RESET_KEY, "done");
+  } catch {
+    /* gameplay continues even when storage is unavailable */
+  }
+  writeSave(reset);
+  return reset;
 }
 
 export function clearSave() {
