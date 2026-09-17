@@ -6,6 +6,7 @@ import { LEVELS, WEAPONS } from "@/game/content";
 import { assets } from "@/game/assets";
 import { stageTrack } from "@/game/music";
 import { Button } from "@/components/ui/button";
+import mapMusicAsset from "@/assets/music/musica-do-mapa.wav.asset.json";
 
 function Stick({
   onMove,
@@ -206,7 +207,19 @@ export function LevelScene({
 
   useEffect(() => {
     engineRef.current?.setPaused(paused || dead);
-  }, [paused, dead]);
+    if (dead) return;
+    if (paused) {
+      audio.playMusic("map", {
+        id: "musica-do-mapa-pause",
+        src: mapMusicAsset.url,
+        duration: 40,
+        loop: true,
+      });
+      return;
+    }
+    const track = stageTrack(levelIndex);
+    audio.playMusic("level", { id: track.id, src: track.src, duration: track.duration, loop: true });
+  }, [paused, dead, levelIndex]);
 
   if (!level) return null;
   const weapon = WEAPONS[level.weapon];
