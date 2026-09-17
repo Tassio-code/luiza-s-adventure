@@ -4,6 +4,7 @@ import { audio } from "@/game/audio";
 import { FireworksShow } from "@/game/fireworks";
 import { FragmentMerge } from "@/components/game/FragmentMerge";
 import { FINAL_MESSAGE, BIRTHDAY_NAME } from "@/game/message";
+import finalMusicAsset from "@/assets/music/musica-fim.mp3.asset.json";
 
 /** Optional photo — dropped in later. Missing file degrades gracefully. */
 const PHOTO_SRC = `${import.meta.env.BASE_URL}final/photo.jpg`;
@@ -32,7 +33,12 @@ export function FinalSequence({ onFinished }: { onFinished: () => void }) {
 
     if (step === "scroll") {
       // A leitura é manual: cada parágrafo espera o clique em "Continuar".
-      audio.playMusic("ending", { id: "final", duration: 240, loop: true });
+      audio.playMusic("ending", {
+        id: "musica-fim",
+        src: finalMusicAsset.url,
+        duration: 356,
+        loop: false,
+      });
       setParagraph(0);
       setParagraphOut(false);
     }
