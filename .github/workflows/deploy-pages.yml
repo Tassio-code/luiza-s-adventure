@@ -37,7 +37,9 @@ jobs:
 
       - name: Prepare GitHub Pages files
         run: |
-          touch .output/public/.nojekyll
+          test -f dist/client/index.html
+          cp dist/client/index.html dist/client/404.html
+          touch dist/client/.nojekyll
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
@@ -45,7 +47,7 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .output/public
+          path: dist/client
 
       - name: Deploy to GitHub Pages
         id: deployment

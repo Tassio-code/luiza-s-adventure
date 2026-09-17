@@ -115,7 +115,7 @@ export function FragmentMerge({
       // ---- fragment positions ----
       const collapse = Math.min(1, el / T_ORBIT);
       const radius = (1 - easeInOut(collapse)) * base * 0.34 + 2;
-      const spin = el / 1000 * (1.1 + collapse * 6);
+      const spin = (el / 1000) * (1.1 + collapse * 6);
       const pts: { x: number; y: number }[] = [];
       for (let i = 0; i < FRAGS; i++) {
         const a = (i / FRAGS) * Math.PI * 2 + spin;
@@ -276,9 +276,7 @@ export function FragmentMerge({
 
       // core glow
       const coreT = fused ? Math.min(1, (el - T_IMPACT) / 900) : collapse;
-      const coreR = fused
-        ? base * (0.06 + 0.16 * easeOut(coreT))
-        : base * (0.02 + 0.05 * collapse);
+      const coreR = fused ? base * (0.06 + 0.16 * easeOut(coreT)) : base * (0.02 + 0.05 * collapse);
       const cg = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR * 2.6);
       cg.addColorStop(0, "rgba(255,255,255,0.95)");
       cg.addColorStop(0.28, "hsla(44,100%,72%,0.72)");

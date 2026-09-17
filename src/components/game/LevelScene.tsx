@@ -6,7 +6,8 @@ import { LEVELS, WEAPONS } from "@/game/content";
 import { assets } from "@/game/assets";
 import { stageTrack } from "@/game/music";
 import { Button } from "@/components/ui/button";
-import mapMusicAsset from "@/assets/music/musica-do-mapa.wav.asset.json";
+
+const MAP_MUSIC_SRC = `${import.meta.env.BASE_URL}music/musica-do-mapa.m4a`;
 
 function Stick({
   onMove,
@@ -24,7 +25,13 @@ function Stick({
   const zoneRef = useRef<HTMLDivElement | null>(null);
   const pointerId = useRef<number | null>(null);
   const origin = useRef({ x: 0, y: 0 });
-  const [state, setState] = useState<{ active: boolean; ox: number; oy: number; kx: number; ky: number }>({
+  const [state, setState] = useState<{
+    active: boolean;
+    ox: number;
+    oy: number;
+    kx: number;
+    ky: number;
+  }>({
     active: false,
     ox: 0,
     oy: 0,
@@ -62,7 +69,13 @@ function Stick({
         e.currentTarget.setPointerCapture(e.pointerId);
         const rect = e.currentTarget.getBoundingClientRect();
         origin.current = { x: e.clientX, y: e.clientY };
-        setState({ active: true, ox: e.clientX - rect.left, oy: e.clientY - rect.top, kx: 0, ky: 0 });
+        setState({
+          active: true,
+          ox: e.clientX - rect.left,
+          oy: e.clientY - rect.top,
+          kx: 0,
+          ky: 0,
+        });
         update(e.clientX, e.clientY);
       }}
       onPointerMove={(e) => {
@@ -174,7 +187,12 @@ export function LevelScene({
     if (!canvas || !level || !loaded) return;
     audio.resume();
     const track = stageTrack(levelIndex);
-    audio.playMusic("level", { id: track.id, src: track.src, duration: track.duration, loop: true });
+    audio.playMusic("level", {
+      id: track.id,
+      src: track.src,
+      duration: track.duration,
+      loop: true,
+    });
     let engine: GameEngine | null = null;
     try {
       engine = new GameEngine(canvas, level, resolveAvatar(avatar), {
@@ -211,14 +229,19 @@ export function LevelScene({
     if (paused) {
       audio.playMusic("map", {
         id: "musica-do-mapa-pause",
-        src: mapMusicAsset.url,
+        src: MAP_MUSIC_SRC,
         duration: 40,
         loop: true,
       });
       return;
     }
     const track = stageTrack(levelIndex);
-    audio.playMusic("level", { id: track.id, src: track.src, duration: track.duration, loop: true });
+    audio.playMusic("level", {
+      id: track.id,
+      src: track.src,
+      duration: track.duration,
+      loop: true,
+    });
   }, [paused, dead, levelIndex]);
 
   if (!level) return null;
@@ -318,62 +341,62 @@ export function LevelScene({
       )}
 
       {touch && (
-          <>
-            {/* Action buttons stay on the right edge, clear of both floating sticks. */}
-            <div className="absolute top-40 right-3 z-20 flex flex-col items-end gap-2">
-              <button
-                type="button"
-                onPointerDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  const engine = engineRef.current;
-                  if (engine) engine.getInput().state.interact = true;
-                }}
-                className="h-10 min-w-[4.75rem] touch-none rounded-full border border-primary/50 bg-card/85 px-3 text-[11px] text-primary shadow-frame active:scale-95"
-              >
-                Interagir
-              </button>
-              <button
-                type="button"
-                onPointerDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  engineRef.current?.useMedkit();
-                }}
-                className="h-10 min-w-[4.75rem] touch-none rounded-full border border-primary/50 bg-card/85 px-3 text-[11px] text-primary shadow-frame active:scale-95"
-              >
-                Curar
-              </button>
-              <button
-                type="button"
-                onPointerDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setPaused(true);
-                }}
-                className="h-9 min-w-[4.25rem] touch-none rounded-full border border-border bg-card/80 px-3 text-[11px] text-foreground shadow-frame active:scale-95"
-              >
-                Pausar
-              </button>
-            </div>
+        <>
+          {/* Action buttons stay on the right edge, clear of both floating sticks. */}
+          <div className="absolute top-40 right-3 z-20 flex flex-col items-end gap-2">
+            <button
+              type="button"
+              onPointerDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const engine = engineRef.current;
+                if (engine) engine.getInput().state.interact = true;
+              }}
+              className="h-10 min-w-[4.75rem] touch-none rounded-full border border-primary/50 bg-card/85 px-3 text-[11px] text-primary shadow-frame active:scale-95"
+            >
+              Interagir
+            </button>
+            <button
+              type="button"
+              onPointerDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                engineRef.current?.useMedkit();
+              }}
+              className="h-10 min-w-[4.75rem] touch-none rounded-full border border-primary/50 bg-card/85 px-3 text-[11px] text-primary shadow-frame active:scale-95"
+            >
+              Curar
+            </button>
+            <button
+              type="button"
+              onPointerDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setPaused(true);
+              }}
+              className="h-9 min-w-[4.25rem] touch-none rounded-full border border-border bg-card/80 px-3 text-[11px] text-foreground shadow-frame active:scale-95"
+            >
+              Pausar
+            </button>
+          </div>
 
-            {/* Floating stick zones: left side moves, right side aims/fires */}
-            <div className="absolute bottom-0 left-0 h-[58%] w-[36%] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)]">
-              <Stick
-                label="Mover"
-                size={104}
-                onMove={(x, y) => engineRef.current?.getInput().setJoystick(x, y)}
-              />
-            </div>
-            <div className="absolute bottom-0 right-0 h-[58%] w-[36%] pb-[env(safe-area-inset-bottom)] pr-[env(safe-area-inset-right)]">
-              <Stick
-                label="Mirar / Atirar"
-                fire
-                size={104}
-                onMove={(x, y, active) => engineRef.current?.getInput().setAimStick(x, y, active)}
-              />
-            </div>
-          </>
+          {/* Floating stick zones: left side moves, right side aims/fires */}
+          <div className="absolute bottom-0 left-0 h-[58%] w-[36%] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)]">
+            <Stick
+              label="Mover"
+              size={104}
+              onMove={(x, y) => engineRef.current?.getInput().setJoystick(x, y)}
+            />
+          </div>
+          <div className="absolute bottom-0 right-0 h-[58%] w-[36%] pb-[env(safe-area-inset-bottom)] pr-[env(safe-area-inset-right)]">
+            <Stick
+              label="Mirar / Atirar"
+              fire
+              size={104}
+              onMove={(x, y, active) => engineRef.current?.getInput().setAimStick(x, y, active)}
+            />
+          </div>
+        </>
       )}
 
       {!touch && (

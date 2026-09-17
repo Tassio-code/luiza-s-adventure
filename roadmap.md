@@ -1,0 +1,4 @@
+- [x] Auditar todos os arquivos e configurações relevantes ao GitHub Pages
+- [x] Reproduzir o build do GitHub Actions
+- [x] Corrigir erros sem alterar o jogo
+- [x] Validar build, testes, tipos, assets e subdiretório

@@ -11,7 +11,8 @@ import { audio } from "@/game/audio";
 import { defaultAvatar, loadSave, resetCampaignOnce, writeSave, type SaveData } from "@/game/save";
 import type { AvatarConfig } from "@/game/avatar/options";
 import { LEVELS } from "@/game/content";
-import mapMusicAsset from "@/assets/music/musica-do-mapa.wav.asset.json";
+
+const MAP_MUSIC_SRC = `${import.meta.env.BASE_URL}music/musica-do-mapa.m4a`;
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -66,13 +67,22 @@ function Game() {
   const avatar = save?.avatar ?? draft;
   const fragments = useMemo(() => save?.fragments ?? [], [save]);
 
-
   useEffect(() => {
     if (scene === "menu") {
-      audio.playMusic("menu", { id: "musica-do-mapa", src: mapMusicAsset.url, duration: 40, loop: true });
+      audio.playMusic("menu", {
+        id: "musica-do-mapa",
+        src: MAP_MUSIC_SRC,
+        duration: 40,
+        loop: true,
+      });
     }
     if (scene === "map" || scene === "creator") {
-      audio.playMusic("map", { id: "musica-do-mapa", src: mapMusicAsset.url, duration: 40, loop: true });
+      audio.playMusic("map", {
+        id: "musica-do-mapa",
+        src: MAP_MUSIC_SRC,
+        duration: 40,
+        loop: true,
+      });
     }
   }, [scene]);
 

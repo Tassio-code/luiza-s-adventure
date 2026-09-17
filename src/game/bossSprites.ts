@@ -24,14 +24,7 @@ import g3Hurt from "@/assets/bosses/golem3-hurt.asset.json";
 import g3Dying from "@/assets/bosses/golem3-dying.asset.json";
 import g3Idle from "@/assets/bosses/golem3-idle.asset.json";
 
-export type BossAnim =
-  | "walking"
-  | "running"
-  | "slashing"
-  | "throwing"
-  | "hurt"
-  | "dying"
-  | "idle";
+export type BossAnim = "walking" | "running" | "slashing" | "throwing" | "hurt" | "dying" | "idle";
 
 export type GolemVariant = 1 | 2 | 3;
 
@@ -130,16 +123,6 @@ export function drawBossSprite(
   ctx.translate(x, y);
   if (facing === 1) ctx.scale(-1, 1);
   if (hurt > 0) ctx.filter = "brightness(1.9) saturate(0.4)";
-  ctx.drawImage(
-    img,
-    frame * strip.fw,
-    0,
-    strip.fw,
-    strip.fh,
-    -dw / 2,
-    -displayH,
-    dw,
-    displayH,
-  );
+  ctx.drawImage(img, frame * strip.fw, 0, strip.fw, strip.fh, -dw / 2, -displayH, dw, displayH);
   ctx.restore();
 }

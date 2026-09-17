@@ -1,6 +1,7 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 const repositoryName = process.env["GITHUB_REPOSITORY"]?.split("/")[1];
+const isGitHubActions = process.env["GITHUB_ACTIONS"] === "true";
 const githubPagesBase = repositoryName
   ? repositoryName.endsWith(".github.io")
     ? "/"
@@ -14,10 +15,8 @@ export default defineConfig({
       target: "esnext",
     },
   },
-  nitro: {
-    preset: process.env["GITHUB_ACTIONS"] === "true" ? "github-pages" : "cloudflare-module",
-  },
-  tanstackStart: process.env["GITHUB_ACTIONS"] === "true" ? {} : {
+  nitro: isGitHubActions ? false : { preset: "cloudflare-module" },
+  tanstackStart: {
     server: { entry: "server" },
     pages: [{ path: "/" }],
     prerender: {

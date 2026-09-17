@@ -7,7 +7,17 @@ import { FINAL_MESSAGE, BIRTHDAY_NAME } from "@/game/message";
 import { AvatarCanvas } from "./AvatarCanvas";
 import { InstallButton } from "./InstallButton";
 import type { AvatarConfig } from "@/game/avatar/options";
-import { Building2, Castle, Check, Lock, Pyramid, ScrollText, Snowflake, Trees, UserRound } from "lucide-react";
+import {
+  Building2,
+  Castle,
+  Check,
+  Lock,
+  Pyramid,
+  ScrollText,
+  Snowflake,
+  Trees,
+  UserRound,
+} from "lucide-react";
 
 const MAP_ICONS = [Trees, Building2, Snowflake, Pyramid, Castle];
 
@@ -79,26 +89,46 @@ export function WorldMap({
         <header className="world-map-profile absolute left-3 top-3 z-20 flex items-center gap-2 rounded-lg border border-primary/30 bg-ink/75 px-2.5 py-1.5 backdrop-blur-md">
           <AvatarCanvas config={avatar} className="world-map-avatar h-12 w-9 shrink-0" />
           <div className="min-w-0">
-            <h1 className="max-w-40 truncate text-sm text-primary">{avatar.name || "Sua heroína"}</h1>
+            <h1 className="max-w-40 truncate text-sm text-primary">
+              {avatar.name || "Sua heroína"}
+            </h1>
             <p className="text-[10px] uppercase text-muted-foreground">Jornada dos fragmentos</p>
-            <div className="mt-1 flex items-center gap-1" aria-label={`${fragments.length} de ${LEVELS.length} fragmentos`}>
+            <div
+              className="mt-1 flex items-center gap-1"
+              aria-label={`${fragments.length} de ${LEVELS.length} fragmentos`}
+            >
               {LEVELS.map((level, i) => (
                 <span
                   key={level.id}
                   className={`h-2.5 w-2.5 rotate-45 rounded-sm ${
-                    fragments.includes(i) ? "bg-primary shadow-glow" : "border border-border bg-secondary"
+                    fragments.includes(i)
+                      ? "bg-primary shadow-glow"
+                      : "border border-border bg-secondary"
                   }`}
                 />
               ))}
-              <span className="ml-1 text-[10px] font-bold text-primary">{fragments.length}/{LEVELS.length}</span>
+              <span className="ml-1 text-[10px] font-bold text-primary">
+                {fragments.length}/{LEVELS.length}
+              </span>
             </div>
           </div>
         </header>
 
         <section className="world-map-board absolute inset-0" aria-label="Mapa das cinco regiões">
-          <svg className="world-map-trail" viewBox="0 0 1000 400" preserveAspectRatio="none" aria-hidden="true">
-            <path className="world-map-trail-glow" d="M110 258 C190 130 270 138 330 235 S465 326 525 208 S660 103 720 218 S830 330 902 170" />
-            <path className="world-map-trail-dash" d="M110 258 C190 130 270 138 330 235 S465 326 525 208 S660 103 720 218 S830 330 902 170" />
+          <svg
+            className="world-map-trail"
+            viewBox="0 0 1000 400"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
+            <path
+              className="world-map-trail-glow"
+              d="M110 258 C190 130 270 138 330 235 S465 326 525 208 S660 103 720 218 S830 330 902 170"
+            />
+            <path
+              className="world-map-trail-dash"
+              d="M110 258 C190 130 270 138 330 235 S465 326 525 208 S660 103 720 218 S830 330 902 170"
+            />
           </svg>
 
           <div className="world-map-path">
@@ -136,7 +166,12 @@ export function WorldMap({
         </section>
 
         <div className="world-map-actions absolute bottom-3 right-3 z-20 flex items-center gap-2">
-          <Button variant="secondary" size="sm" className="bg-ink/80 backdrop-blur-md" onClick={onEditAvatar}>
+          <Button
+            variant="secondary"
+            size="sm"
+            className="bg-ink/80 backdrop-blur-md"
+            onClick={onEditAvatar}
+          >
             <UserRound />
             Avatar
           </Button>
@@ -171,7 +206,11 @@ export function FragmentReward({
         <span className="fragment-reward-beam" />
         <span className="fragment-reward-gem" />
         {Array.from({ length: 12 }, (_, i) => (
-          <span key={i} className="fragment-reward-spark" style={{ "--spark-index": i } as React.CSSProperties} />
+          <span
+            key={i}
+            className="fragment-reward-spark"
+            style={{ "--spark-index": i } as React.CSSProperties}
+          />
         ))}
       </div>
       <div className="animate-title-in">
@@ -241,9 +280,7 @@ export function Fireworks({ onBackToMap }: { onBackToMap: () => void }) {
     <main className="relative h-dvh w-full overflow-hidden bg-ink">
       <canvas ref={ref} className="absolute inset-0 h-full w-full" />
       <div className="relative z-10 flex h-full flex-col items-center justify-center gap-4 px-6 text-center">
-        <h1 className="text-4xl text-primary text-glow sm:text-6xl">
-          FELIZ ANIVERSÁRIO
-        </h1>
+        <h1 className="text-4xl text-primary text-glow sm:text-6xl">FELIZ ANIVERSÁRIO</h1>
         {step >= 1 && (
           <p className="animate-title-in text-lg text-foreground sm:text-2xl">
             Que seus sonhos se tornem realidade.

@@ -4,10 +4,10 @@ import { audio } from "@/game/audio";
 import { FireworksShow } from "@/game/fireworks";
 import { FragmentMerge } from "@/components/game/FragmentMerge";
 import { FINAL_MESSAGE, BIRTHDAY_NAME } from "@/game/message";
-import finalMusicAsset from "@/assets/music/musica-fim.mp3.asset.json";
 
 /** Optional photo — dropped in later. Missing file degrades gracefully. */
 const PHOTO_SRC = `${import.meta.env.BASE_URL}final/photo.jpg`;
+const FINAL_MUSIC_SRC = `${import.meta.env.BASE_URL}music/musica-fim.m4a`;
 
 type Step = "merge" | "scroll" | "birthday" | "photo" | "end";
 
@@ -35,7 +35,7 @@ export function FinalSequence({ onFinished }: { onFinished: () => void }) {
       // A leitura é manual: cada parágrafo espera o clique em "Continuar".
       audio.playMusic("ending", {
         id: "musica-fim",
-        src: finalMusicAsset.url,
+        src: FINAL_MUSIC_SRC,
         duration: 356,
         loop: false,
       });
@@ -69,11 +69,7 @@ export function FinalSequence({ onFinished }: { onFinished: () => void }) {
   }, [step]);
 
   if (step === "merge") {
-    return (
-      <FragmentMerge
-        onDone={() => setStep("scroll")}
-      />
-    );
+    return <FragmentMerge onDone={() => setStep("scroll")} />;
   }
 
   if (step === "scroll") {
