@@ -284,7 +284,7 @@
 .is-locked .world-map-node { border-color: var(--border); background: var(--secondary); }
 .world-map-number {
   position: absolute;
-  bottom: -0.45rem;
+  top: -0.45rem;
   right: -0.45rem;
   display: grid;
   height: 1.35rem;

@@ -4,3 +4,4 @@
 - [x] Validar build, testes, tipos, assets e subdiretório
 - [x] Remover a etapa de foto da sequência final
 - [x] Renomear Neve para Planalto Congelado no mapa
+- [x] Corrigir sobreposição entre nomes e números no mapa
