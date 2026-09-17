@@ -6,7 +6,7 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
-const repositoryName = process.env.GITHUB_REPOSITORY?.split("/")[1];
+const repositoryName = process.env["GITHUB_REPOSITORY"]?.split("/")[1];
 const githubPagesBase = repositoryName
   ? repositoryName.endsWith(".github.io")
     ? "/"
@@ -18,7 +18,7 @@ export default defineConfig({
     base: githubPagesBase,
   },
   nitro: {
-    preset: process.env.GITHUB_ACTIONS === "true" ? "github-pages" : "cloudflare-module",
+    preset: process.env["GITHUB_ACTIONS"] === "true" ? "github-pages" : "cloudflare-module",
   },
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
