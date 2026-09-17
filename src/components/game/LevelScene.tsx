@@ -232,6 +232,7 @@ export function LevelScene({
         src: MAP_MUSIC_SRC,
         duration: 40,
         loop: true,
+        fadeMs: 900,
       });
       return;
     }
@@ -241,6 +242,7 @@ export function LevelScene({
       src: track.src,
       duration: track.duration,
       loop: true,
+      fadeMs: 900,
     });
   }, [paused, dead, levelIndex]);
 

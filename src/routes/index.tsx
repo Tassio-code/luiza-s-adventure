@@ -74,6 +74,7 @@ function Game() {
         src: MAP_MUSIC_SRC,
         duration: 40,
         loop: true,
+        fadeMs: 1200,
       });
     }
     if (scene === "map" || scene === "creator") {
@@ -82,6 +83,7 @@ function Game() {
         src: MAP_MUSIC_SRC,
         duration: 40,
         loop: true,
+        fadeMs: 1200,
       });
     }
   }, [scene]);

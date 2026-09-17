@@ -3,23 +3,19 @@ import { Button } from "@/components/ui/button";
 import { audio } from "@/game/audio";
 import { FireworksShow } from "@/game/fireworks";
 import { FragmentMerge } from "@/components/game/FragmentMerge";
-import { FINAL_MESSAGE, BIRTHDAY_NAME } from "@/game/message";
+import { FINAL_MESSAGE } from "@/game/message";
 
-/** Optional photo — dropped in later. Missing file degrades gracefully. */
-const PHOTO_SRC = `${import.meta.env.BASE_URL}final/photo.jpg`;
 const FINAL_MUSIC_SRC = `${import.meta.env.BASE_URL}music/musica-fim.m4a`;
 
-type Step = "merge" | "scroll" | "birthday" | "photo" | "end";
+type Step = "merge" | "scroll" | "birthday" | "end";
 
 /** Fade duration when advancing to the next parchment paragraph. */
 const PARAGRAPH_FADE_MS = 700;
 
 export function FinalSequence({ onFinished }: { onFinished: () => void }) {
   const [step, setStep] = useState<Step>("merge");
-  const [photoOk, setPhotoOk] = useState<boolean | null>(null);
   const [paragraph, setParagraph] = useState(0);
   const [paragraphOut, setParagraphOut] = useState(false);
-  const [birthdayOut, setBirthdayOut] = useState(false);
   const timers = useRef<number[]>([]);
   const fireworksRef = useRef<FireworksShow | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -38,20 +34,27 @@ export function FinalSequence({ onFinished }: { onFinished: () => void }) {
         src: FINAL_MUSIC_SRC,
         duration: 356,
         loop: false,
+        fadeMs: 1800,
       });
       setParagraph(0);
       setParagraphOut(false);
     }
     if (step === "birthday") {
-      // Fireworks keep going while the title rises, then everything fades slowly.
-      push(() => fireworksRef.current?.fadeOut(), 7200);
-      push(() => setBirthdayOut(true), 8200);
-      push(() => setStep("photo"), 13000);
+      // The title remains while the final song finishes naturally.
+      push(() => fireworksRef.current?.fadeOut(), 12000);
     }
     return () => {
       timers.current.forEach(window.clearTimeout);
       timers.current = [];
     };
+  }, [step]);
+
+  useEffect(() => {
+    if (step !== "birthday") return;
+    const checkMusic = window.setInterval(() => {
+      if (audio.musicHasEnded()) setStep("end");
+    }, 400);
+    return () => window.clearInterval(checkMusic);
   }, [step]);
 
   useEffect(() => {
@@ -112,35 +115,10 @@ export function FinalSequence({ onFinished }: { onFinished: () => void }) {
       <main className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-ink px-6">
         <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
         <h1
-          className={`animate-rise-slow relative z-10 text-center text-4xl leading-tight text-primary text-glow transition-opacity duration-[5000ms] ease-out sm:text-6xl ${
-            birthdayOut ? "opacity-0" : "opacity-100"
-          }`}
+          className="relative z-10 text-center text-4xl leading-tight text-primary text-glow sm:text-6xl"
         >
           Feliz Aniversário
         </h1>
-      </main>
-    );
-  }
-
-  if (step === "photo") {
-    return (
-      <main className="flex min-h-dvh flex-row items-center justify-center gap-6 bg-ink px-6 py-3">
-        {photoOk !== false ? (
-          <img
-            src={PHOTO_SRC}
-            alt={`Fotografia de ${BIRTHDAY_NAME}`}
-            onLoad={() => setPhotoOk(true)}
-            onError={() => setPhotoOk(false)}
-            className="animate-photo-in max-h-[76dvh] w-auto max-w-[70vw] rounded-2xl object-cover shadow-frame"
-          />
-        ) : (
-          <p className="animate-fade-in max-w-sm text-center text-sm text-muted-foreground">
-            (a fotografia entra aqui quando o arquivo for adicionado)
-          </p>
-        )}
-        <Button variant="secondary" className="h-12 px-8" onClick={() => setStep("end")}>
-          Fim
-        </Button>
       </main>
     );
   }
