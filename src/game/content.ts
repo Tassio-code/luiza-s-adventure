@@ -336,7 +336,7 @@ export const LEVELS: LevelDef[] = [
     index: 2,
     id: "neve",
     name: "Cume Congelado",
-    region: "Neve",
+    region: "Planalto Congelado",
     description:
       "Uma vila de montanha soterrada pela nevasca. Os errantes aqui cospem estilhaços de gelo.",
     weapon: "rifle",

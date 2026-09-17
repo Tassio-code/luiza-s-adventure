@@ -3,17 +3,20 @@ import { Button } from "@/components/ui/button";
 import { audio } from "@/game/audio";
 import { FireworksShow } from "@/game/fireworks";
 import { FragmentMerge } from "@/components/game/FragmentMerge";
-import { FINAL_MESSAGE } from "@/game/message";
+import { FINAL_MESSAGE, BIRTHDAY_NAME } from "@/game/message";
 
+/** Optional photo — dropped in later. Missing file degrades gracefully. */
+const PHOTO_SRC = `${import.meta.env.BASE_URL}final/photo.jpg`;
 const FINAL_MUSIC_SRC = `${import.meta.env.BASE_URL}music/musica-fim.m4a`;
 
-type Step = "merge" | "scroll" | "birthday" | "end";
+type Step = "merge" | "scroll" | "birthday" | "photo" | "end";
 
 /** Fade duration when advancing to the next parchment paragraph. */
 const PARAGRAPH_FADE_MS = 700;
 
 export function FinalSequence({ onFinished }: { onFinished: () => void }) {
   const [step, setStep] = useState<Step>("merge");
+  const [photoOk, setPhotoOk] = useState<boolean | null>(null);
   const [paragraph, setParagraph] = useState(0);
   const [paragraphOut, setParagraphOut] = useState(false);
   const [birthdayOut, setBirthdayOut] = useState(false);
@@ -43,7 +46,7 @@ export function FinalSequence({ onFinished }: { onFinished: () => void }) {
       // Fireworks keep going while the title rises, then everything fades slowly.
       push(() => fireworksRef.current?.fadeOut(), 7200);
       push(() => setBirthdayOut(true), 8200);
-      push(() => setStep("end"), 13000);
+      push(() => setStep("photo"), 13000);
     }
     return () => {
       timers.current.forEach(window.clearTimeout);
@@ -115,6 +118,29 @@ export function FinalSequence({ onFinished }: { onFinished: () => void }) {
         >
           Feliz Aniversário
         </h1>
+      </main>
+    );
+  }
+
+  if (step === "photo") {
+    return (
+      <main className="flex min-h-dvh flex-row items-center justify-center gap-6 bg-ink px-6 py-3">
+        {photoOk !== false ? (
+          <img
+            src={PHOTO_SRC}
+            alt={`Fotografia de ${BIRTHDAY_NAME}`}
+            onLoad={() => setPhotoOk(true)}
+            onError={() => setPhotoOk(false)}
+            className="animate-photo-in max-h-[76dvh] w-auto max-w-[70vw] rounded-2xl object-cover shadow-frame"
+          />
+        ) : (
+          <p className="animate-fade-in max-w-sm text-center text-sm text-muted-foreground">
+            (a fotografia entra aqui quando o arquivo for adicionado)
+          </p>
+        )}
+        <Button variant="secondary" className="h-12 px-8" onClick={() => setStep("end")}>
+          Fim
+        </Button>
       </main>
     );
   }

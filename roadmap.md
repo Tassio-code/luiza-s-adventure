@@ -3,3 +3,4 @@
 - [x] Corrigir erros sem alterar o jogo
 - [x] Validar build, testes, tipos, assets e subdiretório
 - [x] Remover a etapa de foto da sequência final
+- [x] Renomear Neve para Planalto Congelado no mapa
