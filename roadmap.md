@@ -5,3 +5,6 @@
 - [x] Remover a etapa de foto da sequência final
 - [x] Renomear Neve para Planalto Congelado no mapa
 - [x] Corrigir sobreposição entre nomes e números no mapa
+- [x] Adicionar uma música de vitória própria, sem som genérico
+- [x] Suavizar as transições entre fase, pausa, mapa e pergaminho
+- [x] Manter a música final até terminar antes de permitir voltar ao mapa

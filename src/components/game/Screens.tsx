@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 
 const MAP_ICONS = [Trees, Building2, Snowflake, Pyramid, Castle];
+const VICTORY_MUSIC_SRC = `${import.meta.env.BASE_URL}music/musica-vitoria.m4a`;
 
 export function TitleScreen({
   onStart,
@@ -198,6 +199,15 @@ export function FragmentReward({
   onContinue: () => void;
 }) {
   const level = LEVELS[levelIndex];
+  useEffect(() => {
+    audio.playMusic("ending", {
+      id: `vitoria-${levelIndex}`,
+      src: VICTORY_MUSIC_SRC,
+      duration: 11.5,
+      loop: false,
+      fadeMs: 1200,
+    });
+  }, [levelIndex]);
   return (
     <main className="fragment-reward-screen vignette-screen flex min-h-dvh flex-col items-center justify-center gap-3 overflow-hidden px-6 py-4 text-center">
       <div className="fragment-reward-reveal" aria-hidden="true">

@@ -38,6 +38,7 @@ export class AudioManager {
   private muted = false;
   private currentTrack: string | null = null;
   private musicEl: HTMLAudioElement | null = null;
+  private musicFadeTimer: number | null = null;
   private musicStartedAt: number | null = null;
   private musicDuration: number | null = null;
   private buffers = new Map<SampleName, AudioBuffer>();
@@ -297,14 +298,28 @@ export class AudioManager {
    */
   playMusic(
     track: "menu" | "map" | "level" | "boss" | "ending" | null,
-    opts: { src?: string | null; duration?: number; id?: string; loop?: boolean } = {},
+    opts: {
+      src?: string | null;
+      duration?: number;
+      id?: string;
+      loop?: boolean;
+      fadeMs?: number;
+    } = {},
   ) {
     this.init();
     const key = `${track ?? "none"}:${opts.id ?? ""}`;
     if (this.currentTrack === key) return;
-    this.stopMusic();
+    const previous = this.musicEl;
+    if (this.musicFadeTimer !== null) {
+      window.clearInterval(this.musicFadeTimer);
+      this.musicFadeTimer = null;
+    }
     this.currentTrack = key;
-    if (!track) return;
+    if (!track) {
+      this.fadeElementOut(previous, opts.fadeMs ?? 900);
+      this.musicEl = null;
+      return;
+    }
 
     this.musicStartedAt = typeof performance !== "undefined" ? performance.now() : Date.now();
     this.musicDuration = opts.duration ?? null;
@@ -313,12 +328,33 @@ export class AudioManager {
       try {
         const el = new Audio(opts.src);
         el.loop = opts.loop ?? false;
-        el.volume = this.muted ? 0 : Math.min(1, this.volume * MUSIC_MIX_LEVEL);
+        const targetVolume = this.muted ? 0 : Math.min(1, this.volume * MUSIC_MIX_LEVEL);
+        const fadeMs = opts.fadeMs ?? 900;
+        el.volume = fadeMs > 0 ? 0 : targetVolume;
         this.musicEl = el;
-        void el.play().catch(() => {
-          // arquivo ausente ou bloqueado — sem música de sistema
-          this.musicEl = null;
-        });
+        void el
+          .play()
+          .then(() => {
+            this.fadeElementOut(previous, fadeMs);
+            if (fadeMs <= 0 || targetVolume <= 0) {
+              el.volume = targetVolume;
+              return;
+            }
+            const startedAt = performance.now();
+            this.musicFadeTimer = window.setInterval(() => {
+              const progress = Math.min(1, (performance.now() - startedAt) / fadeMs);
+              el.volume = targetVolume * progress;
+              if (progress >= 1 && this.musicFadeTimer !== null) {
+                window.clearInterval(this.musicFadeTimer);
+                this.musicFadeTimer = null;
+              }
+            }, 40);
+          })
+          .catch(() => {
+            // arquivo ausente ou bloqueado — sem música de sistema
+            if (this.musicEl === el) this.musicEl = null;
+            this.fadeElementOut(previous, fadeMs);
+          });
         return;
       } catch {
         this.musicEl = null;
@@ -339,10 +375,41 @@ export class AudioManager {
     return null;
   }
 
+  /** True when the current non-looping track reached its natural ending. */
+  musicHasEnded(): boolean {
+    const el = this.musicEl;
+    if (el) return el.ended;
+    return this.musicProgress() === 1;
+  }
+
+  private fadeElementOut(el: HTMLAudioElement | null, durationMs: number) {
+    if (!el) return;
+    if (durationMs <= 0 || el.volume <= 0) {
+      el.pause();
+      el.src = "";
+      return;
+    }
+    const initialVolume = el.volume;
+    const startedAt = performance.now();
+    const timer = window.setInterval(() => {
+      const progress = Math.min(1, (performance.now() - startedAt) / durationMs);
+      el.volume = initialVolume * (1 - progress);
+      if (progress >= 1) {
+        window.clearInterval(timer);
+        el.pause();
+        el.src = "";
+      }
+    }, 40);
+  }
+
   stopMusic() {
     if (this.musicTimer !== null) {
       window.clearInterval(this.musicTimer);
       this.musicTimer = null;
+    }
+    if (this.musicFadeTimer !== null) {
+      window.clearInterval(this.musicFadeTimer);
+      this.musicFadeTimer = null;
     }
     if (this.musicEl) {
       try {
