@@ -11,6 +11,7 @@ import { audio } from "@/game/audio";
 import { defaultAvatar, loadSave, resetCampaignOnce, writeSave, type SaveData } from "@/game/save";
 import type { AvatarConfig } from "@/game/avatar/options";
 import { LEVELS } from "@/game/content";
+import mapMusicAsset from "@/assets/music/musica-do-mapa.wav.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -67,8 +68,12 @@ function Game() {
 
 
   useEffect(() => {
-    if (scene === "menu") audio.playMusic("menu");
-    if (scene === "map" || scene === "creator") audio.playMusic("map");
+    if (scene === "menu") {
+      audio.playMusic("menu", { id: "musica-do-mapa", src: mapMusicAsset.url, duration: 40, loop: true });
+    }
+    if (scene === "map" || scene === "creator") {
+      audio.playMusic("map", { id: "musica-do-mapa", src: mapMusicAsset.url, duration: 40, loop: true });
+    }
   }, [scene]);
 
   if (!save) return <div className="vignette-screen min-h-screen" />;
