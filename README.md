@@ -16,6 +16,8 @@ bun run dev
 
 O fluxo calcula automaticamente o caminho-base pelo nome do repositório, gera o site estático em `dist/client`, cria o fallback necessário e publica essa pasta. Repositórios no formato `usuario.github.io` também são detectados automaticamente e usam a raiz do domínio.
 
+Se a publicação já falhou antes, confirme também em **Settings → Actions → General** que as ações estão permitidas para o repositório.
+
 Para testar o build de produção localmente:
 
 ```bash

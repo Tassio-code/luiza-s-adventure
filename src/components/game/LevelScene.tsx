@@ -6,7 +6,8 @@ import { LEVELS, WEAPONS } from "@/game/content";
 import { assets } from "@/game/assets";
 import { stageTrack } from "@/game/music";
 import { Button } from "@/components/ui/button";
-import mapMusicAsset from "@/assets/music/musica-do-mapa.wav.asset.json";
+
+const MAP_MUSIC_SRC = `${import.meta.env.BASE_URL}music/musica-do-mapa.m4a`;
 
 function Stick({
   onMove,
@@ -211,7 +212,7 @@ export function LevelScene({
     if (paused) {
       audio.playMusic("map", {
         id: "musica-do-mapa-pause",
-        src: mapMusicAsset.url,
+        src: MAP_MUSIC_SRC,
         duration: 40,
         loop: true,
       });
