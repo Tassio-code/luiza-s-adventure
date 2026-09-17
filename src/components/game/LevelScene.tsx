@@ -219,7 +219,6 @@ export function LevelScene({
       window.removeEventListener("keydown", onKey);
       engine?.stop();
       engineRef.current = null;
-      if (!completedRef.current) audio.stopMusic();
     };
   }, [attempt, avatar, level, levelIndex, loaded, onComplete, showToast]);
 

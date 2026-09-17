@@ -20,6 +20,16 @@ export function FinalSequence({ onFinished }: { onFinished: () => void }) {
   const fireworksRef = useRef<FireworksShow | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
+  useEffect(() => {
+    audio.playMusic("ending", {
+      id: "musica-fim",
+      src: FINAL_MUSIC_SRC,
+      duration: 356,
+      loop: false,
+      fadeMs: 1800,
+    });
+  }, []);
+
   useEffect(() => () => audio.stopMusic(), []);
 
   useEffect(() => {
@@ -29,13 +39,6 @@ export function FinalSequence({ onFinished }: { onFinished: () => void }) {
 
     if (step === "scroll") {
       // A leitura é manual: cada parágrafo espera o clique em "Continuar".
-      audio.playMusic("ending", {
-        id: "musica-fim",
-        src: FINAL_MUSIC_SRC,
-        duration: 356,
-        loop: false,
-        fadeMs: 1800,
-      });
       setParagraph(0);
       setParagraphOut(false);
     }
@@ -114,9 +117,7 @@ export function FinalSequence({ onFinished }: { onFinished: () => void }) {
     return (
       <main className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-ink px-6">
         <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
-        <h1
-          className="relative z-10 text-center text-4xl leading-tight text-primary text-glow sm:text-6xl"
-        >
+        <h1 className="relative z-10 text-center text-4xl leading-tight text-primary text-glow sm:text-6xl">
           Feliz Aniversário
         </h1>
       </main>
